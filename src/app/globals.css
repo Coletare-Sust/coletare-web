@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Para Chrome, Safari, Edge */
+::-webkit-scrollbar {
+  width: 6px; /* Largura da barra de rolagem */
+  height: 10px; /* Altura da barra de rolagem horizontal, se necessário */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Cor de fundo da trilha da barra */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888; /* Cor do indicador de rolagem */
+  border-radius: 5px; /* Arredonda as bordas do indicador de rolagem */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Cor do indicador de rolagem ao passar o mouse */
+}
