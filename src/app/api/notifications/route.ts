@@ -33,7 +33,7 @@ export async function POST(request: Request) {
   )) as WithdrawalsRequestEntity[];
 
   if (route.error) {
-    return Response.json(
+    return NextResponse.json(
       {},
       {
         status: 400
