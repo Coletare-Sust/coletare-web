@@ -1,4 +1,4 @@
-const APP_STORAGE_SUFFIX = "@Coletare:";
+const APP_STORAGE_SUFFIX = "@FrontendBoilerplate:";
 
 function storageGet<T>(key: string): T | undefined {
   const stringified =

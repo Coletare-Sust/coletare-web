@@ -27,6 +27,7 @@ import useAllDashboardByRoutes from "@/hooks/queries/useAllDashboardDataByRoute"
 import useRoute from "@/hooks/queries/useRoute";
 import useAllCollectsByRoute from "@/hooks/queries/useAllCollectsByRoute";
 import useCity from "@/hooks/queries/useCity";
+import { formatTime } from "@/utils/formatTime";
 
 const DetalhesDaRota = () => {
   const router = useRouter();
@@ -92,7 +93,7 @@ const DetalhesDaRota = () => {
         Data: format(collect.createdAt.seconds * 1000, "P", { locale: ptBR }),
         "Horário de partida": createdAtHour,
         "Km Rodados (km)": collect.kmRun,
-        "Duração (horas)": (collect.duration / 60).toFixed(2),
+        "Duração (horas)": formatTime(collect.duration),
         "Massa coletada (ton)": collect.mass,
         "Emissão específica (kgCO2eq/L)": collect.emission,
         "Consumo específico (L/km)": collect.consume,

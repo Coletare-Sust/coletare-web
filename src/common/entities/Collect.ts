@@ -17,6 +17,7 @@ export interface CollectEntity {
     fuel: number;
   };
   kmRun: number;
+  withdrawalRequestsIds: string[];
   duration: number;
   vehicleLatitude: number;
   vehicleLongitude: number;

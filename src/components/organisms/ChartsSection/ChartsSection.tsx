@@ -19,6 +19,7 @@ import { exportExcel } from "@/store/services/exportExcel";
 import useAllDashboard from "@/hooks/queries/useDashboardData";
 import { collectedMass, costsRelation, emissionsData } from "./constants";
 import { getDays, getSemester, getYear } from "./functions";
+import { formatTime } from "@/utils/formatTime";
 
 const ChartsSection = () => {
   const searchParams = useSearchParams();
@@ -84,7 +85,7 @@ const ChartsSection = () => {
         Data: format(collect.createdAt.seconds * 1000, "P", { locale: ptBR }),
         "Horário de partida": createdAtHour,
         "Km Rodados (km)": collect.kmRun,
-        "Duração (horas)": (collect.duration / 60).toFixed(2),
+        "Duração (horas)": formatTime(collect.duration),
         "Massa coletada (ton)": collect.mass,
         "Emissão específica (kgCO2eq/L)": collect.emission,
         "Consumo específico (L/km)": collect.consume,
