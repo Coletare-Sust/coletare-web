@@ -3,7 +3,7 @@ import { DocumentData } from "firebase/firestore";
 
 import {
   ONE_DAY_IN_MS,
-  FORTY_FIVE_MINUTES_IN_MS
+  FIFTEEN_MINUTES_IN_MS
 } from "@common/constants/generic";
 
 import { getRoutes } from "@/store/services/route";
@@ -23,7 +23,7 @@ const useAllRoutes = <T = RouteEntity[]>(
 ) => {
   return useQuery(getAllUsersQueryKey(cityId), getAllUsersQueryFn(cityId), {
     select,
-    staleTime: FORTY_FIVE_MINUTES_IN_MS,
+    staleTime: FIFTEEN_MINUTES_IN_MS,
     cacheTime: ONE_DAY_IN_MS
   });
 };

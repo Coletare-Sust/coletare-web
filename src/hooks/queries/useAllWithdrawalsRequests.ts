@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 
 import {
   ONE_DAY_IN_MS,
-  FORTY_FIVE_MINUTES_IN_MS
+  FORTY_FIVE_MINUTES_IN_MS,
+  FIFTEEN_MINUTES_IN_MS
 } from "@common/constants/generic";
 
 import { getAllWithdrawalsRequests } from "@/store/services/withdrawalsRequests";
@@ -26,7 +27,7 @@ const useAllWithdrawalsRequest = <T = WithdrawalsRequestEntity[]>(
     getAllWithdrawalsRequestsQueryFn(cityId),
     {
       select,
-      staleTime: FORTY_FIVE_MINUTES_IN_MS,
+      staleTime: FIFTEEN_MINUTES_IN_MS,
       cacheTime: ONE_DAY_IN_MS,
       enabled: !!cityId
     }

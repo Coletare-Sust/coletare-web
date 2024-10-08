@@ -21,12 +21,7 @@ const workSans = WorkSans({
 
 export const metadata = {
   title: "Coletare",
-  description: "Forma inovadora de coleta de lixo!",
-  openGraph: {
-    images: [
-      "https://firebasestorage.googleapis.com/v0/b/coletare-60241.appspot.com/o/coletare-image.png?alt=media&token=586a7a40-1cfd-40f7-a150-5ad850e82c37"
-    ]
-  }
+  description: "Forma inovadora de coleta de lixo!"
 };
 
 export default function RootLayout({

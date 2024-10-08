@@ -41,6 +41,7 @@ import {
 } from "@/components/organisms/ChartsSection/functions";
 import useAllDashboardByRoutes from "@/hooks/queries/useAllDashboardDataByRoute";
 import useAllCollectsByRoute from "@/hooks/queries/useAllCollectsByRoute";
+import { formatTime } from "@/utils/formatTime";
 
 const mapsLib = ["places", "geometry"];
 
@@ -141,7 +142,7 @@ const Rota = () => {
         Data: format(collect.createdAt.seconds * 1000, "P", { locale: ptBR }),
         "Horário de partida": createdAtHour,
         "Km Rodados (km)": collect.kmRun,
-        "Duração (horas)": (collect.duration / 60).toFixed(2),
+        "Duração (horas)": formatTime(collect.duration),
 
         "Massa coletada (ton)": collect.mass,
         "Emissão específica (kgCO2eq/L)": collect.emission,
