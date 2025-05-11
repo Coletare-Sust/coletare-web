@@ -26,4 +26,5 @@ export interface UserEntity {
     initialDate: Timestamp; // não pode ser null
   };
   tokens?: string[];
+  status?: "Ativo" | "Inativo";
 }
