@@ -54,7 +54,8 @@ const Cadastrar = () => {
           email: city?.email ?? "",
           supportEmail: city?.supportEmail ?? "",
           landfillDelivery: city?.calcData?.landfillDelivery?.toString() ?? "",
-          fuel: city?.calcData?.fuel?.toString() ?? ""
+          fuel: city?.calcData?.fuel?.toString() ?? "",
+          status: city.status!
         }
       : undefined
   });
@@ -79,12 +80,12 @@ const Cadastrar = () => {
         data.email,
         data.password
       );
-
+      
       if (errorAuth || !authUid) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         throw new Error(errorAuth as any).props;
       }
-
+      
       const { error: errorUser } = await createUser(
         {
           id: authUid,
@@ -109,10 +110,12 @@ const Cadastrar = () => {
             initialDate: Timestamp.fromDate(currentDate),
             landfillDelivery: parseFloat(data.landfillDelivery),
             fuel: parseFloat(data.fuel)
-          }
+          },
+          status: "Ativo"
         },
         imageFile
       );
+      
       if (errorUser) {
         throw new Error(errorUser).props;
       }
@@ -165,7 +168,8 @@ const Cadastrar = () => {
           initialDate: Timestamp.fromDate(currentDate),
           landfillDelivery: parseFloat(data.landfillDelivery),
           fuel: parseFloat(data.fuel)
-        }
+        },
+        status: data.status
       };
 
       if (imageFile) {
@@ -219,6 +223,7 @@ const Cadastrar = () => {
   );
 
   const handleForm = async (data: AddCityForm, type: "create" | "edit") => {
+    console.log("handleForm foi chamado", data, type);
     setLoading(true);
     if (!color) {
       errorToast("Escolha uma cor");
