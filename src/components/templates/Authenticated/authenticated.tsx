@@ -25,10 +25,10 @@ function AuthenticatedOnlyFeature({ children }: Props): JSX.Element {
         errorToast("Página restrita pra administrador ou município");
         router.push("/");
       }
-      if (user.status === "Inativo") {
+      /* if (user.status === "Inativo") {
         errorToast("Pague o plano para poder acessar o serviço.");
         router.push("/");
-      }
+      }*/
     }
   }, [userUid, user, router]);
 
