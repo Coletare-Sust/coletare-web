@@ -1,6 +1,6 @@
 "use client";
 
-import BlockInactiveUserWrapper from "@/components/templates/Active/active";
+import BlockInactiveUserWrapper from "@/components/templates/BlockInactiveUser/blockInactiveUser";
 import AuthenticatedOnlyFeatureWrapper from "@/components/templates/Authenticated/authenticated";
 import MainHeader from "@molecules/MainHeader/mainHeader";
 

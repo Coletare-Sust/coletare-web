@@ -24,31 +24,22 @@ function BlockInactiveUser({ children }: Props): JSX.Element {
     }
   }, [user]);
 
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (isBlocked) {
-        e.stopPropagation(); // nao deixa clique se propagar para outros elementos
-        e.preventDefault(); // vai canelar comportamente do clique
-        errorToast(
-          "Plano inativo. Faça o pagamento para aproveitar as funcionalidades da aplicação."
-        );
-      }
-    };
-
-    if (isBlocked) {
-      document.addEventListener("click", handleClick, true);
-    }
-
-    return () => {
-      document.removeEventListener("click", handleClick, true);
-    };
-  }, [isBlocked]);
+  const handleClick = (e: any) => {
+    e.stopPropagation(); // nao deixa clique se propagar para outros elementos
+    e.preventDefault(); // vai canelar comportamente do clique
+    errorToast(
+      "Plano inativo. Faça o pagamento para aproveitar as funcionalidades do Coletare."
+    );
+  };
 
   return (
     <>
       {children}
       {isBlocked && (
-        <div className="fixed inset-0 z-50 pointer-events-none backdrop-blur-[2px]" />
+        <div
+          className="fixed inset-0 top-[9%] z-50 bg-black/30"
+          onClick={handleClick}
+        />
       )}
     </>
   );
