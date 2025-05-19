@@ -24,7 +24,7 @@ function BlockInactiveUser({ children }: Props): JSX.Element {
     }
   }, [user]);
 
-  const handleClick = (e: any) => {
+  const handleClick = (e: MouseEvent) => {
     e.stopPropagation(); // nao deixa clique se propagar para outros elementos
     e.preventDefault(); // vai canelar comportamente do clique
     errorToast(

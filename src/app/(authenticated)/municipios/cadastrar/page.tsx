@@ -27,10 +27,15 @@ import { ColorsOptions } from "@/common/entities/colors";
 import { sendEmail } from "@/store/services/email";
 
 import { colors, inputsData } from "./constants";
+import Radio from "@/components/atoms/Radio/Radio";
 
 type AddCityForm = z.infer<typeof AddCitySchema>;
 
 const Cadastrar = () => {
+  const statusOptions = [
+    { id: "ativo", text: "Ativo", value: "Ativo" },
+    { id: "inativo", text: "Inativo", value: "Inativo" }
+  ];
   const router = useRouter();
   const currentDate = new Date();
   const searchParams = useSearchParams();
@@ -41,7 +46,9 @@ const Cadastrar = () => {
     handleSubmit,
     register,
     formState: { errors },
-    reset
+    reset,
+    watch,
+    setValue
   } = useForm<AddCityForm>({
     mode: "all",
     criteriaMode: "all",
@@ -80,12 +87,12 @@ const Cadastrar = () => {
         data.email,
         data.password
       );
-      
+
       if (errorAuth || !authUid) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         throw new Error(errorAuth as any).props;
       }
-      
+
       const { error: errorUser } = await createUser(
         {
           id: authUid,
@@ -115,7 +122,7 @@ const Cadastrar = () => {
         },
         imageFile
       );
-      
+
       if (errorUser) {
         throw new Error(errorUser).props;
       }
@@ -310,11 +317,10 @@ const Cadastrar = () => {
                     {colors.map((item, key) => (
                       <div
                         key={key}
-                        className={`rounded-md border-2 ${
-                          color === item.name
+                        className={`rounded-md border-2 ${color === item.name
                             ? " border-black/40"
                             : "border-transparent"
-                        }`}
+                          }`}
                       >
                         <div
                           onClick={() => setColor(item.name)}
@@ -329,21 +335,43 @@ const Cadastrar = () => {
               <div className="w-1/2 space-y-8">
                 {(city
                   ? inputsData.filter(
-                      (item) =>
-                        item.name !== "email" && item.name !== "password"
-                    )
+                    (item) =>
+                      item.name !== "email" && item.name !== "password"
+                  )
                   : inputsData
-                ).map((item, index) => (
-                  <InputField
-                    key={index}
-                    label={item.label}
-                    name={item.name}
-                    placeholder=""
-                    type={item.label === "Senha" ? "password" : "text"}
-                    formRegister={register}
-                    formErrors={errors}
-                  />
-                ))}
+                ).map((item, index) => {
+                  if (item.name === "status") {
+                    return (
+                      <div key={index} className="space-y-2">
+                        <p className="text-sm font-medium text-gray-700">
+                          Status
+                        </p>
+                        <Radio
+                          value={watch("status")}
+                          onValueChange={(value) => setValue("status", value)}
+                          options={statusOptions}
+                        />
+                        {errors.status && (
+                          <span className="text-sm text-red-500">
+                            {errors.status.message?.toString()}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <InputField
+                      key={index}
+                      label={item.label}
+                      name={item.name}
+                      placeholder=""
+                      type={item.label === "Senha" ? "password" : "text"}
+                      formRegister={register}
+                      formErrors={errors}
+                    />
+                  );
+                })}
               </div>
             </div>
             <Button loading={loading}>{city ? "Editar" : "Cadastrar"}</Button>
