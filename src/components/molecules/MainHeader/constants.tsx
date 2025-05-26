@@ -53,7 +53,7 @@ export const linksCity = [
 
 export const linksAdmin = [
   {
-    label: "Dashboard",
+    label: "DashTest",
     url: "/dashboard",
     icon: (color?: string) => {
       const svgString = renderToString(<DashboardIcon color={color} />);
@@ -64,7 +64,7 @@ export const linksAdmin = [
     alertNumber: -1
   },
   {
-    label: "Todas as rotas",
+    label: "RoutesTest",
     url: "/rotas",
     icon: (color?: string) => {
       const svgString = renderToString(<MapIcon color={color} />);
@@ -76,7 +76,7 @@ export const linksAdmin = [
   },
 
   {
-    label: "Retirada de lixo ",
+    label: "WithdrawalTest",
     url: "/solicitacoes-retirada",
     icon: (color?: string) => {
       const svgString = renderToString(<TrashIcon color={color} />);
@@ -87,7 +87,7 @@ export const linksAdmin = [
     alertNumber: -1
   },
   {
-    label: "Municípios",
+    label: "CitiesTest",
     url: "/municipios",
     icon: (color?: string) => {
       const svgString = renderToString(<TruckIcon color={color} />);

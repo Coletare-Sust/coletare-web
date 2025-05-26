@@ -9,12 +9,12 @@ export const costsRelation = (
     {
       label: "Custo entrega aterro",
       data: dataLandfill ?? (Array.from({ length: 12 }).fill(0) as number[]),
-      color: "#004A55"
+      color: "pink"
     },
     {
       label: "Consumo de combustivel",
       data: dataFuel ?? (Array.from({ length: 12 }).fill(0) as number[]),
-      color: "#00ADB4"
+      color: "purple"
     }
   ]
 });
