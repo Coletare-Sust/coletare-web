@@ -53,7 +53,7 @@ export default function LoginPage() {
             height={225}
             alt="Logo da Coletare"
           />
-          <Title className="text-[28px]">Bem vindo!</Title>
+          <Title className="text-[28px]">Bem-vindo!</Title>
           <div className="flex w-[300px] flex-col items-center gap-4">
             <InputField
               label="Email"
