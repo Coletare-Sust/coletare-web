@@ -48,7 +48,7 @@ export default function LoginPage() {
           onSubmit={handleSubmit(handleSubmitForm)}
         >
         <Image
-          src={"/coletare-logo.jpeg"}
+          src={"/coletare-logo.png"}
           width={225}
           height={225}
           alt="Logo da Coletare"
