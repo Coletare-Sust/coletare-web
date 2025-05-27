@@ -24,11 +24,11 @@ export default function LoginPage() {
     handleSubmit,
     register,
     formState: { errors },
-    watch,
+    watch
   } = useForm<SignInForm>({
     mode: "all",
     criteriaMode: "all",
-    resolver: zodResolver(SignInFormSchema),
+    resolver: zodResolver(SignInFormSchema)
   });
 
   const email = watch().email;
