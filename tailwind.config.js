@@ -19,8 +19,7 @@ module.exports = {
     extend: {
       fontFamily: {
         barlow: "var(--font-family-barlow)",
-        workSans: "var(--font-family-workSans)",
-        montserrat: "var("
+        workSans: "var(--font-family-workSans)"
       },
       colors: {
         greenAqua: {
