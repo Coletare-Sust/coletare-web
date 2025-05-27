@@ -43,16 +43,16 @@ export default function LoginPage() {
   return (
     <main className="flex h-screen w-full items-center justify-center">
       <div className="flex flex-col items-center">
-        <Image
-          src={"/coletare-logo.jpeg"}
-          width={225}
-          height={225}
-          alt="Logo da Coletare"
-        />
         <form
           className="flex w-[400px] flex-col items-center gap-10 rounded-lg  bg-white-800 py-10"
           onSubmit={handleSubmit(handleSubmitForm)}
         >
+        <Image
+          src={"/coletare-logo.png"}
+          width={225}
+          height={225}
+          alt="Logo da Coletare"
+        />
           <Title className="text-[28px]">Bem vindo!</Title>
           <div className="flex w-[300px] flex-col items-center gap-4">
             <InputField
