@@ -5,6 +5,7 @@ import { Work_Sans as WorkSans, Barlow } from "next/font/google";
 import "@/config/firebase";
 import AuthProvider from "@providers/Auth";
 import QueryClientProviderApp from "@providers/QueryClientApp";
+import { icons } from "lucide-react";
 
 const barlow = Barlow({
   subsets: ["latin"],
@@ -20,7 +21,7 @@ const workSans = WorkSans({
 });
 
 export const metadata = {
-  title: "Coletare",
+  title: "Coletarapp",
   description: "Forma inovadora de coleta de lixo!"
 };
 
