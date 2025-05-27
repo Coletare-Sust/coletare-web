@@ -24,11 +24,11 @@ export default function LoginPage() {
     handleSubmit,
     register,
     formState: { errors },
-    watch
+    watch,
   } = useForm<SignInForm>({
     mode: "all",
     criteriaMode: "all",
-    resolver: zodResolver(SignInFormSchema)
+    resolver: zodResolver(SignInFormSchema),
   });
 
   const email = watch().email;
@@ -47,12 +47,12 @@ export default function LoginPage() {
           className="flex w-[400px] flex-col items-center gap-10 rounded-lg  bg-white-800 py-10"
           onSubmit={handleSubmit(handleSubmitForm)}
         >
-        <Image
-          src={"/coletare-logo.png"}
-          width={225}
-          height={225}
-          alt="Logo da Coletare"
-        />
+          <Image
+            src={"/coletare-logo.png"}
+            width={225}
+            height={225}
+            alt="Logo da Coletare"
+          />
           <Title className="text-[28px]">Bem vindo!</Title>
           <div className="flex w-[300px] flex-col items-center gap-4">
             <InputField
