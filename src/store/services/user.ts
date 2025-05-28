@@ -58,7 +58,7 @@ export const createUser = async (data: UserEntity, image: File) => {
       const { image: imageUrl, error } = await uploadImage(image);
       if (error || !imageUrl)
         throw new Error("Não foi possível fazer upload de imagem");
-      set(ref(database, "users/" + data.id), { ...data, imageUrl });
+      set(ref(database, "users/" + data.id), { ...data, image: imageUrl });
     } else {
       set(ref(database, "users/" + data.id), data);
     }
