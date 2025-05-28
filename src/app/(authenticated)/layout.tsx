@@ -8,10 +8,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <AuthenticatedOnlyFeatureWrapper>
       <BlockInactiveUserWrapper>
-      <div>
-        <MainHeader />
-        <main className="mt-[76px]">{children}</main>
-      </div>
+        <div>
+          <MainHeader />
+          <main className="mt-[76px]">{children}</main>
+        </div>
       </BlockInactiveUserWrapper>
     </AuthenticatedOnlyFeatureWrapper>
   );
