@@ -2,7 +2,7 @@
 
 import useProfile from "@/hooks/queries/useProfile";
 import useAuth from "@/hooks/useAuth";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import FetchAuthState from "../FetchAuth/fetchAuth";
 import { errorToast } from "@/hooks/useAppToast";
 
@@ -24,11 +24,12 @@ function BlockInactiveUser({ children }: Props): JSX.Element {
     }
   }, [user]);
 
-  const handleClick = (e: MouseEvent) => {
+  const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.stopPropagation(); // nao deixa clique se propagar para outros elementos
     e.preventDefault(); // vai canelar comportamente do clique
     errorToast(
-      "Plano inativo. Faça o pagamento para aproveitar as funcionalidades do Coletare."
+      "Plano inativo. Faça o pagamento para aproveitar as funcionalidades do Coletare.",
+      "inactive-user"
     );
   };
 
