@@ -232,7 +232,6 @@ const Cadastrar = () => {
   );
 
   const handleForm = async (data: AddCityForm, type: "create" | "edit") => {
-    console.log("handleForm foi chamado", data, type);
     setLoading(true);
     if (!color) {
       errorToast("Escolha uma cor");
