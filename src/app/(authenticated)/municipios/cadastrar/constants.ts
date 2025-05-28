@@ -28,6 +28,10 @@ export const inputsData = [
   {
     name: "fuel",
     label: "Custo do combustível (R$/L)"
+  },
+  {
+    name: "status",
+    label: "Status do município"
   }
 ];
 
