@@ -1,3 +1,3 @@
 import { z } from "zod";
 
-export default z.enum(["Ativo", "Inativo"])
+export default z.string({ required_error: "Escolha um status" });
