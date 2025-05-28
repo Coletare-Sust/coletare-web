@@ -8,12 +8,16 @@ export const costsRelation = (
   chartData: [
     {
       label: "Custo entrega aterro",
-      data: (dataLandfill ?? Array(12).fill(0)).map((num) => Number(num.toFixed(2))),
+      data: (dataLandfill ?? Array(12).fill(0)).map((num) =>
+        Number(num.toFixed(2))
+      ),
       color: "#004A55"
     },
     {
       label: "Consumo de combustivel",
-      data: (dataFuel ?? Array(12).fill(0)).map((num) => Number(num.toFixed(2))),
+      data: (dataFuel ?? Array(12).fill(0)).map((num) =>
+        Number(num.toFixed(2))
+      ),
       color: "#00ADB4"
     }
   ]
