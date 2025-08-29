@@ -7,9 +7,9 @@ import {
 } from "firebase/storage";
 const storage = getStorage();
 
-export const uploadImage = async (file: File) => {
+export const uploadImage = async (file: File, path = "images/") => {
   try {
-    const storageRef = ref(storage, "images/" + file.name);
+    const storageRef = ref(storage, path + file.name);
     await uploadBytes(storageRef, file);
     const downloadURL = await getDownloadURL(storageRef);
     return { image: downloadURL, error: null };
