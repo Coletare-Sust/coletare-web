@@ -66,7 +66,7 @@ const MainHeader = () => {
               />
             )}
             <nav>
-              <ul className="flex items-center gap-16 ">
+              <ul className="flex items-center gap-8 ">
                 {links.map((link, index) => {
                   const isCurrentRoute = currentPathname.startsWith(link.url);
                   const iconSrc = link.icon(headerColor);

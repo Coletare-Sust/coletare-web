@@ -2,6 +2,7 @@ import DashboardIcon from "@atoms/Icons/DashboardIcon";
 import MapIcon from "@atoms/Icons/MapIcon";
 import TrashIcon from "@atoms/Icons/TrashIcon";
 import TruckIcon from "@atoms/Icons/TruckIcon";
+import BellIcon from "@atoms/Icons/BellIcon";
 import { renderToString } from "react-dom/server";
 
 export const linksCity = [
@@ -43,6 +44,17 @@ export const linksCity = [
     url: "/veiculos-colaboradores",
     icon: (color?: string) => {
       const svgString = renderToString(<TruckIcon color={color} />);
+      return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
+        "base64"
+      )}`;
+    },
+    alertNumber: -1
+  },
+  {
+    label: "Avisos",
+    url: "/avisos",
+    icon: (color?: string) => {
+      const svgString = renderToString(<BellIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
         "base64"
       )}`;
