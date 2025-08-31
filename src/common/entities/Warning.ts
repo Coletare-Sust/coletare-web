@@ -5,7 +5,7 @@ export interface WarningEntity {
   userId: string;
   title: string;
   description: string;
-  image: string | null;
+  image: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

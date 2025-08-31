@@ -1,4 +1,5 @@
 export interface DataCardProps {
   title: string;
-  data: number | null;
+  description: string;
+  image: string;
 }
