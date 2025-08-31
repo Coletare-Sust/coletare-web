@@ -1,146 +1,88 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Title from "@atoms/Title/title";
-import Button from "@atoms/Button/button";
+/* eslint-disable react/jsx-key */
 import { wrapper } from "@/common/constants/wrapper";
+import { WarningEntity } from "@/common/entities/Warning";
+import Button from "@/components/atoms/Button/button";
+import Title from "@/components/atoms/Title/title";
+import useProfile from "@/hooks/queries/useProfile";
+import useAuth from "@/hooks/useAuth";
+import { getAllWarningService } from "@/store/services/warning";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-const PostPage = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+export default function ListaDeAvisosPag() {
+  const { userUid } = useAuth();
+  const { data: user } = useProfile(userUid);
+
+  const [warnings, setWarnings] = useState<WarningEntity[] | null>(null);
+  const [, setIsLoading] = useState(true);
+
+  const router = useRouter();
 
   useEffect(() => {
-    let previewUrl: string | null = null;
-    if (image) {
-      previewUrl = URL.createObjectURL(image);
-      setPreview(previewUrl);
-    } else {
-      setPreview(null);
-    }
-
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    const fetchWarning = async () => {
+      if (!user) return;
+      try {
+        const fetchedWarnings = await getAllWarningService(user.id);
+        setWarnings(fetchedWarnings);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
     };
-  }, [image]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    fetchWarning();
+  }, [user]);
 
-    if (!title.trim() || !description.trim()) {
-      alert("Preencha título e descrição.");
-      return;
-    }
-    if (!image) {
-      alert("Selecione uma imagem.");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      console.log("Dados do post:", { title, description, image });
-
-      alert("Postagem realizada com sucesso!");
-
-      setTitle("");
-      setDescription("");
-      setImage(null);
-    } catch (err) {
-      alert("Erro ao postar.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setImage(null);
-  };
+  if (!warnings || warnings.length === 0)
+    return (
+      <div
+        style={wrapper}
+        className="flex min-h-screen items-center justify-center"
+      >
+        <Title>Nenhum aviso encontrado.</Title>
+      </div>
+    );
 
   return (
-    <div style={wrapper} className="py-14">
-      <form
-        onSubmit={handleSubmit}
-        className="mx-auto w-full max-w-4xl rounded-lg border border-greenBlue-400 bg-white-1000 p-10 shadow"
-      >
-        <Title className="mb-10 text-center">Criar Novo Post</Title>
-
-        <div className="mb-10 flex flex-col gap-6 md:flex-row">
-          <div className="flex w-full flex-col gap-4 md:w-1/2">
-            <input
-              type="text"
-              placeholder="Inserir título"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-md border border-greenBlue-400 p-3 text-gray-800 focus:outline-none"
-            />
-
-            <textarea
-              placeholder="Inserir descrição"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={6}
-              className="w-full resize-none rounded-md border border-greenBlue-400 p-3 text-gray-800 focus:outline-none"
-            />
-          </div>
-
-          <div className="relative flex w-full items-center justify-center rounded-md border border-greenBlue-400 bg-white-800 shadow md:w-1/2">
-            {preview ? (
-              <div className="relative h-40 w-full">
-                <Image
-                  src={preview}
-                  alt="preview"
-                  width={400}
-                  height={400}
-                  className="h-full w-full rounded-md object-contain"
-                />
-
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="bg-white absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-sm text-black shadow hover:bg-gray-200"
-                >
-                  ✕
-                </button>
-              </div>
-            ) : (
-              <label
-                htmlFor="image-upload"
-                className="flex h-40 w-full cursor-pointer flex-col items-center justify-center text-gray-600"
-              >
-                <span className="text-4xl">↑</span>
-                <span className="mt-2">anexar imagem</span>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-              </label>
-            )}
-          </div>
-        </div>
-
-        <div className="text-center">
-          <Button buttonType="submit" disabled={loading}>
-            {loading ? "Enviando..." : "Realizar post"}
+    <div className="flex min-h-screen flex-col items-center justify-center">
+      <Title className="ml-12 mt-8 self-start">Lista de Avisos</Title>
+      <div className="mb-8 mt-4 flex w-full max-w-[1377px] flex-1 flex-col content-start items-start justify-center gap-8 rounded-xl bg-slate-100 p-8 pt-0">
+        <div className="mt-8">
+          <Button onClick={() => router.push("/avisos/cadastrar")}>
+            Criar novo aviso
           </Button>
         </div>
-      </form>
+        <div className="flex h-full w-full flex-row flex-wrap gap-8">
+          {warnings.map((e) => {
+            return (
+              <div
+                className="bg-white-900 flex w-full max-w-sm flex-col items-center justify-center rounded-xl p-6 shadow-sm shadow-black/20"
+                key={e.id}
+              >
+                <Title>{e.title}</Title>
+                <p>{e.description}</p>
+                {e.image && (
+                  <Image
+                    src={e.image}
+                    width={255}
+                    height={255}
+                    alt={`Imagem de aviso sobre: ${e.title}`}
+                    className="mb-4 mt-4"
+                  />
+                )}
+                <div className="flex w-4/5 flex-row items-center justify-center gap-4">
+                  <Button className="w-1/2">Editar</Button>
+                  <Button className="w-1/2 bg-red-500">Remover</Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
-};
-
-export default PostPage;
+}

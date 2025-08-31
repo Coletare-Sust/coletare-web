@@ -24,7 +24,11 @@ const DataCarousel = ({
               key={index}
               className={twMerge("basis-1/3", itemClassName)}
             >
-              <DataCard title={card.title} data={card.data} />
+              <DataCard
+                title={card.title}
+                description={card.description}
+                image={card.image}
+              />
             </CarouselItem>
           );
         })}
