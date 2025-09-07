@@ -9,7 +9,8 @@ import {
   push,
   query as queryDatabase,
   ref,
-  set
+  set,
+  remove // ✅ adicionar remove
 } from "firebase/database";
 import { WarningEntity } from "@/common/entities/Warning";
 import { Timestamp } from "firebase/firestore";
@@ -74,4 +75,16 @@ export const getAllWarningService = async (
       console.error(error);
       throw new Error(error);
     });
+};
+
+//
+export const deleteWarningService = async (warningId: string) => {
+  try {
+    const warningRef = ref(database, `warnings/${warningId}`);
+    await remove(warningRef);
+    return { error: null };
+  } catch (err) {
+    console.error("Erro ao deletar aviso:", err);
+    return { error: "Não foi possível deletar o aviso" };
+  }
 };
