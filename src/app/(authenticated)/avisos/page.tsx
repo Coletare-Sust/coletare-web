@@ -81,36 +81,36 @@ export default function ListaDeAvisosPag() {
           </Button>
         </div>
         <div className="flex h-full w-full flex-row flex-wrap gap-8">
-          {warnings.map((e) => {
-            return (
-              <div
-                className="flex w-full max-w-sm flex-col items-center justify-center rounded-xl bg-white-900 p-6 shadow-sm shadow-black/20"
-                key={e.id}
-              >
-                <Title>{e.title}</Title>
-                <p>{e.description}</p>
-                {e.image && (
-                  <Image
-                    src={e.image}
-                    width={255}
-                    height={255}
-                    alt={`Imagem de aviso sobre: ${e.title}`}
-                    className="mb-4 mt-4"
-                  />
-                )}
-                <div className="flex w-4/5 flex-row items-center justify-center gap-4">
-                  <Button className="w-1/2">Editar</Button>
-                  {/* <Button className="w-1/2 bg-red-500">Remover</Button> */}
-                  <Button
-                    className="w-1/2 bg-red-500"
-                    onClick={() => handleDelete(e)}
-                  >
-                    Remover
-                  </Button>
+          {warnings
+            .sort(
+              (currentDate, nextDate) =>
+                new Date(nextDate.createdAt).getTime() -
+                new Date(currentDate.createdAt).getTime()
+            )
+            .map((e) => {
+              return (
+                <div
+                  className="flex w-full max-w-sm flex-col items-center justify-center rounded-xl bg-white-900 p-6 shadow-sm shadow-black/20"
+                  key={e.id}
+                >
+                  <Title>{e.title}</Title>
+                  {e.image && (
+                    <Image
+                      src={e.image}
+                      width={255}
+                      height={255}
+                      alt={`Imagem de aviso sobre: ${e.title}`}
+                      className="mb-4 mt-4"
+                    />
+                  )}
+                  <p className="max-w-[255px] text-justify">{e.description}</p>
+                  <div className="mt-4 flex w-4/5 flex-row items-center justify-center gap-4">
+                    <Button className="w-1/2">Editar</Button>
+                    <Button className="w-1/2 bg-red-500">Remover</Button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </div>
     </div>

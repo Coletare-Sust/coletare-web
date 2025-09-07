@@ -88,7 +88,7 @@ const PostPage = () => {
         onSubmit={handleSubmit}
         className="mx-auto w-full max-w-4xl rounded-lg border border-greenBlue-400 bg-white-1000 p-10 shadow"
       >
-        <Title className="mb-10 text-center">Criar Novo Post</Title>
+        <Title className="mb-10 text-center">Criar Novo Aviso</Title>
 
         <div className="mb-10 flex flex-col gap-6 md:flex-row">
           <div className="flex w-full flex-col gap-4 md:w-1/2">

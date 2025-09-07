@@ -40,14 +40,16 @@ export const createWarningService = async (warning: WarningDTO) => {
       throw new Error(`Não foi possível subir a imagem!\n${error}`);
   }
 
+  const now = new Date().toISOString();
+
   const warningToSave: WarningEntity = {
     id: warningId,
     userId: warning.userId,
     title: warning.title,
     description: warning.description,
     image: imageUrl,
-    createdAt: Timestamp.now(),
-    updatedAt: Timestamp.now()
+    createdAt: now,
+    updatedAt: now
   };
 
   await set(newWarningRef, warningToSave);
