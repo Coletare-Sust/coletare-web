@@ -7,7 +7,7 @@ import Button from "@/components/atoms/Button/button";
 import Title from "@/components/atoms/Title/title";
 import useProfile from "@/hooks/queries/useProfile";
 import useAuth from "@/hooks/useAuth";
-import { deleteImage } from "@/store/services/firebaseStorage"; // ⬅️ importar deleteImage
+import { deleteImage } from "@/store/services/firebaseStorage";
 import {
   getAllWarningService,
   deleteWarningService
@@ -84,7 +84,7 @@ export default function ListaDeAvisosPag() {
           {warnings.map((e) => {
             return (
               <div
-                className="bg-white-900 flex w-full max-w-sm flex-col items-center justify-center rounded-xl p-6 shadow-sm shadow-black/20"
+                className="flex w-full max-w-sm flex-col items-center justify-center rounded-xl bg-white-900 p-6 shadow-sm shadow-black/20"
                 key={e.id}
               >
                 <Title>{e.title}</Title>

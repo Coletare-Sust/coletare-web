@@ -10,12 +10,11 @@ import {
   query as queryDatabase,
   ref,
   set,
-  remove // ✅ adicionar remove
+  remove
 } from "firebase/database";
 import { WarningEntity } from "@/common/entities/Warning";
 import { Timestamp } from "firebase/firestore";
 import app from "@/config/firebase";
-import { error } from "console";
 import { WarningDTO } from "@/common/dtos/WarningDTO";
 
 const database = getDatabase(app);
