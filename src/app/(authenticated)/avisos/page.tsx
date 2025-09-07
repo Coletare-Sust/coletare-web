@@ -7,7 +7,11 @@ import Button from "@/components/atoms/Button/button";
 import Title from "@/components/atoms/Title/title";
 import useProfile from "@/hooks/queries/useProfile";
 import useAuth from "@/hooks/useAuth";
-import { getAllWarningService } from "@/store/services/warning";
+import { deleteImage } from "@/store/services/firebaseStorage"; // ⬅️ importar deleteImage
+import {
+  getAllWarningService,
+  deleteWarningService
+} from "@/store/services/warning";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -37,6 +41,26 @@ export default function ListaDeAvisosPag() {
     fetchWarning();
   }, [user]);
 
+  //
+  const handleDelete = async (warning: WarningEntity) => {
+    if (!confirm("Tem certeza que deseja remover este aviso?")) return;
+
+    try {
+      if (warning.image) {
+        const { error } = await deleteImage(warning.image);
+        if (error) console.warn("Erro ao excluir imagem:", error);
+      }
+
+      const { error } = await deleteWarningService(warning.id);
+      if (error) throw new Error(error);
+
+      setWarnings((prev) => prev?.filter((w) => w.id !== warning.id) ?? null);
+    } catch (err) {
+      console.error("Erro ao remover aviso:", err);
+      alert("Não foi possível remover o aviso.");
+    }
+  };
+  //
   if (!warnings || warnings.length === 0)
     return (
       <div
@@ -76,7 +100,13 @@ export default function ListaDeAvisosPag() {
                 )}
                 <div className="flex w-4/5 flex-row items-center justify-center gap-4">
                   <Button className="w-1/2">Editar</Button>
-                  <Button className="w-1/2 bg-red-500">Remover</Button>
+                  {/* <Button className="w-1/2 bg-red-500">Remover</Button> */}
+                  <Button
+                    className="w-1/2 bg-red-500"
+                    onClick={() => handleDelete(e)}
+                  >
+                    Remover
+                  </Button>
                 </div>
               </div>
             );
