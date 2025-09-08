@@ -57,7 +57,7 @@ const PostPage = () => {
 
       if (!user) return;
 
-      createWarningService({ userId: user.id, title, description, image });
+      createWarningService({ cityId: user.id, title, description, image });
       successToast("Postagem realizada com sucesso!");
 
       setTitle("");

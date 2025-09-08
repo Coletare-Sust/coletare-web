@@ -1,6 +1,6 @@
 export interface WarningEntity {
   id: string;
-  userId: string;
+  cityId: string;
   title: string;
   description: string;
   image: string | null;

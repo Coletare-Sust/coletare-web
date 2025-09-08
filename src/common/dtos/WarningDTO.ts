@@ -1,5 +1,5 @@
 export interface WarningDTO {
-  userId: string;
+  cityId: string;
   title: string;
   description: string;
   image: File;

@@ -13,14 +13,13 @@ import {
   remove
 } from "firebase/database";
 import { WarningEntity } from "@/common/entities/Warning";
-import { Timestamp } from "firebase/firestore";
 import app from "@/config/firebase";
 import { WarningDTO } from "@/common/dtos/WarningDTO";
 
 const database = getDatabase(app);
 
 export const createWarningService = async (warning: WarningDTO) => {
-  const user: UserEntity = await getUser(warning.userId);
+  const user: UserEntity = await getUser(warning.cityId);
 
   if (user.role !== "admin") throw new Error("Usuário não autorizado!");
 
@@ -44,7 +43,7 @@ export const createWarningService = async (warning: WarningDTO) => {
 
   const warningToSave: WarningEntity = {
     id: warningId,
-    userId: warning.userId,
+    cityId: warning.cityId,
     title: warning.title,
     description: warning.description,
     image: imageUrl,
@@ -57,12 +56,12 @@ export const createWarningService = async (warning: WarningDTO) => {
 };
 
 export const getAllWarningService = async (
-  userId: string
+  cityId: string
 ): Promise<WarningEntity[]> => {
   const query = queryDatabase(
     ref(database, `warnings`),
-    orderByChild("userId"),
-    equalTo(userId)
+    orderByChild("cityId"),
+    equalTo(cityId)
   );
 
   return get(query)
