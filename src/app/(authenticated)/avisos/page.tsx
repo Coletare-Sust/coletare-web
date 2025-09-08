@@ -15,13 +15,20 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import ConfirmationModal from "@/components/molecules/ConfirmationModal/confirmationModal";
+import { errorToast, successToast } from "@/hooks/useAppToast";
 
 export default function ListaDeAvisosPag() {
   const { userUid } = useAuth();
   const { data: user } = useProfile(userUid);
 
   const [warnings, setWarnings] = useState<WarningEntity[] | null>(null);
-  const [, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [clickedWarning, setClickedWarning] = useState<
+    WarningEntity | undefined
+  >(undefined);
 
   const router = useRouter();
 
@@ -41,26 +48,39 @@ export default function ListaDeAvisosPag() {
     fetchWarning();
   }, [user]);
 
-  //
-  const handleDelete = async (warning: WarningEntity) => {
-    if (!confirm("Tem certeza que deseja remover este aviso?")) return;
+  const handleDelete = async () => {
+    if (!clickedWarning) return;
+
+    setOpenDeleteModal(false);
 
     try {
-      if (warning.image) {
-        const { error } = await deleteImage(warning.image);
-        if (error) console.warn("Erro ao excluir imagem:", error);
+      if (clickedWarning.image) {
+        await deleteImage(clickedWarning.image);
       }
 
-      const { error } = await deleteWarningService(warning.id);
+      const { error } = await deleteWarningService(clickedWarning.id);
       if (error) throw new Error(error);
 
-      setWarnings((prev) => prev?.filter((w) => w.id !== warning.id) ?? null);
+      setWarnings(
+        (prev) => prev?.filter((w) => w.id !== clickedWarning.id) ?? null
+      );
+      successToast("Aviso removido com sucesso!");
     } catch (err) {
       console.error("Erro ao remover aviso:", err);
-      alert("Não foi possível remover o aviso.");
+      errorToast("Não foi possível remover o aviso.");
+    } finally {
+      setClickedWarning(undefined);
     }
   };
-  //
+
+  if (isLoading) {
+    return (
+      <div style={wrapper}>
+        <Title>Carregando avisos...</Title>
+      </div>
+    );
+  }
+
   if (!warnings || warnings.length === 0)
     return (
       <div
@@ -106,13 +126,29 @@ export default function ListaDeAvisosPag() {
                   <p className="max-w-[255px] text-justify">{e.description}</p>
                   <div className="mt-4 flex w-4/5 flex-row items-center justify-center gap-4">
                     <Button className="w-1/2">Editar</Button>
-                    <Button className="w-1/2 bg-red-500">Remover</Button>
+                    <Button
+                      className="w-1/2 bg-red-500"
+                      onClick={() => {
+                        setOpenDeleteModal(true);
+                        setClickedWarning(e);
+                      }}
+                    >
+                      Remover
+                    </Button>
                   </div>
                 </div>
               );
             })}
         </div>
       </div>
+
+      <ConfirmationModal
+        title="Excluir aviso"
+        description="Tem certeza de que deseja excluir este aviso? A imagem associada também será removida e a ação não poderá ser desfeita."
+        isOpen={openDeleteModal}
+        onOpenChange={setOpenDeleteModal}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }
