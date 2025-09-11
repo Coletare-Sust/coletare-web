@@ -27,10 +27,15 @@ import { ColorsOptions } from "@/common/entities/colors";
 import { sendEmail } from "@/store/services/email";
 
 import { colors, inputsData } from "./constants";
+import Radio from "@/components/atoms/Radio/Radio";
 
 type AddCityForm = z.infer<typeof AddCitySchema>;
 
 const Cadastrar = () => {
+  const statusOptions = [
+    { id: "ativo", text: "Ativo", value: "Ativo" },
+    { id: "inativo", text: "Inativo", value: "Inativo" }
+  ];
   const router = useRouter();
   const currentDate = new Date();
   const searchParams = useSearchParams();
@@ -41,7 +46,9 @@ const Cadastrar = () => {
     handleSubmit,
     register,
     formState: { errors },
-    reset
+    reset,
+    watch,
+    setValue
   } = useForm<AddCityForm>({
     mode: "all",
     criteriaMode: "all",
@@ -54,7 +61,9 @@ const Cadastrar = () => {
           email: city?.email ?? "",
           supportEmail: city?.supportEmail ?? "",
           landfillDelivery: city?.calcData?.landfillDelivery?.toString() ?? "",
-          fuel: city?.calcData?.fuel?.toString() ?? ""
+          fuel: city?.calcData?.fuel?.toString() ?? "",
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          status: city.status!
         }
       : undefined
   });
@@ -109,10 +118,12 @@ const Cadastrar = () => {
             initialDate: Timestamp.fromDate(currentDate),
             landfillDelivery: parseFloat(data.landfillDelivery),
             fuel: parseFloat(data.fuel)
-          }
+          },
+          status: data.status
         },
         imageFile
       );
+
       if (errorUser) {
         throw new Error(errorUser).props;
       }
@@ -127,6 +138,7 @@ const Cadastrar = () => {
       });
 
       if (errorEmail) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         throw new Error(errorEmail as any).props;
       }
     },
@@ -165,7 +177,8 @@ const Cadastrar = () => {
           initialDate: Timestamp.fromDate(currentDate),
           landfillDelivery: parseFloat(data.landfillDelivery),
           fuel: parseFloat(data.fuel)
-        }
+        },
+        status: data.status
       };
 
       if (imageFile) {
@@ -328,17 +341,39 @@ const Cadastrar = () => {
                         item.name !== "email" && item.name !== "password"
                     )
                   : inputsData
-                ).map((item, index) => (
-                  <InputField
-                    key={index}
-                    label={item.label}
-                    name={item.name}
-                    placeholder=""
-                    type={item.label === "Senha" ? "password" : "text"}
-                    formRegister={register}
-                    formErrors={errors}
-                  />
-                ))}
+                ).map((item, index) => {
+                  if (item.name === "status") {
+                    return (
+                      <div key={index} className="space-y-2">
+                        <p className="text-sm font-medium text-gray-700">
+                          Status
+                        </p>
+                        <Radio
+                          value={watch("status")}
+                          onValueChange={(value) => setValue("status", value)}
+                          options={statusOptions}
+                        />
+                        {errors.status && (
+                          <span className="text-sm text-red-500">
+                            {errors.status.message?.toString()}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <InputField
+                      key={index}
+                      label={item.label}
+                      name={item.name}
+                      placeholder=""
+                      type={item.label === "Senha" ? "password" : "text"}
+                      formRegister={register}
+                      formErrors={errors}
+                    />
+                  );
+                })}
               </div>
             </div>
             <Button loading={loading}>{city ? "Editar" : "Cadastrar"}</Button>

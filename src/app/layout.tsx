@@ -20,7 +20,7 @@ const workSans = WorkSans({
 });
 
 export const metadata = {
-  title: "Coletare",
+  title: "Coletapp",
   description: "Forma inovadora de coleta de lixo!"
 };
 

@@ -39,6 +39,7 @@ const Municipios = () => {
       }
       const { error: errorDeleteImage } = await deleteImage(data.image);
       if (errorDeleteImage) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         throw new Error(errorDeleteImage as any);
       }
     },
