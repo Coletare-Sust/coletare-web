@@ -51,6 +51,7 @@ module.exports = {
         },
         white: {
           1000: "#FAF7FA",
+          900: "#FFFFFF",
           800: "#F9F7F9",
           600: "#F8F6F8",
           400: "#F7F6F7",

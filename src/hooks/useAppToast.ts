@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 
-const errorToast = (message: string) => {
-  toast.error(message, { type: "error" });
+const errorToast = (message: string, id?: string) => {
+  toast.error(message, { type: "error", toastId: id });
 };
 
 const successToast = (message: string) => {

@@ -1,7 +1,8 @@
 export interface DataCarouselProps {
   cardsInfo: {
     title: string;
-    data: number | null;
+    description: string;
+    image: string;
   }[];
   className?: string;
   itemClassName?: string;

@@ -10,4 +10,5 @@ export interface WithdrawalsRequestEntity {
   createdById: string;
   createdAt: Timestamp;
   isResolved: boolean;
+  image: string | null;
 }
