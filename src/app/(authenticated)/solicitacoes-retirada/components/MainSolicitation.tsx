@@ -19,6 +19,7 @@ import useProfile from "@/hooks/queries/useProfile";
 import useAllWithdrawalsRequest from "@/hooks/queries/useAllWithdrawalsRequests";
 import useOneUser from "@/hooks/queries/useOneUser";
 import { sendEmail } from "@/store/services/email";
+import { Divide } from "lucide-react";
 
 const Solicitations = () => {
   const { userUid } = useAuth();
@@ -35,6 +36,7 @@ const Solicitations = () => {
   const { data: solicitationsData, isLoading: isLoadingSolicitationsData } =
     useAllWithdrawalsRequest(cityId as string);
   const [loading, setLoading] = useState(false);
+  const [isViewingImage, setIsViewingImage] = useState(false);
 
   const filteredData = solicitationsData
     ? garbagePointId
@@ -133,6 +135,10 @@ const Solicitations = () => {
     });
   }, [dropdownValue]);
 
+  useEffect(() => {
+    setIsViewingImage(false);
+  }, [filteredData]);
+
   return (
     <section className="space-y-[40px] pt-[76px]">
       <div className="flex items-center justify-between">
@@ -156,7 +162,7 @@ const Solicitations = () => {
                 alt="Icon de mais"
               />{" "}
               Criar nova rota{" "}
-            </span>{" "}
+            </span>
           </Button>
         )}
       </div>
@@ -169,35 +175,66 @@ const Solicitations = () => {
         {!isLoadingSolicitationsData &&
           (filteredData ? (
             <>
-              <div className="h-[518px] w-[752px]">
-                <LoadScript
-                  googleMapsApiKey={
-                    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
-                  }
-                  libraries={["places", "geometry"]}
-                >
-                  <GoogleMap
-                    onLoad={onMapLoad}
-                    mapContainerStyle={{ width: "100%", height: "100%" }}
-                    center={{
-                      lat: filteredData.latitude,
-                      lng: filteredData.longitude
-                    }}
-                    zoom={15}
-                  >
-                    <Marker
-                      position={{
-                        lat: filteredData.latitude,
-                        lng: filteredData.longitude
+              <div className="flex flex-col items-center justify-center">
+                {filteredData.image ? (
+                  <div className="mb-4 flex w-full flex-row justify-evenly">
+                    <Subtitle
+                      className="cursor-pointer hover:underline"
+                      onClick={() => setIsViewingImage(false)}
+                    >
+                      Ver Localização
+                    </Subtitle>
+                    <Subtitle
+                      className="cursor-pointer hover:underline"
+                      onClick={() => {
+                        setIsViewingImage(true);
+                        console.log(isViewingImage);
                       }}
-                      label={{
-                        text: String(1),
-                        color: "white",
-                        fontSize: "12px"
-                      }}
+                    >
+                      Ver Imagem
+                    </Subtitle>
+                  </div>
+                ) : null}
+                <div className="flex h-[518px] w-[752px] items-center justify-center">
+                  {!isViewingImage ? (
+                    <LoadScript
+                      googleMapsApiKey={
+                        process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
+                      }
+                      libraries={["places", "geometry"]}
+                    >
+                      <GoogleMap
+                        onLoad={onMapLoad}
+                        mapContainerStyle={{ width: "100%", height: "100%" }}
+                        center={{
+                          lat: filteredData.latitude,
+                          lng: filteredData.longitude
+                        }}
+                        zoom={15}
+                      >
+                        <Marker
+                          position={{
+                            lat: filteredData.latitude,
+                            lng: filteredData.longitude
+                          }}
+                          label={{
+                            text: String(1),
+                            color: "white",
+                            fontSize: "12px"
+                          }}
+                        />
+                      </GoogleMap>
+                    </LoadScript>
+                  ) : (
+                    <Image
+                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                      src={filteredData.image!}
+                      alt={filteredData.fullAddress}
+                      width={518}
+                      height={752}
                     />
-                  </GoogleMap>
-                </LoadScript>
+                  )}
+                </div>
               </div>
               <div className="space-y-8">
                 <Subtitle className="text-center">
