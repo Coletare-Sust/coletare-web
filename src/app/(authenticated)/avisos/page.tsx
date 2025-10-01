@@ -71,6 +71,10 @@ export default function ListaDeAvisosPag() {
     }
   };
 
+  const handleEdit = (warningId: string) => {
+    router.push(`/avisos/cadastrar/${warningId}`);
+  };
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
       <Title className="mt-12">Lista de Avisos</Title>
@@ -108,7 +112,12 @@ export default function ListaDeAvisosPag() {
                       {e.description}
                     </p>
                     <div className="mt-4 flex w-4/5 flex-row items-center justify-center gap-4">
-                      <Button className="w-1/2">Editar</Button>
+                      <Button
+                        className="w-1/2"
+                        onClick={() => handleEdit(e.id)}
+                      >
+                        Editar
+                      </Button>
                       <Button
                         className="w-1/2 bg-red-500"
                         onClick={() => {
