@@ -10,7 +10,8 @@ import {
   query as queryDatabase,
   ref,
   set,
-  remove
+  remove,
+  update
 } from "firebase/database";
 import { WarningEntity } from "@/common/entities/Warning";
 import app from "@/config/firebase";
@@ -77,7 +78,6 @@ export const getAllWarningService = async (
     });
 };
 
-//
 export const deleteWarningService = async (warningId: string) => {
   try {
     const warningRef = ref(database, `warnings/${warningId}`);
@@ -87,4 +87,49 @@ export const deleteWarningService = async (warningId: string) => {
     console.error("Erro ao deletar aviso:", err);
     return { error: "Não foi possível deletar o aviso" };
   }
+};
+
+export const getWarningService = async (
+  warningId: string
+): Promise<WarningEntity | null> => {
+  const snapshot = await get(ref(database, `warnings/${warningId}`));
+  if (!snapshot.exists()) return null;
+  return snapshot.val() as WarningEntity;
+};
+
+export const updateWarningService = async (
+  warningId: string,
+  data: {
+    title: string;
+    description: string;
+    image?: File | string | null;
+  }
+) => {
+  const now = new Date().toISOString();
+  const warningRef = ref(database, `warnings/${warningId}`);
+
+  let imageUrl: string | null = null;
+
+  if (data.image instanceof File) {
+    const { image, error } = await uploadImage(
+      data.image,
+      `warning/${warningId}`
+    );
+    imageUrl = image;
+    if (error || !imageUrl)
+      throw new Error(`Não foi possível subir a imagem!\n${error}`);
+  } else if (typeof data.image === "string") {
+    imageUrl = data.image;
+  }
+
+  const updateData = {
+    title: data.title,
+    description: data.description,
+    image: imageUrl,
+    updatedAt: now
+  };
+
+  await update(warningRef, updateData);
+
+  return await getWarningService(warningId);
 };
