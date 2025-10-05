@@ -12,13 +12,16 @@ import {
 } from "@/store/services/warning";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ConfirmationModal from "@/components/molecules/ConfirmationModal/confirmationModal";
 import { errorToast, successToast } from "@/hooks/useAppToast";
+import DatePicker from "@/components/molecules/DatePicker/datePicker";
+import { isSameDay } from "date-fns";
 
 export default function ListaDeAvisosPag() {
   const { userUid } = useAuth();
   const { data: user } = useProfile(userUid);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   const [warnings, setWarnings] = useState<WarningEntity[] | null>(null);
   const [, setIsLoading] = useState(true);
@@ -44,7 +47,15 @@ export default function ListaDeAvisosPag() {
     };
 
     fetchWarning();
-  }, [user, warnings]);
+  }, [user]);
+
+  const filteredWarnings = useMemo(() => {
+    if (!warnings) return [];
+    if (!selectedDate) return warnings;
+    return warnings.filter((warning) =>
+      isSameDay(new Date(warning.createdAt), selectedDate)
+    );
+  }, [warnings, selectedDate]);
 
   const handleDelete = async () => {
     if (!clickedWarning) return;
@@ -76,17 +87,18 @@ export default function ListaDeAvisosPag() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
+    <div className="flex min-h-screen flex-col items-center justify-start">
       <Title className="mt-12">Lista de Avisos</Title>
-      <div className="mb-8 mt-4 flex w-full max-w-[1377px] flex-1 flex-col items-center justify-center gap-8 rounded-xl bg-slate-100 p-8 pt-0">
-        <div className="mt-8 flex w-4/5 flex-row justify-around">
+      <div className="mb-8 mt-4 flex w-full max-w-[1377px] flex-1 flex-col items-center justify-start gap-8 rounded-xl bg-slate-100 p-8 pt-0">
+        <div className="border-white mt-8 flex w-full flex-row justify-start gap-4 border-b pb-4">
           <Button onClick={() => router.push("/avisos/cadastrar")}>
             Criar novo aviso
           </Button>
+          <DatePicker date={selectedDate} setDate={setSelectedDate} />
         </div>
-        <div className="flex h-full w-full flex-row flex-wrap items-center justify-center gap-8">
-          {warnings && warnings.length > 0 ? (
-            warnings
+        <div className="grid w-full grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filteredWarnings && filteredWarnings.length > 0 ? (
+            filteredWarnings
               .sort(
                 (currentDate, nextDate) =>
                   new Date(nextDate.createdAt).getTime() -
@@ -95,31 +107,29 @@ export default function ListaDeAvisosPag() {
               .map((e) => {
                 return (
                   <div
-                    className="flex w-full max-w-sm flex-col items-center justify-center rounded-xl bg-white-900 p-6 shadow-sm shadow-black/20"
+                    className="flex h-[480px] w-full flex-col justify-between rounded-xl bg-white-900 p-6 shadow-md transition-shadow hover:shadow-lg"
                     key={e.id}
                   >
-                    <Title>{e.title}</Title>
                     {e.image && (
-                      <Image
-                        src={e.image}
-                        width={255}
-                        height={255}
-                        alt={`Imagem de aviso sobre: ${e.title}`}
-                        className="mb-4 mt-4"
-                      />
+                      <div className="relative my-4 h-40 w-full overflow-hidden rounded-md">
+                        <Image
+                          src={e.image}
+                          layout="fill"
+                          objectFit="cover"
+                          alt={`Imagem de aviso sobre: ${e.title}`}
+                        />
+                      </div>
                     )}
-                    <p className="max-w-[255px] text-justify">
-                      {e.description}
-                    </p>
-                    <div className="mt-4 flex w-4/5 flex-row items-center justify-center gap-4">
+                    <Title className="mb-2 truncate text-xl">{e.title}</Title>
+                    <p className="line-clamp-5 text-justify">{e.description}</p>
+                    <div className="relative mt-auto grid w-full grid-cols-2 items-center gap-4 border-t border-gray-200 pt-4">
+                      <p className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 bg-white-900 px-2 text-sm text-gray-500">
+                        {new Date(e.createdAt).toLocaleDateString("pt-BR")}
+                      </p>
+
+                      <Button onClick={() => handleEdit(e.id)}>Editar</Button>
                       <Button
-                        className="w-1/2"
-                        onClick={() => handleEdit(e.id)}
-                      >
-                        Editar
-                      </Button>
-                      <Button
-                        className="w-1/2 bg-red-500"
+                        className="bg-red-500"
                         onClick={() => {
                           setOpenDeleteModal(true);
                           setClickedWarning(e);

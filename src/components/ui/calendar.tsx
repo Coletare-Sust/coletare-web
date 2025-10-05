@@ -21,7 +21,7 @@ function Calendar({
   // Modificador personalizado para desabilitar dias que não estão na lista de activeDays
   const disabledDaysMatcher = (date: Date) => {
     // Se activeDays não está definido ou é um array vazio, não desabilita nenhum dia
-    if (!activeDays || activeDays.length === 0) return true;
+    if (!activeDays || activeDays.length === 0) return false;
 
     // Verifica se o dia não está na lista de activeDays
     return !activeDays.some(
