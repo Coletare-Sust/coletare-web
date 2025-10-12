@@ -31,11 +31,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-br" className={`${workSans.variable} ${barlow.variable}`}>
-      
       <QueryClientProviderApp>
-      <head>
-        <link rel="shortcut icon" href="sicol-logo.svg" type="image/svg+xml" />
-      </head>
+        <head>
+          <link
+            rel="shortcut icon"
+            href="sicol-logo.svg"
+            type="image/svg+xml"
+          />
+        </head>
         <AuthProvider>
           <body className={workSans.className}>
             <ToastContainer />

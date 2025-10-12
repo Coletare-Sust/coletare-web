@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
 // Este é um componente de ícone de sino em formato SVG.
 // O 'color' é uma propriedade opcional para mudar a cor do ícone.
-const BellIcon = ({ color = '#AD0000' }: { color?: string }) => (
+const BellIcon = ({ color = "#AD0000" }: { color?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
