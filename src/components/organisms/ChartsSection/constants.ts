@@ -18,6 +18,7 @@ export const costsRelation = (
       data: (dataFuel ?? Array(12).fill(0)).map((num) =>
         Number(num.toFixed(2))
       ),
+      color: "#00ADB4"
     }
   ]
 });
