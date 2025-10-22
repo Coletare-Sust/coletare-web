@@ -20,7 +20,6 @@ const Dropdown = ({
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger
-        disabled={disabled}
         className={twMerge(
           `cursor-pointer rounded-[8px] bg-greenBlue-1000 py-[10px] pl-[16px] pr-[10px] tracking-wide text-white-1000 ${
             (options === undefined || options.length === 0 || disabled) &&
