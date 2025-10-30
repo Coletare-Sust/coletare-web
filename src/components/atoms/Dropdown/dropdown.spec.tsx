@@ -18,6 +18,8 @@ describe('Dropdown (Behavior Test)', () => {
     vi.clearAllMocks();
   });
 
+  // Teste 1
+  
   test('should display the initial value and be closed', () => {
     render(<Dropdown value="Ações" options={mockOptions} />);
     

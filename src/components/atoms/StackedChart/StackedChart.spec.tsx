@@ -1,15 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import StackedChart from "./stackedChart";
+import StackedChart from "./StackedChart";
 
-// ===================================================================
-// 1. MOCKS
-// ===================================================================
-
-// Captura das props passadas ao componente <Bar />
 let capturedProps: any = {};
 
-// Mock do componente Bar do react-chartjs-2
 vi.mock("react-chartjs-2", () => ({
   Bar: (props: any) => {
     capturedProps = props;
@@ -17,15 +11,10 @@ vi.mock("react-chartjs-2", () => ({
   },
 }));
 
-// Mock do plugin ChartDataLabels (para evitar erros de import)
 vi.mock("chartjs-plugin-datalabels", () => ({
   __esModule: true,
   default: vi.fn(),
 }));
-
-// ===================================================================
-// 2. TESTES
-// ===================================================================
 
 describe("StackedChart (Unit Component)", () => {
   beforeEach(() => {
@@ -33,9 +22,7 @@ describe("StackedChart (Unit Component)", () => {
     vi.clearAllMocks();
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 1 — Renderização básica
-  // ---------------------------------------------------------------
+  // Teste 1
   test("should render the StackedChart component correctly", () => {
     // Arrange
     const chartData = [
@@ -52,9 +39,7 @@ describe("StackedChart (Unit Component)", () => {
     expect(chartElement).toHaveTextContent("Mock Bar Chart");
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 2 — Deve passar dados corretos ao componente Bar
-  // ---------------------------------------------------------------
+  // Teste 2
   test("should pass correct chart data and datalabels to Bar", () => {
     // Arrange
     const chartData = [
@@ -67,10 +52,7 @@ describe("StackedChart (Unit Component)", () => {
     render(<StackedChart chartData={chartData} labelsX={labelsX} barThickness={60} />);
 
     // Assert
-    // Labels X devem ser repassadas
     expect(capturedProps.data.labels).toEqual(labelsX);
-
-    // Datasets devem estar no mesmo stack
     expect(capturedProps.data.datasets).toHaveLength(2);
     expect(capturedProps.data.datasets[0]).toMatchObject({
       label: "Series 1",
@@ -80,7 +62,6 @@ describe("StackedChart (Unit Component)", () => {
       stack: "1",
     });
 
-    // Deve incluir configuração de datalabels no dataset
     const datasetWithLabels = capturedProps.data.datasets[1].datalabels;
     expect(datasetWithLabels).toMatchObject({
       display: true,
@@ -90,9 +71,7 @@ describe("StackedChart (Unit Component)", () => {
     expect(typeof datasetWithLabels.formatter).toBe("function");
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 3 — Deve aplicar classes corretamente (twMerge)
-  // ---------------------------------------------------------------
+  // Teste 3
   test("should merge and apply default + custom classes", () => {
     // Arrange
     const chartData = [{ label: "X", data: [1, 2], color: "#000" }];
@@ -107,9 +86,7 @@ describe("StackedChart (Unit Component)", () => {
     expect(container?.className).toContain("extra-class");
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 4 — Deve incluir opções de configuração esperadas
-  // ---------------------------------------------------------------
+  // Teste 4
   test("should include correct chart options and plugins", () => {
     // Arrange
     const chartData = [{ label: "Sales", data: [1, 2, 3], color: "#000" }];
@@ -118,22 +95,15 @@ describe("StackedChart (Unit Component)", () => {
     render(<StackedChart chartData={chartData} />);
 
     // Assert
-    // Opções básicas
     expect(capturedProps.options.responsive).toBe(true);
     expect(capturedProps.options.maintainAspectRatio).toBe(false);
     expect(capturedProps.options.plugins.legend.display).toBe(false);
-
-    // Verifica escalas X e Y
     expect(capturedProps.options.scales.x.display).toBe(true);
     expect(capturedProps.options.scales.y.grid.display).toBe(true);
-
-    // Verifica plugin ChartDataLabels
     expect(capturedProps.plugins).toHaveLength(1);
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 5 — Deve usar o fallback padrão de labels (monthsArray)
-  // ---------------------------------------------------------------
+  // Teste 5
   test("should use default monthsArray labels when labelsX is not provided", () => {
     // Arrange
     const chartData = [{ label: "Default Test", data: [1, 2, 3], color: "#123" }];

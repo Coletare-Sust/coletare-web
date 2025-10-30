@@ -3,15 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import RadioDropdown from "./radioDropdown";
 
-// ===================================================================
-// 1. MOCKS DOS COMPONENTES FILHOS
-// ===================================================================
-
-// Variáveis para capturar props
 let capturedDropdownProps: any = {};
 let capturedRadioProps: any = {};
 
-// Mock dos componentes do dropdown
 vi.mock("@/components/ui/dropdown-menu", () => ({
   DropdownMenu: (props: any) => {
     capturedDropdownProps = props;
@@ -38,7 +32,6 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
   ),
 }));
 
-// Mock do componente Radio
 vi.mock("../Radio/Radio", () => ({
   __esModule: true,
   default: (props: any) => {
@@ -53,9 +46,6 @@ vi.mock("../Radio/Radio", () => ({
   },
 }));
 
-// ===================================================================
-// 2. TESTES
-// ===================================================================
 
 describe("RadioDropdown component", () => {
   const mockSetActive = vi.fn();

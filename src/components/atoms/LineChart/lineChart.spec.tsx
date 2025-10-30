@@ -2,11 +2,6 @@ import { render, screen } from '@testing-library/react';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import LineChart from './lineChart';
 
-// ===================================================================
-// 1. MOCK DO REACT-CHARTJS-2
-// ===================================================================
-
-// Capturamos as props que o componente Line recebe
 let capturedProps: any = {};
 
 vi.mock('react-chartjs-2', () => ({
@@ -16,9 +11,6 @@ vi.mock('react-chartjs-2', () => ({
   },
 }));
 
-// ===================================================================
-// 2. TESTES
-// ===================================================================
 
 describe('LineChart (Unit Component)', () => {
   beforeEach(() => {
@@ -26,9 +18,9 @@ describe('LineChart (Unit Component)', () => {
     vi.clearAllMocks();
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 1 — Renderização básica
-  // ---------------------------------------------------------------
+  
+  // Teste 1 
+  
   test('should render the LineChart component correctly', () => {
     // Arrange
     const chartData = [
@@ -45,9 +37,7 @@ describe('LineChart (Unit Component)', () => {
     expect(chartElement).toHaveTextContent('Mock Line Chart');
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 2 — Deve passar os dados corretamente para o Line
-  // ---------------------------------------------------------------
+  // Teste 2
   test('should pass correct data props to Line', () => {
     // Arrange
     const chartData = [
@@ -71,9 +61,7 @@ describe('LineChart (Unit Component)', () => {
     });
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 3 — Deve aplicar classes corretamente (twMerge)
-  // ---------------------------------------------------------------
+  // Teste 3
   test('should merge and apply custom className', () => {
     // Arrange
     const chartData = [{ label: 'Test', data: [1, 2, 3], color: '#000' }];
@@ -88,9 +76,7 @@ describe('LineChart (Unit Component)', () => {
     expect(container?.className).toContain('my-custom-class');
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 4 — Deve conter opções de configuração esperadas
-  // ---------------------------------------------------------------
+  // Teste 4
   test('should include chart options with expected configuration', () => {
     // Arrange
     const chartData = [{ label: 'Sales', data: [1, 2, 3], color: '#000' }];

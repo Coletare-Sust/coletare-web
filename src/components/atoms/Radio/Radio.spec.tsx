@@ -3,15 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import Radio from "./Radio";
 
-// ===================================================================
-// 1. MOCKS DOS COMPONENTES FILHOS
-// ===================================================================
-
-// Variáveis para capturar as props
 let capturedGroupProps: any = {};
 let capturedItemProps: any[] = [];
 
-// Mock dos componentes de UI
 vi.mock("@/components/ui/radio-group", () => ({
   RadioGroup: (props: any) => {
     capturedGroupProps = props;

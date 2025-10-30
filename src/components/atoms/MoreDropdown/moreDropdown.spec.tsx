@@ -3,14 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import MoreDropdown from "./moreDropdown";
 
-// ===============================================================
-// 1. MOCKS
-// ===============================================================
-
-// Captura das props dos mocks
 let capturedProps: Record<string, any> = {};
 
-// Mock do shadcn/ui DropdownMenu e seus subcomponentes
 vi.mock("@/components/ui/dropdown-menu", () => ({
   DropdownMenu: ({ children }: any) => <div data-testid="mock-dropdown-menu">{children}</div>,
   DropdownMenuTrigger: ({ children, ...props }: any) => {
@@ -37,14 +31,10 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
   DropdownMenuSeparator: () => <hr data-testid="mock-dropdown-separator" />,
 }));
 
-// Mock do ícone MoreVertical
 vi.mock("lucide-react", () => ({
   MoreVertical: (props: any) => <svg data-testid="mock-more-vertical" {...props} />,
 }));
 
-// ===============================================================
-// 2. TESTES
-// ===============================================================
 
 describe("MoreDropdown (Unit Component)", () => {
   beforeEach(() => {
@@ -52,9 +42,7 @@ describe("MoreDropdown (Unit Component)", () => {
     capturedProps = {};
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 1 — Renderização básica
-  // ---------------------------------------------------------------
+  // Teste 1
   test("should render the dropdown trigger with MoreVertical icon", () => {
     // Arrange
     render(<MoreDropdown options={[]} />);
@@ -70,9 +58,7 @@ describe("MoreDropdown (Unit Component)", () => {
     expect(icon).toHaveAttribute("size", "34");
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 2 — Exibir lista de opções corretamente
-  // ---------------------------------------------------------------
+  // Teste 2
   test("should render all options when provided", () => {
     // Arrange
     const mockOptions = [
@@ -93,9 +79,7 @@ describe("MoreDropdown (Unit Component)", () => {
     expect(separators).toHaveLength(1); // separador entre itens
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 3 — Deve chamar onClick da opção ao clicar
-  // ---------------------------------------------------------------
+  // Teste 3
   test("should call option onClick when clicked", async () => {
     // Arrange
     const user = userEvent.setup();
@@ -112,9 +96,7 @@ describe("MoreDropdown (Unit Component)", () => {
     expect(mockOnClick).toHaveBeenCalledTimes(1);
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 4 — Estado desabilitado deve ocultar conteúdo
-  // ---------------------------------------------------------------
+  // Teste 4
   test("should not render dropdown content when disabled", () => {
     // Arrange
     const mockOptions = [{ label: "Visualizar", onClick: vi.fn() }];
@@ -126,9 +108,7 @@ describe("MoreDropdown (Unit Component)", () => {
     expect(screen.queryByTestId("mock-dropdown-content")).not.toBeInTheDocument();
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 5 — Classe CSS deve refletir estado desabilitado
-  // ---------------------------------------------------------------
+  // Teste 5
   test("should apply disabled styles when disabled or no options", () => {
     // Arrange
     render(<MoreDropdown options={[]} disabled />);
@@ -141,9 +121,7 @@ describe("MoreDropdown (Unit Component)", () => {
     expect(trigger.className).toContain("opacity-60");
   });
 
-  // ---------------------------------------------------------------
-  // TESTE 6 — DropdownMenu deve ter modal desabilitado
-  // ---------------------------------------------------------------
+  // Teste 6
   test("should render DropdownMenu with modal set to false", () => {
     // Arrange
     render(<MoreDropdown options={[]} />);
