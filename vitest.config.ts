@@ -96,6 +96,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
       '@atoms': path.resolve(__dirname, 'src/components/atoms'),
       '@molecules': path.resolve(__dirname, 'src/components/molecules'),
+      '@hooks': path.resolve(__dirname, 'src/hooks'),
     },
   },
 });
