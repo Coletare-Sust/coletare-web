@@ -38,9 +38,17 @@ const VeiculosColaboradoresPage = () => {
     <div style={wrapper} className="py-14">
       <div className="mb-10 flex items-center justify-between">
         <Title>Veículos</Title>
-        <Button onClick={() => router.push("/cadastrar-veiculo")}>
-          Cadastrar novo
-        </Button>
+        <div className="flex flex-row gap-6">
+          <Button
+            onClick={() => router.push("/rotas-andamento")}
+            className="border-greenBlue-1000 bg-transparent text-greenBlue-1000"
+          >
+            Visualizar rotas
+          </Button>
+          <Button onClick={() => router.push("/cadastrar-veiculo")}>
+            Cadastrar novo
+          </Button>
+        </div>
       </div>
       {slicedVehicles?.length === 0 && (
         <p className="text-lg font-medium text-greenDark-1000">
