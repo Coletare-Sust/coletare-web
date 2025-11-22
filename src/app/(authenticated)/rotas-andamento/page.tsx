@@ -1,6 +1,13 @@
 "use client";
 
-import { GoogleMap, LoadScript, Marker, Polyline, OverlayView, OverlayViewF } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  LoadScript,
+  Marker,
+  Polyline,
+  OverlayView,
+  OverlayViewF
+} from "@react-google-maps/api";
 import { useEffect, useState, useMemo } from "react";
 import Title from "@/components/atoms/Title/title";
 
@@ -37,7 +44,10 @@ const RotasAndamento = () => {
 
   const [hoveredTruck, setHoveredTruck] = useState<LiveTruck | null>(null);
 
-  const { data: allRoutes } = useRoutes(user?.cityId);
+  const cityId = user?.cityId
+  if (!cityId) return
+
+  const { data: allRoutes } = useRoutes(cityId);
 
   const onMapLoad = (map: google.maps.Map) => {
     setMap(map);
@@ -55,16 +65,21 @@ const RotasAndamento = () => {
   useEffect(() => {
     if (!user?.cityId) return;
 
-    const liveMapRef = ref(getDatabase(firebaseApp), `live_map_data/${user.cityId}`);
+    const liveMapRef = ref(
+      getDatabase(firebaseApp),
+      `live_map_data/${user.cityId}`
+    );
     console.log(`Iniciando monitoramento em: live_map_data/${user.cityId}`);
 
     const unsubscribe = onValue(liveMapRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
-        const trucksArray = Object.entries(data).map(([key, value]: [string, any]) => ({
-          id: key,
-          ...value
-        }));
+        const trucksArray = Object.entries(data).map(
+          ([key, value]: [string, any]) => ({
+            id: key,
+            ...value
+          })
+        );
         setTrucks(trucksArray);
       } else {
         setTrucks([]);
@@ -115,7 +130,9 @@ const RotasAndamento = () => {
                 {trucks.map((truck) => {
                   const currentRoute = routesMap[truck.routeId];
 
-                  const path = currentRoute ? decodePolyline(currentRoute.polyline) : [];
+                  const path = currentRoute
+                    ? decodePolyline(currentRoute.polyline)
+                    : [];
 
                   return (
                     <div key={truck.id}>
@@ -126,25 +143,26 @@ const RotasAndamento = () => {
                           options={{
                             strokeColor: "#00ADB4",
                             strokeOpacity: 0.8,
-                            strokeWeight: 5,
+                            strokeWeight: 5
                           }}
                         />
                       )}
 
-                      {currentRoute && currentRoute.waypoints?.map((wp: any, idx: number) => (
-                        <Marker
-                          key={`${truck.id}-wp-${idx}`}
-                          position={{ lat: wp.lat, lng: wp.lng }}
-                          icon={{
-                            path: window.google?.maps.SymbolPath.CIRCLE,
-                            scale: 5,
-                            fillColor: "#004A55",
-                            fillOpacity: 1,
-                            strokeWeight: 1,
-                            strokeColor: "white",
-                          }}
-                        />
-                      ))}
+                      {currentRoute &&
+                        currentRoute.waypoints?.map((wp: any, idx: number) => (
+                          <Marker
+                            key={`${truck.id}-wp-${idx}`}
+                            position={{ lat: wp.lat, lng: wp.lng }}
+                            icon={{
+                              path: window.google?.maps.SymbolPath.CIRCLE,
+                              scale: 5,
+                              fillColor: "#004A55",
+                              fillOpacity: 1,
+                              strokeWeight: 1,
+                              strokeColor: "white"
+                            }}
+                          />
+                        ))}
 
                       <Marker
                         position={{ lat: truck.lat, lng: truck.lng }}
@@ -169,13 +187,13 @@ const RotasAndamento = () => {
                           mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                           getPixelPositionOffset={(width, height) => ({
                             x: -(width / 2),
-                            y: -height - 20,
+                            y: -height - 20
                           })}
                         >
                           <div className="pointer-events-none flex flex-col items-center">
                             <div className="relative rounded-lg bg-white-900 px-4 py-3 shadow-xl">
                               <div className="flex flex-col items-center gap-1">
-                                <span className="whitespace-nowrap text-xs font-bold text-white">
+                                <span className="text-white whitespace-nowrap text-xs font-bold">
                                   {truck.vehicleName}
                                 </span>
                                 <span className="whitespace-nowrap text-[10px] font-medium text-slate-300">
