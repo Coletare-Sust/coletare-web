@@ -66,7 +66,15 @@ const MainHeader = () => {
               />
             )}
             <nav>
-              <ul className="flex items-center gap-8 ">
+              <ul
+                className="flex
+                  flex-nowrap
+                  items-center
+                  justify-start
+                  gap-10
+                  whitespace-nowrap
+                "
+              >
                 {links.map((link, index) => {
                   const isCurrentRoute = currentPathname.startsWith(link.url);
                   const iconSrc = link.icon(headerColor);
@@ -75,7 +83,7 @@ const MainHeader = () => {
                     <li key={index}>
                       <Link
                         href={link.url}
-                        className={`relative flex items-start gap-2 text-lg transition-all hover:opacity-80 ${
+                        className={`relative flex items-center gap-2 text-base transition-all hover:opacity-80 ${
                           isCurrentRoute ? "underline" : ""
                         } ${
                           isCurrentRoute &&
@@ -86,15 +94,21 @@ const MainHeader = () => {
                           color: headerColor
                         }}
                       >
+                        {/* Ícone */}
                         <Image
                           src={iconSrc}
                           alt="Ícone do item"
-                          width={24}
-                          height={24}
-                        />{" "}
-                        {link.label}
+                          width={22}
+                          height={22}
+                          className="block"
+                        />
+
+                        {/* Texto */}
+                        <span className="leading-none">{link.label}</span>
+
+                        {/* Badge (notificação) */}
                         {link.alertNumber !== -1 && (
-                          <span className="absolute -right-5 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-error text-[14px] text-[#fff]">
+                          <span className="absolute -right-5 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-error text-[12px] text-[#fff]">
                             {link.alertNumber}
                           </span>
                         )}
@@ -106,7 +120,7 @@ const MainHeader = () => {
             </nav>
           </div>
           <div
-            className={`flex cursor-pointer items-center gap-2 text-lg  transition-all hover:opacity-80 ${
+            className={`ml-8 flex cursor-pointer items-center gap-2 transition-all hover:opacity-80 ${
               !isCity && "text-greenBlue-1000"
             }`}
             style={{
