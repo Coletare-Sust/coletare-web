@@ -4,6 +4,7 @@ import TrashIcon from "@atoms/Icons/TrashIcon";
 import TruckIcon from "@atoms/Icons/TruckIcon";
 import BellIcon from "@atoms/Icons/BellIcon";
 import { renderToString } from "react-dom/server";
+import { RecycleIcon } from "lucide-react";
 
 export const linksCity = [
   {
@@ -22,6 +23,17 @@ export const linksCity = [
     url: "/rotas",
     icon: (color?: string) => {
       const svgString = renderToString(<MapIcon color={color} />);
+      return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
+        "base64"
+      )}`;
+    },
+    alertNumber: -1
+  },
+  {
+    label: "Cadastrar ecopontos",
+    url: "/ecopontos",
+    icon: (color?: string) => {
+      const svgString = renderToString(<RecycleIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
         "base64"
       )}`;
