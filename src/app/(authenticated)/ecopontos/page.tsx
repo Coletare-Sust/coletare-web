@@ -17,6 +17,7 @@ import useDeleteEcoponto from "@/hooks/queries/ecoponto/useDeleteEcoponto";
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import LoadingComponent from "@atoms/Loading/loading";
+import EcopontoDetail from "@/components/molecules/EcopontoDetail/EcopontoDetail";
 
 const residuesTypesOptions = [
   "Recicláveis",
@@ -155,41 +156,20 @@ const EcopontosPage = () => {
               }
             ],
             children: (
-              <div className="text-greenDark-800">
-                <p>
-                  <strong>Latitude:</strong> {point.lat}
-                </p>
-                <p>
-                  <strong>Longitude:</strong> {point.lng}
-                </p>
-
-                <div className="mt-6 flex gap-4">
-                  <Button
-                    className="flex items-center gap-2 border border-greenDark-1000 bg-greenBebe-400 px-6 py-2"
-                    classNameText="text-greenDark-1000"
-                    onClick={() =>
-                      router.push(
-                        `/ecopontos/criar-ecoponto?isEdit=true&ecopontoId=${point.id}`
-                      )
-                    }
-                  >
-                    Editar ecoponto
-                  </Button>
-
-                  <Button
-                    className="flex items-center gap-2 border border-greenDark-1000 px-6 py-2"
-                    classNameText="text-white"
-                    onClick={() => handleDelete(point.id)}
-                  >
-                    Excluir ecoponto
-                  </Button>
-                </div>
-              </div>
+              <EcopontoDetail ecoponto={point} onDelete={handleDelete} />
             )
           }))}
-          itemClassName="mb-10"
-          triggerClassName="bg-white-1000 border border-greenBlue-400 py-4 grid grid-cols-[1fr_1fr_1fr_auto]"
-          contentClassName="bg-white-800 border border-greenBlue-400 py-8 px-6 rounded-lg"
+          itemClassName="mb-4"
+          triggerClassName={`
+            bg-white-1000 border border-greenBlue-400
+            py-4 px-4
+            grid grid-cols-[1fr_2fr_1fr_auto] gap-4 items-center
+            rounded-lg
+            data-[state=open]:rounded-b-none
+            data-[state=open]:border-b-0
+            transition-all
+          `}
+          contentClassName="bg-white-800 border border-greenBlue-400 border-t-0 py-8 px-6 rounded-b-lg"
         />
       )}
     </div>
