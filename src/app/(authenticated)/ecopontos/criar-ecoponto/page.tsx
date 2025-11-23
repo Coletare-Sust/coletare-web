@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { twMerge } from "tailwind-merge";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 
 import Title from "@atoms/Title/title";
 import InputField from "@molecules/InputField/inputField";
@@ -18,6 +19,7 @@ import useProfile from "@/hooks/queries/useProfile";
 import useCreateEcoponto from "@/hooks/queries/ecoponto/useCreateEcoponto";
 import useUpdateEcoponto from "@/hooks/queries/ecoponto/useUpdateEcoponto";
 import useGetEcopontoById from "@/hooks/queries/ecoponto/useGetEcopontoById";
+import EcopontoAddressInput from "@/components/atoms/EcopontoAddressInput/EcopontoAddressInput";
 
 const residuesTypesOptions = [
   "Recicláveis",
@@ -26,7 +28,19 @@ const residuesTypesOptions = [
   "Resíduo Comum"
 ];
 
+const initialCenter = {
+  lat: -8.05224,
+  lng: -34.928612
+};
+
 const CriarEcopontoPage = () => {
+  // Carrega o script do Google Maps no nível da página
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+    libraries: ["places"]
+  });
+
   const router = useRouter();
   const params = useSearchParams();
 
@@ -50,6 +64,10 @@ const CriarEcopontoPage = () => {
   ]);
   const [error, setError] = useState("");
 
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [markerPosition, setMarkerPosition] =
+    useState<google.maps.LatLngLiteral | null>(null);
+
   const { data: ecopointToEdit, isLoading: loadingEcopoint } =
     useGetEcopontoById(ecopontoId!, {
       enabled: isEdit && !!ecopontoId
@@ -68,8 +86,24 @@ const CriarEcopontoPage = () => {
       setLat(String(ecopointToEdit.lat));
       setLng(String(ecopointToEdit.lng));
       setResidueType(ecopointToEdit.residueType);
+      setMarkerPosition({ lat: ecopointToEdit.lat, lng: ecopointToEdit.lng });
     }
   }, [isEdit, ecopointToEdit]);
+
+  const handleMapClick = useCallback((event: google.maps.MapMouseEvent) => {
+    if (event.latLng) {
+      const clickedLat = event.latLng.lat();
+      const clickedLng = event.latLng.lng();
+
+      setLat(String(clickedLat));
+      setLng(String(clickedLng));
+      setMarkerPosition({ lat: clickedLat, lng: clickedLng });
+    }
+  }, []);
+
+  const onMapLoad = useCallback((map: google.maps.Map) => {
+    setMap(map);
+  }, []);
 
   const dropdownOptions = residuesTypesOptions.map((resType) => ({
     id: resType,
@@ -79,7 +113,6 @@ const CriarEcopontoPage = () => {
 
   async function handleSubmit() {
     setError("");
-
     const latNum = parseFloat(lat);
     const lngNum = parseFloat(lng);
 
@@ -119,7 +152,6 @@ const CriarEcopontoPage = () => {
         await createEcopoint(payload);
         successToast("Ecoponto criado com sucesso!");
       }
-
       router.replace("/ecopontos");
     } catch (err: any) {
       const msg = err?.message ?? "Erro ao salvar.";
@@ -128,89 +160,150 @@ const CriarEcopontoPage = () => {
     }
   }
 
+  const handleAddressSelect = (
+    newLat: number,
+    newLng: number,
+    newAddress: string
+  ) => {
+    setLat(String(newLat));
+    setLng(String(newLng));
+    setDescription(newAddress);
+
+    const newPos = { lat: newLat, lng: newLng };
+    setMarkerPosition(newPos);
+    map?.panTo(newPos);
+    map?.setZoom(17);
+  };
+
+  // Mostra loading enquanto a API do Google Maps não carrega
+  if (!isLoaded)
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        Carregando Mapa...
+      </div>
+    );
+
   return (
-    <div className="relative flex h-full min-h-screen w-full items-start justify-center bg-gray-100 py-10">
-      <div
-        className={twMerge(
-          "z-10 h-full w-full max-w-[480px] overflow-y-auto rounded-lg",
-          "bg-white-1000 p-8 font-medium shadow-2xl"
-        )}
-      >
-        <Title className="mb-10 flex items-center gap-2 text-2xl">
-          <Image
-            src="/icon-left-arrow.svg"
-            height={20}
-            width={13}
-            alt="Seta"
-            onClick={() => router.back()}
-            className="cursor-pointer"
-          />
-          {isEdit ? "Editar ecoponto" : "Criar novo ecoponto"}
-        </Title>
+    <div className="relative h-screen w-full overflow-hidden">
+      <div className="absolute inset-0 h-full w-full">
+        {/* Removemos o LoadScript daqui, pois já foi carregado acima */}
+        <GoogleMap
+          onLoad={onMapLoad}
+          mapContainerStyle={{ width: "100%", height: "100%" }}
+          center={initialCenter}
+          zoom={15}
+          onClick={handleMapClick}
+          options={{
+            disableDefaultUI: true,
+            zoomControl: true
+          }}
+        >
+          {markerPosition && <Marker position={markerPosition} />}
+        </GoogleMap>
+      </div>
 
-        {isEdit && loadingEcopoint ? (
-          <p className="text-center">Carregando dados...</p>
-        ) : (
-          <form
-            className="flex flex-col gap-8"
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSubmit();
-            }}
-          >
-            <InputField
-              label="Nome do Ecoponto"
-              placeholder="Digite o nome"
-              name="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+      <div className="absolute left-8 top-8 z-10 h-[calc(100vh-64px)] w-full max-w-[520px]">
+        <div
+          className={twMerge(
+            "h-full w-full overflow-y-auto rounded-xl",
+            "bg-white-1000 p-8 font-medium shadow-2xl"
+          )}
+        >
+          <Title className="mb-8 flex items-center gap-2 text-2xl">
+            <Image
+              src="/icon-left-arrow.svg"
+              height={20}
+              width={13}
+              alt="Seta"
+              onClick={() => router.back()}
+              className="cursor-pointer"
             />
+            {isEdit ? "Editar Ecoponto" : "Novo Ecoponto"}
+          </Title>
 
-            <InputField
-              label="Endereço / Detalhes"
-              placeholder="Rua, número e detalhes"
-              name="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-
-            <InputField
-              label="Latitude"
-              placeholder="Ex: -8.2826"
-              name="lat"
-              value={lat}
-              onChange={(e) => setLat(e.target.value)}
-            />
-
-            <InputField
-              label="Longitude"
-              placeholder="Ex: -35.9753"
-              name="lng"
-              value={lng}
-              onChange={(e) => setLng(e.target.value)}
-            />
-
-            <label className="font-medium text-greenDark-800">
-              Tipo de Resíduo
-            </label>
-            <Dropdown
-              options={dropdownOptions}
-              className="w-fit border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
-              value={residueType[0]}
-            />
-
-            <FormErrorLabel>{error}</FormErrorLabel>
-
-            <Button
-              className="self-center px-12"
-              loading={isCreating || isUpdating}
-              disabled={isCreating || isUpdating}
-              buttonType="submit"
+          {isEdit && loadingEcopoint ? (
+            <p className="text-center text-gray-500">Carregando dados...</p>
+          ) : (
+            <form
+              className="flex flex-col gap-6"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit();
+              }}
             >
-              {isEdit ? "Salvar alterações" : "Salvar ecoponto"}
-            </Button>
-          </form>
-        )}
+              <p className="text-sm text-gray-500">
+                Clique no mapa para definir a localização ou preencha
+                manualmente.
+              </p>
+
+              <InputField
+                label="Nome do Ecoponto"
+                placeholder="Digite o nome"
+                name="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+
+              <EcopontoAddressInput
+                label="Endereço / Buscar Local"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                onLocationSelect={handleAddressSelect}
+              />
+
+              <div className="flex flex-col gap-4">
+                <InputField
+                  label="Latitude"
+                  placeholder="-8.2826"
+                  name="lat"
+                  value={lat}
+                  onChange={(e) => {
+                    setLat(e.target.value);
+                    const l = parseFloat(e.target.value);
+                    const g = parseFloat(lng);
+                    if (!isNaN(l) && !isNaN(g))
+                      setMarkerPosition({ lat: l, lng: g });
+                  }}
+                />
+                <InputField
+                  label="Longitude"
+                  placeholder="-35.9753"
+                  name="lng"
+                  value={lng}
+                  onChange={(e) => {
+                    setLng(e.target.value);
+                    const l = parseFloat(lat);
+                    const g = parseFloat(e.target.value);
+                    if (!isNaN(l) && !isNaN(g))
+                      setMarkerPosition({ lat: l, lng: g });
+                  }}
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="font-medium text-greenDark-800">
+                  Tipo de Resíduo
+                </label>
+                <Dropdown
+                  options={dropdownOptions}
+                  className="w-full border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
+                  value={residueType[0]}
+                />
+              </div>
+
+              <FormErrorLabel>{error}</FormErrorLabel>
+
+              <Button
+                className="mt-4 w-full self-center"
+                loading={isCreating || isUpdating}
+                disabled={isCreating || isUpdating}
+                buttonType="submit"
+              >
+                {isEdit ? "Salvar Alterações" : "Criar Ecoponto"}
+              </Button>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );
