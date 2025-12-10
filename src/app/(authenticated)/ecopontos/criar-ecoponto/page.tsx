@@ -4,7 +4,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { twMerge } from "tailwind-merge";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  Marker,
+  LoadScript,
+  Libraries
+} from "@react-google-maps/api"; // Importamos LoadScript e Libraries
 
 import Title from "@atoms/Title/title";
 import InputField from "@molecules/InputField/inputField";
@@ -33,13 +38,11 @@ const initialCenter = {
   lng: -34.928612
 };
 
+// --- IMPORTANTE: Definir fora do componente para evitar recarregamento infinito ---
+const libraries: Libraries = ["places"];
+
 const CriarEcopontoPage = () => {
-  // Carrega o script do Google Maps no nível da página
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
-    libraries: ["places"]
-  });
+  // Removemos o useJsApiLoader daqui
 
   const router = useRouter();
   const params = useSearchParams();
@@ -175,136 +178,139 @@ const CriarEcopontoPage = () => {
     map?.setZoom(17);
   };
 
-  // Mostra loading enquanto a API do Google Maps não carrega
-  if (!isLoaded)
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        Carregando Mapa...
-      </div>
-    );
-
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      <div className="absolute inset-0 h-full w-full">
-        {/* Removemos o LoadScript daqui, pois já foi carregado acima */}
-        <GoogleMap
-          onLoad={onMapLoad}
-          mapContainerStyle={{ width: "100%", height: "100%" }}
-          center={initialCenter}
-          zoom={15}
-          onClick={handleMapClick}
-          options={{
-            disableDefaultUI: true,
-            zoomControl: true
-          }}
-        >
-          {markerPosition && <Marker position={markerPosition} />}
-        </GoogleMap>
-      </div>
-
-      <div className="absolute left-8 top-8 z-10 h-[calc(100vh-64px)] w-full max-w-[520px]">
-        <div
-          className={twMerge(
-            "h-full w-full overflow-y-auto rounded-xl",
-            "bg-white-1000 p-8 font-medium shadow-2xl"
-          )}
-        >
-          <Title className="mb-8 flex items-center gap-2 text-2xl">
-            <Image
-              src="/icon-left-arrow.svg"
-              height={20}
-              width={13}
-              alt="Seta"
-              onClick={() => router.back()}
-              className="cursor-pointer"
-            />
-            {isEdit ? "Editar Ecoponto" : "Novo Ecoponto"}
-          </Title>
-
-          {isEdit && loadingEcopoint ? (
-            <p className="text-center text-gray-500">Carregando dados...</p>
-          ) : (
-            <form
-              className="flex flex-col gap-6"
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSubmit();
-              }}
-            >
-              <p className="text-sm text-gray-500">
-                Clique no mapa para definir a localização ou preencha
-                manualmente.
-              </p>
-
-              <InputField
-                label="Nome do Ecoponto"
-                placeholder="Digite o nome"
-                name="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-
-              <EcopontoAddressInput
-                label="Endereço / Buscar Local"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                onLocationSelect={handleAddressSelect}
-              />
-
-              <div className="flex flex-col gap-4">
-                <InputField
-                  label="Latitude"
-                  placeholder="-8.2826"
-                  name="lat"
-                  value={lat}
-                  onChange={(e) => {
-                    setLat(e.target.value);
-                    const l = parseFloat(e.target.value);
-                    const g = parseFloat(lng);
-                    if (!isNaN(l) && !isNaN(g))
-                      setMarkerPosition({ lat: l, lng: g });
-                  }}
-                />
-                <InputField
-                  label="Longitude"
-                  placeholder="-35.9753"
-                  name="lng"
-                  value={lng}
-                  onChange={(e) => {
-                    setLng(e.target.value);
-                    const l = parseFloat(lat);
-                    const g = parseFloat(e.target.value);
-                    if (!isNaN(l) && !isNaN(g))
-                      setMarkerPosition({ lat: l, lng: g });
-                  }}
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="font-medium text-greenDark-800">
-                  Tipo de Resíduo
-                </label>
-                <Dropdown
-                  options={dropdownOptions}
-                  className="w-full border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
-                  value={residueType[0]}
-                />
-              </div>
-
-              <FormErrorLabel>{error}</FormErrorLabel>
-
-              <Button
-                className="mt-4 w-full self-center"
-                loading={isCreating || isUpdating}
-                disabled={isCreating || isUpdating}
-                buttonType="submit"
-              >
-                {isEdit ? "Salvar Alterações" : "Criar Ecoponto"}
-              </Button>
-            </form>
-          )}
+      {/* O LoadScript envolve TUDO que depende do Google Maps */}
+      <LoadScript
+        googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string}
+        libraries={libraries}
+        loadingElement={
+          <div className="flex h-screen w-full items-center justify-center">
+            Carregando Mapa...
+          </div>
+        }
+      >
+        <div className="absolute inset-0 h-full w-full">
+          <GoogleMap
+            onLoad={onMapLoad}
+            mapContainerStyle={{ width: "100%", height: "100%" }}
+            center={initialCenter}
+            zoom={15}
+            onClick={handleMapClick}
+            options={{
+              disableDefaultUI: true,
+              zoomControl: true
+            }}
+          >
+            {markerPosition && <Marker position={markerPosition} />}
+          </GoogleMap>
         </div>
-      </div>
+
+        <div className="absolute left-8 top-8 z-10 h-[calc(100vh-64px)] w-full max-w-[520px]">
+          <div
+            className={twMerge(
+              "h-full w-full overflow-y-auto rounded-xl",
+              "bg-white-1000 p-8 font-medium shadow-2xl"
+            )}
+          >
+            <Title className="mb-8 flex items-center gap-2 text-2xl">
+              <Image
+                src="/icon-left-arrow.svg"
+                height={20}
+                width={13}
+                alt="Seta"
+                onClick={() => router.back()}
+                className="cursor-pointer"
+              />
+              {isEdit ? "Editar Ecoponto" : "Novo Ecoponto"}
+            </Title>
+
+            {isEdit && loadingEcopoint ? (
+              <p className="text-center text-gray-500">Carregando dados...</p>
+            ) : (
+              <form
+                className="flex flex-col gap-6"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit();
+                }}
+              >
+                <p className="text-sm text-gray-500">
+                  Clique no mapa para definir a localização ou preencha
+                  manualmente.
+                </p>
+
+                <InputField
+                  label="Nome do Ecoponto"
+                  placeholder="Digite o nome"
+                  name="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+
+                {/* Este componente agora está seguro pois só renderiza após o LoadScript terminar */}
+                <EcopontoAddressInput
+                  label="Endereço / Buscar Local"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  onLocationSelect={handleAddressSelect}
+                />
+
+                <div className="flex flex-col gap-4">
+                  <InputField
+                    label="Latitude"
+                    placeholder="-8.2826"
+                    name="lat"
+                    value={lat}
+                    onChange={(e) => {
+                      setLat(e.target.value);
+                      const l = parseFloat(e.target.value);
+                      const g = parseFloat(lng);
+                      if (!isNaN(l) && !isNaN(g))
+                        setMarkerPosition({ lat: l, lng: g });
+                    }}
+                  />
+                  <InputField
+                    label="Longitude"
+                    placeholder="-35.9753"
+                    name="lng"
+                    value={lng}
+                    onChange={(e) => {
+                      setLng(e.target.value);
+                      const l = parseFloat(lat);
+                      const g = parseFloat(e.target.value);
+                      if (!isNaN(l) && !isNaN(g))
+                        setMarkerPosition({ lat: l, lng: g });
+                    }}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="font-medium text-greenDark-800">
+                    Tipo de Resíduo
+                  </label>
+                  <Dropdown
+                    options={dropdownOptions}
+                    className="w-full border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
+                    value={residueType[0]}
+                  />
+                </div>
+
+                <FormErrorLabel>{error}</FormErrorLabel>
+
+                <Button
+                  className="mt-4 w-full self-center"
+                  loading={isCreating || isUpdating}
+                  disabled={isCreating || isUpdating}
+                  buttonType="submit"
+                >
+                  {isEdit ? "Salvar Alterações" : "Criar Ecoponto"}
+                </Button>
+              </form>
+            )}
+          </div>
+        </div>
+      </LoadScript>
     </div>
   );
 };
