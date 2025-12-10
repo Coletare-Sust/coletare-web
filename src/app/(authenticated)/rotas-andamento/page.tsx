@@ -44,10 +44,8 @@ const RotasAndamento = () => {
 
   const [hoveredTruck, setHoveredTruck] = useState<LiveTruck | null>(null);
 
-  const cityId = user?.cityId
-  if (!cityId) return
-
-  const { data: allRoutes } = useRoutes(cityId);
+  const cityId = user?.cityId;
+  const { data: allRoutes } = useRoutes(cityId!);
 
   const onMapLoad = (map: google.maps.Map) => {
     setMap(map);
