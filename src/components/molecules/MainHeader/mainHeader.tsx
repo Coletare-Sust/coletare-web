@@ -108,7 +108,7 @@ const MainHeader = () => {
 
                         {/* Badge (notificação) */}
                         {link.alertNumber !== -1 && (
-                          <span className="absolute -right-5 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-error text-[12px] text-[#fff]">
+                          <span className="absolute -right-7 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-error text-[12px] text-[#fff]">
                             {link.alertNumber}
                           </span>
                         )}
