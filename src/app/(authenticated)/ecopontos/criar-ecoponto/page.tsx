@@ -28,9 +28,11 @@ import EcopontoAddressInput from "@/components/atoms/EcopontoAddressInput/Ecopon
 
 const residuesTypesOptions = [
   "Recicláveis",
-  "Orgânicos",
-  "Especiais",
-  "Resíduo Comum"
+  "Resíduos Mistos (Mix)",
+  "Resíduos de Podas",
+  "Resíduo Comum",
+  "Resíduos de Construção",
+  "Grandes Volumes"
 ];
 
 const initialCenter = {
