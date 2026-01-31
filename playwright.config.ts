@@ -29,7 +29,7 @@ export default defineConfig({
     storageState: './auth.json',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: 'on',
   },
   webServer: {
     command: 'npm run dev',
