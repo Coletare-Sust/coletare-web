@@ -32,7 +32,7 @@ E2E_A_PASSWORD= "Senha do admin"
 no package.json Adicionar na lista de scripts: "test:e2e": "playwright test"
 
 ## 5 Subir a Aplicação
-npm run descreve
+npm run dev
 
 ## 6 Executar os testes
 npm run test:e2e 
