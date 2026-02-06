@@ -126,6 +126,42 @@ Isso garante que a versão mais recente do código na `main` esteja sempre em pr
 
 ---
 
+## 6. Testes Web
+
+## 6.1 Pré-requisitos
+
+Antes de rodar os testes, verifique:
+
+- Node.js >= 18
+- Yarn ou npm
+- Aplicação rodando localmente
+- Firebase configurado corretamente
+
+bash
+node -v
+
+## 6.2 Instalação das dependências
+npm install
+npx playwright install
+npm install -D dotenv
+
+## 6.3 Configurar o .env.local na raiz do projeto
+Adicionar os campos:
+E2E_EMAIL= "email do usuario"
+E2E_PASSWORD= "Senha Usuario"
+E2E_A_EMAIL= "email do admin"
+E2E_A_PASSWORD= "Senha do admin"
+
+## 6.4 Adicionar o playwright a lista de scripts
+no package.json Adicionar na lista de scripts: "test:e2e": "playwright test"
+
+## 6.5 Subir a Aplicação
+npm run dev
+
+## 6.6 Executar os testes
+npm run test:e2e 
+ou para um arquivo específico:
+npm run test:e2e -- specs/login-page.spec.ts
 
 
 
