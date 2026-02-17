@@ -15,15 +15,15 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
-   timeout: 60_0000,
+  timeout: 60_000,
 
   expect: {
-    timeout: 10_0000,
+    timeout: 10_000,
   },
 
   use: {
-    headless: false,
-    actionTimeout: 15_0000,
+    headless: process.env.CI ? true : false,
+    actionTimeout: 15_000,
     navigationTimeout: 300_000,
     baseURL: 'http://localhost:3000',
     storageState: './auth.json',
@@ -38,26 +38,19 @@ export default defineConfig({
   },
 
   projects: [
-    // Setup project
-    { name: 'setup', testMatch: /auth\.setup\.ts/ },
-
-    // Test projects that depend on setup
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-      dependencies: ['setup'],
     },
 
     // {
     //   name: 'firefox',
     //   use: { ...devices['Desktop Firefox'] },
-    //   dependencies: ['setup'],
     // },
 
     // {
     //   name: 'webkit',
     //   use: { ...devices['Desktop Safari'] },
-    //   dependencies: ['setup'],
     // },
   ],
 });

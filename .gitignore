@@ -8,6 +8,11 @@
 # testing
 /coverage
 
+# playwright
+auth.json
+playwright-report/
+test-results/
+
 # next.js
 /.next/
 /out/

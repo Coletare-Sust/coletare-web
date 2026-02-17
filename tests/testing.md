@@ -15,26 +15,45 @@ Antes de rodar os testes, verifique:
 
 ```bash
 node -v
+```
 
 ## 2 Instalação das dependências
+
+```bash
 npm install
 npx playwright install
 npm install -D dotenv
+```
 
 ## 3 Configurar o .env.local na raiz do projeto
+
 Adicionar os campos:
+
+```
 E2E_EMAIL= "email do usuario"
 E2E_PASSWORD= "Senha Usuario"
 E2E_A_EMAIL= "email do admin"
 E2E_A_PASSWORD= "Senha do admin"
+```
 
 ## 4 Adicionar o playwright a lista de scripts
-no package.json Adicionar na lista de scripts: "test:e2e": "playwright test"
+
+no package.json Adicionar na lista de scripts: `"test:e2e": "playwright test"`
 
 ## 5 Subir a Aplicação
+
+```bash
 npm run dev
+```
 
 ## 6 Executar os testes
-npm run test:e2e 
+
+```bash
+npm run test:e2e
+```
+
 ou para um arquivo específico:
+
+```bash
 npm run test:e2e -- specs/login-page.spec.ts
+```

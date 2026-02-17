@@ -1,5 +1,3 @@
-import cleanupTestDatabase from '@/utils/__tests__/utils/cleanup-test-database';
-
 // Executado uma única vez antes (setup) e depois (tearDown) da suíte
 // inteira de testes
 
