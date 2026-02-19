@@ -1,5 +1,4 @@
-// Placeholder - tests moved to register-colaborator.spec.ts
-// This file is intentionally empty
+// Login page end-to-end tests
 
 import { test, expect } from '@playwright/test';
 
@@ -73,8 +72,8 @@ test('User clicks "Redefinir senha?" without filling email', async ({ page }) =>
 
   // Wait for alert/toast with error message to appear
   await expect(
-  page.getByText('Preecha o campo de email.')
-).toBeVisible();
+    page.getByText('Preencha o campo de email.')
+  ).toBeVisible();
 
 
 
@@ -114,10 +113,6 @@ test('Login button shows loading state during submission', async ({ page }) => {
 
   await emailInput.fill('test@example.com');
   await passwordInput.fill('Test123!@#');
-
-  // Monitor loading state
-  // This depends on how your loading indicator is implemented
-  const loadingIndicator = page.locator('[aria-busy="true"]');
 
   // Click submit
   await submitButton.click();

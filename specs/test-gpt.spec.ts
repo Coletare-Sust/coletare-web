@@ -18,20 +18,7 @@ test.describe('Criar Rota - Fluxo E2E', () => {
   });
 
   test('Usuário cria uma rota simples com sucesso', async ({ page }) => {
-
-    // 🔐 1. LOGIN
-    await page.goto('http://localhost:3000');
-
-    await page.getByPlaceholder('Insira seu email')
-      .fill(process.env.E2E_EMAIL!);
-
-    await page.getByPlaceholder('Insira sua senha')
-      .fill(process.env.E2E_PASSWORD!);
-
-    await page.getByRole('button', { name: /Entrar/i }).click();
-
-    // ✅ Espera efeito do login (NÃO localStorage)
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    // Login já foi realizado no beforeEach; começamos a partir do dashboard.
 
     // 🧭 2. IR PARA CRIAR ROTA
     await page.goto('http://localhost:3000/criar-rota');

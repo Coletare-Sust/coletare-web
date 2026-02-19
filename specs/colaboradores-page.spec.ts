@@ -40,12 +40,9 @@ test.describe('Colaboradores Page', () => {
     // Wait for the page to fully load
     await page.waitForLoadState('networkidle');
 
-    // Try to find the title by checking page content
-    // The page might show either the title or be redirected
-    const pageContent = await page.textContent('body');
-    const hasTitle = pageContent?.includes('Todos os colaboradores') || true;
-
-    expect(pageContent).toBeTruthy();
+    // Assert that the title heading is visible on the page
+    const title = page.getByRole('heading', { name: /Todos os colaboradores/i });
+    await expect(title).toBeVisible();
   });
 
   test('Page structure is loaded and responsive', async ({ page }) => {

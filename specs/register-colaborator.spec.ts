@@ -159,9 +159,6 @@ test.describe('Cadastrar Colaborador Page', () => {
     // Click submit
     await submitButton.click();
 
-    // Verify button shows loading state (disabled or with loading indicator)
-    const isDisabledDuringSubmit = await submitButton.isDisabled().catch(() => false);
-
     // Wait for submission to complete
     await page.waitForTimeout(2000);
 

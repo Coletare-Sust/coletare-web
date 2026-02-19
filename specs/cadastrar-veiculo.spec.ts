@@ -141,8 +141,6 @@ test.describe('Vehicle Registration - New Vehicle Creation', () => {
 
     // 2. Leave all fields empty and attempt to submit
     // 3. Try to click submit button
-    const submitButton = page.getByRole('button', { name: 'Cadastrar' });
-
     // Tab through all fields to trigger validation on empty form
     await page.keyboard.press('Tab');
     await page.keyboard.press('Tab');

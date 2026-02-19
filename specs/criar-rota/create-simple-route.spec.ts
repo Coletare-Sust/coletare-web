@@ -35,8 +35,10 @@ test.describe('Route Creation - Basic Functionality', () => {
     const mainVisible = await page.locator('main').isVisible().catch(() => false);
 
     if (!formVisible && !mainVisible) {
-      test.fixme();
-      return;
+      throw new Error(
+        'Nem o formulário de criação de rota nem o elemento <main> ficaram visíveis após o carregamento de /criar-rota. ' +
+        'Isso indica uma possível regressão de carregamento da página.'
+      );
     }
 
     // Enter 'Rota Centro' in the route name field
