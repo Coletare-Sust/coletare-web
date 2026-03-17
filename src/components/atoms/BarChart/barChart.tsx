@@ -29,7 +29,10 @@ function BarChart({
                 display: true,
                 anchor: "end",
                 clamp: true,
-                align: "top"
+                align: "top",
+                formatter: (value) => {
+                  return parseFloat(value).toFixed(2).replace(".", ",");
+                }
               },
               label: barLabel,
               data: chartData,

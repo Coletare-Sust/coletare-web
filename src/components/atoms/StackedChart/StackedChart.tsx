@@ -17,8 +17,15 @@ const StackedChart = ({
           labels: labelsX,
           datasets: chartData.map((item, index) => ({
             datalabels: {
-              formatter: function (value, context) {
-                return value + chartData[0].data[context.dataIndex];
+              formatter: function (value: any, context: any) {
+                const valA = parseFloat(String(value));
+                const valB = parseFloat(
+                  String(chartData[0].data[context.dataIndex])
+                );
+
+                const total = valA + valB;
+
+                return total.toFixed(2).replace(".", ",");
               },
               display: index === 1,
               anchor: "end",
