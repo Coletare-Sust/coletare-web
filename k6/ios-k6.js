@@ -2,23 +2,27 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 export const options = {
-  vus: 50,          // number of virtual users
-  duration: '30s',  // test duration
+  vus: 1,          // number of virtual users
+  duration: '1s',  // test duration
 };
 
 export default function () {
   const url = 'https://coletare-60241-default-rtdb.firebaseio.com/withdrawalsRequests.json';
+  const now = Date.now();
 
   const payload = JSON.stringify({
     cityId: "5TWzDEnYsQM4HUVigcWajwbAm0g1",
-    createdById: "test-user-" + Math.random(),
+    createdById: "5TWzDEnYsQM4HUVigcWajwbAm0g1",
     fullAddress: "Abreu e Lima, PE, Brasil",
     isResolved: false,
     latitude: -7.9054787,
     longitude: -34.9049499,
     residueType: "Resíduos de Construção",
     type: "inappropriate-location",
-    createdAt: new Date().toISOString()
+    createdAt: {
+    seconds: Math.floor(now / 1000),
+    nanoseconds: (now % 1000) * 1_000_000
+  }
   });
 
   const params = {
