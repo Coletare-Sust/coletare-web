@@ -5,7 +5,6 @@ import React, { useCallback, useMemo, useState } from "react";
 import {
   GoogleMap,
   Marker,
-  LoadScript,
   DirectionsService,
   DirectionsRenderer
 } from "@react-google-maps/api";
@@ -153,12 +152,7 @@ const CriarRota = () => {
   return (
     <div className="h-[calc(100vh-76px)] w-full">
       <div className="h-full w-full">
-        <LoadScript
-          googleMapsApiKey={
-            process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
-          }
-          libraries={["places"]}
-        >
+        <>
           <GoogleMap
             onLoad={onMapLoad}
             mapContainerStyle={{ width: "100%", height: "100%" }}
@@ -199,7 +193,7 @@ const CriarRota = () => {
               <DirectionsRenderer options={directionsRendererOptions} />
             )}
           </GoogleMap>
-        </LoadScript>
+        </>
       </div>
     </div>
   );
