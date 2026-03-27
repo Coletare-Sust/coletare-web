@@ -2,13 +2,12 @@
 
 import {
   GoogleMap,
-  LoadScript,
   Marker,
   Polyline,
   OverlayView,
   OverlayViewF
 } from "@react-google-maps/api";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import Title from "@/components/atoms/Title/title";
 
 import { ref, onValue, off, getDatabase } from "firebase/database";
@@ -16,6 +15,7 @@ import firebaseApp from "@/config/firebase";
 
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
+import useCity from "@/hooks/queries/useCity";
 import useRoutes from "@hooks/queries/useAllRoutes";
 
 import { decodePolyline } from "@utils/decodePolyline";
@@ -29,7 +29,7 @@ interface LiveTruck {
   routeId: string;
 }
 
-const mapCenter = {
+const defaultMapCenter = {
   lat: -8.3369,
   lng: -36.4251
 };
@@ -39,10 +39,13 @@ const RotasAndamento = () => {
 
   const { userUid } = useAuth();
   const { data: user } = useProfile(userUid);
+  const { data: city } = useCity(user?.cityId ?? null);
 
   const [trucks, setTrucks] = useState<LiveTruck[]>([]);
-
   const [hoveredTruck, setHoveredTruck] = useState<LiveTruck | null>(null);
+
+  const [center, setCenter] = useState(defaultMapCenter);
+  const locationStatus = useRef<"pending" | "success" | "error">("pending");
 
   const cityId = user?.cityId;
   const { data: allRoutes } = useRoutes(cityId!);
@@ -59,6 +62,32 @@ const RotasAndamento = () => {
       return acc;
     }, {});
   }, [allRoutes]);
+
+  useEffect(() => {
+    if (navigator.geolocation && locationStatus.current === "pending") {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          locationStatus.current = "success";
+          setCenter({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        () => {
+          locationStatus.current = "error";
+          if (city?.latitude && city?.longitude) {
+            setCenter({ lat: city.latitude, lng: city.longitude });
+          }
+        }
+      );
+    }
+  }, [city?.latitude, city?.longitude]);
+
+  useEffect(() => {
+    if (city?.latitude && city?.longitude && locationStatus.current !== "success") {
+      setCenter({ lat: city.latitude, lng: city.longitude });
+    }
+  }, [city?.latitude, city?.longitude]);
 
   useEffect(() => {
     if (!user?.cityId) return;
@@ -104,22 +133,12 @@ const RotasAndamento = () => {
 
         <main className="flex-1 p-6">
           <div className="h-[80vh] w-full overflow-hidden rounded-xl shadow-lg">
-            <LoadScript
-              googleMapsApiKey={
-                process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
-              }
-              libraries={["places", "geometry"]}
-              loadingElement={
-                <div className="flex h-full w-full items-center justify-center bg-gray-200">
-                  <p>Carregando Mapa...</p>
-                </div>
-              }
-            >
+            <>
               <GoogleMap
                 onLoad={onMapLoad}
                 mapContainerStyle={{ width: "100%", height: "100%" }}
                 zoom={14}
-                center={mapCenter}
+                center={center}
                 options={{
                   disableDefaultUI: true,
                   zoomControl: true
@@ -208,7 +227,7 @@ const RotasAndamento = () => {
                   );
                 })}
               </GoogleMap>
-            </LoadScript>
+            </>
           </div>
         </main>
       </div>
