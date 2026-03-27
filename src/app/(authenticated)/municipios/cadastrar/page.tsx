@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { Timestamp } from "firebase/firestore";
+import EcopontoAddressInput from "@/components/atoms/EcopontoAddressInput/EcopontoAddressInput";
 
 import Title from "@atoms/Title/title";
 import Button from "@atoms/Button/button";
@@ -70,6 +71,9 @@ const Cadastrar = () => {
   const [color, setColor] = useState<ColorsOptions>();
   const [image, setImage] = useState<string>();
   const [imageFile, setImageFile] = useState<File>();
+  const [fullAddress, setFullAddress] = useState<string>("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const downloadInput = useRef<HTMLInputElement | null>(null);
   const { createUserAuth } = useAuth();
@@ -78,11 +82,17 @@ const Cadastrar = () => {
     async ({
       data,
       color,
-      imageFile
+      imageFile,
+      fullAddress,
+      latitude,
+      longitude
     }: {
       data: AddCityForm;
       color: ColorsOptions;
       imageFile: File;
+      fullAddress: string;
+      latitude: number | null;
+      longitude: number | null;
     }) => {
       const { uid: authUid, error: errorAuth } = await createUserAuth(
         data.email,
@@ -109,9 +119,9 @@ const Cadastrar = () => {
           emission: null,
           carPlate: null,
           cpf: null,
-          fullAddress: null,
-          latitude: null,
-          longitude: null,
+          fullAddress: fullAddress || null,
+          latitude: latitude || null,
+          longitude: longitude || null,
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
           calcData: {
@@ -162,17 +172,26 @@ const Cadastrar = () => {
     async ({
       data,
       color,
-      imageFile
+      imageFile,
+      fullAddress,
+      latitude,
+      longitude
     }: {
       data: AddCityForm;
       color: ColorsOptions;
       imageFile: File | undefined;
+      fullAddress: string;
+      latitude: number | null;
+      longitude: number | null;
     }) => {
       const objToUpdate = {
         name: data.name,
         facilitatorName: data.facilitatorName,
         color,
         supportEmail: data.supportEmail,
+        fullAddress: fullAddress || null,
+        latitude: latitude || null,
+        longitude: longitude || null,
         calcData: {
           initialDate: Timestamp.fromDate(currentDate),
           landfillDelivery: parseFloat(data.landfillDelivery),
@@ -244,10 +263,10 @@ const Cadastrar = () => {
       return;
     }
     if (type === "create" && imageFile) {
-      await mutationCreate.mutateAsync({ data, color, imageFile });
+      await mutationCreate.mutateAsync({ data, color, imageFile, fullAddress, latitude, longitude });
     }
     if (type === "edit") {
-      await mutationUpdate.mutateAsync({ data, color, imageFile });
+      await mutationUpdate.mutateAsync({ data, color, imageFile, fullAddress, latitude, longitude });
     }
   };
 
@@ -255,6 +274,9 @@ const Cadastrar = () => {
     if (city) {
       setColor(city.color as ColorsOptions);
       setImage(city.image as string);
+      setFullAddress(city.fullAddress || "");
+      setLatitude(city.latitude || null);
+      setLongitude(city.longitude || null);
     }
   }, [city]);
 
@@ -344,20 +366,32 @@ const Cadastrar = () => {
                 ).map((item, index) => {
                   if (item.name === "status") {
                     return (
-                      <div key={index} className="space-y-2">
-                        <p className="text-sm font-medium text-gray-700">
-                          Status
-                        </p>
-                        <Radio
-                          value={watch("status")}
-                          onValueChange={(value) => setValue("status", value)}
-                          options={statusOptions}
+                      <div key={index} className="space-y-6">
+                        <EcopontoAddressInput
+                          label="Endereço do Município / Buscar Local"
+                          value={fullAddress}
+                          onChange={(e) => setFullAddress(e.target.value)}
+                          onLocationSelect={(lat, lng, address) => {
+                            setLatitude(lat);
+                            setLongitude(lng);
+                            setFullAddress(address);
+                          }}
                         />
-                        {errors.status && (
-                          <span className="text-sm text-red-500">
-                            {errors.status.message?.toString()}
-                          </span>
-                        )}
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-gray-700">
+                            Status
+                          </p>
+                          <Radio
+                            value={watch("status")}
+                            onValueChange={(value) => setValue("status", value)}
+                            options={statusOptions}
+                          />
+                          {errors.status && (
+                            <span className="text-sm text-red-500">
+                              {errors.status.message?.toString()}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     );
                   }
