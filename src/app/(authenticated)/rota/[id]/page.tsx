@@ -4,7 +4,6 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   GoogleMap,
-  LoadScript,
   Marker,
   Polyline
 } from "@react-google-maps/api";
@@ -40,8 +39,6 @@ import {
 import useAllDashboardByRoutes from "@/hooks/queries/useAllDashboardDataByRoute";
 import useAllCollectsByRoute from "@/hooks/queries/useAllCollectsByRoute";
 import { formatTime } from "@/utils/formatTime";
-
-const mapsLib: any[] = ["places", "geometry"];
 
 const Rota = () => {
   const router = useRouter();
@@ -140,12 +137,7 @@ const Rota = () => {
       <BackgroundWrapper className="mb-24">
         <div className="mb-28 grid grid-cols-5 justify-center gap-28">
           <div className="col-span-3 h-96 w-full">
-            <LoadScript
-              googleMapsApiKey={
-                process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
-              }
-              libraries={mapsLib}
-            >
+            <>
               <GoogleMap
                 onLoad={onMapLoad}
                 mapContainerStyle={{ width: "100%", height: "100%" }}
@@ -166,7 +158,7 @@ const Rota = () => {
                   />
                 ))}
               </GoogleMap>
-            </LoadScript>
+            </>
           </div>
           <div className="col-span-2 flex flex-col items-center gap-8">
             <p className="text-[24px] font-semibold text-greenBlue-1000">
