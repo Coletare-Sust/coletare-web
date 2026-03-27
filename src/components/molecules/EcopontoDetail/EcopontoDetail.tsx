@@ -1,6 +1,6 @@
 "use client";
 
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 import Button from "@atoms/Button/button";
 import { useRouter } from "next/navigation";
 
@@ -61,11 +61,7 @@ const EcopontoDetail = ({ ecoponto, onDelete }: EcopontoDetailProps) => {
       </div>
 
       <div className="h-[300px] w-[500px] overflow-hidden rounded-xl border border-greenBlue-200 shadow-md">
-        <LoadScript
-          googleMapsApiKey={
-            process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
-          }
-        >
+        <>
           <GoogleMap
             mapContainerStyle={{ width: "100%", height: "100%" }}
             center={center}
@@ -77,7 +73,7 @@ const EcopontoDetail = ({ ecoponto, onDelete }: EcopontoDetailProps) => {
           >
             <Marker position={center} />
           </GoogleMap>
-        </LoadScript>
+        </>
       </div>
     </div>
   );
