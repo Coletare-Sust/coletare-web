@@ -3,9 +3,10 @@ import { check, sleep } from 'k6'
 
 export default function () {
 
+  const API_KEY = __ENV.API_KEY;
   const payload = JSON.stringify({
-    email: 'coletapppegasusambiental@gmail.com',
-    password: 'Coletapp2025',
+    email: __ENV.E2E_EMAIL,
+    password: __ENV.E2E_PASSWORD,
     returnSecureToken: true
   })
 
@@ -16,7 +17,7 @@ export default function () {
   }
 
   const res = http.post(
-    'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA7UCWZlQbKbjtL5QeiqM2wyojo7eqOjHQ',
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`,
     payload,
     params
   )
