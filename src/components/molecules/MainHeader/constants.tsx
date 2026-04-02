@@ -5,6 +5,7 @@ import TruckIcon from "@atoms/Icons/TruckIcon";
 import BellIcon from "@atoms/Icons/BellIcon";
 import { renderToString } from "react-dom/server";
 import { RecycleIcon } from "lucide-react";
+import ColaboratorIcon from "@/components/atoms/Icons/ColaboratorIcon";
 
 export const linksCity = [
   {
@@ -12,6 +13,17 @@ export const linksCity = [
     url: "/dashboard",
     icon: (color?: string) => {
       const svgString = renderToString(<DashboardIcon color={color} />);
+      return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
+        "base64"
+      )}`;
+    },
+    alertNumber: -1
+  },
+  {
+    label: "Rotas em tempo real",
+    url: "/rotas-andamento",
+    icon: (color?: string) => {
+      const svgString = renderToString(<TruckIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
         "base64"
       )}`;
@@ -52,10 +64,10 @@ export const linksCity = [
     alertNumber: -1
   },
   {
-    label: "Veículos e colaboradores",
+    label: "Colaboradores e veículos",
     url: "/veiculos-colaboradores",
     icon: (color?: string) => {
-      const svgString = renderToString(<TruckIcon color={color} />);
+      const svgString = renderToString(<ColaboratorIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
         "base64"
       )}`;
