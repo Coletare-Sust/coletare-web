@@ -3,11 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import {
-  GoogleMap,
-  Marker,
-  Polyline
-} from "@react-google-maps/api";
+import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import { useState } from "react";
 
 import Button from "@atoms/Button/button";
