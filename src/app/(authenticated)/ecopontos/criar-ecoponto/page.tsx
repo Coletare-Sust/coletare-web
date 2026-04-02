@@ -4,10 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { twMerge } from "tailwind-merge";
-import {
-  GoogleMap,
-  Marker
-} from "@react-google-maps/api";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 
 import Title from "@atoms/Title/title";
 import InputField from "@molecules/InputField/inputField";
