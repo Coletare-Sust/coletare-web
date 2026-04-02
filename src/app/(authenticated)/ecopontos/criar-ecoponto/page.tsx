@@ -6,10 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { twMerge } from "tailwind-merge";
 import {
   GoogleMap,
-  Marker,
-  LoadScript,
-  Libraries
-} from "@react-google-maps/api"; // Importamos LoadScript e Libraries
+  Marker
+} from "@react-google-maps/api";
 
 import Title from "@atoms/Title/title";
 import InputField from "@molecules/InputField/inputField";
@@ -39,9 +37,6 @@ const initialCenter = {
   lat: -8.05224,
   lng: -34.928612
 };
-
-// --- IMPORTANTE: Definir fora do componente para evitar recarregamento infinito ---
-const libraries: Libraries = ["places"];
 
 const CriarEcopontoPage = () => {
   // Removemos o useJsApiLoader daqui
@@ -182,16 +177,7 @@ const CriarEcopontoPage = () => {
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      {/* O LoadScript envolve TUDO que depende do Google Maps */}
-      <LoadScript
-        googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string}
-        libraries={libraries}
-        loadingElement={
-          <div className="flex h-screen w-full items-center justify-center">
-            Carregando Mapa...
-          </div>
-        }
-      >
+      <>
         <div className="absolute inset-0 h-full w-full">
           <GoogleMap
             onLoad={onMapLoad}
@@ -312,7 +298,7 @@ const CriarEcopontoPage = () => {
             )}
           </div>
         </div>
-      </LoadScript>
+      </>
     </div>
   );
 };

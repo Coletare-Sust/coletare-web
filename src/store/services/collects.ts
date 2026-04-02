@@ -21,6 +21,7 @@ export const getAllCollectsByRoute = async (routeId: string) => {
   return get(query)
     .then((snapshot) => {
       const collects = snapshot.val();
+      if (!collects) return [];
       const response = Object.keys(collects).map((key) => ({
         id: key,
         ...collects[key]
@@ -43,6 +44,7 @@ export const getAllCollectsByCity = async (cityId: string) => {
   return get(query)
     .then((snapshot) => {
       const collects = snapshot.val();
+      if (!collects) return [];
       const response = Object.keys(collects).map((key) => ({
         id: key,
         ...collects[key]
@@ -114,6 +116,7 @@ export const getDashboardData = async (cityId: string, routeId?: string) => {
   const response = await get(query)
     .then((snapshot) => {
       const collects = snapshot.val();
+      if (!collects) return [];
       let response: CollectEntity[] = Object.keys(collects)
         .map((key) => ({
           id: key,
@@ -138,7 +141,7 @@ export const getDashboardData = async (cityId: string, routeId?: string) => {
       return null;
     });
 
-  if (!response) return defaultDataValue;
+  if (!response || response.length === 0) return defaultDataValue;
 
   // order by month and year -> in this case year is in the january to december format
   response.forEach((collect: CollectEntity) => {

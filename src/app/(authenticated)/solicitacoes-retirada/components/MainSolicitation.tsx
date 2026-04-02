@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { LoadScript, GoogleMap, Marker } from "@react-google-maps/api";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ptBR } from "date-fns/locale";
 import { format } from "date-fns";
@@ -197,12 +197,7 @@ const Solicitations = () => {
                 ) : null}
                 <div className="flex h-[518px] w-[752px] items-center justify-center">
                   {!isViewingImage ? (
-                    <LoadScript
-                      googleMapsApiKey={
-                        process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
-                      }
-                      libraries={["places", "geometry"]}
-                    >
+                    <>
                       <GoogleMap
                         onLoad={onMapLoad}
                         mapContainerStyle={{ width: "100%", height: "100%" }}
@@ -224,7 +219,7 @@ const Solicitations = () => {
                           }}
                         />
                       </GoogleMap>
-                    </LoadScript>
+                    </>
                   ) : (
                     <Image
                       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
