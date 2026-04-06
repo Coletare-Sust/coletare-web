@@ -84,7 +84,11 @@ const RotasAndamento = () => {
   }, [city?.latitude, city?.longitude]);
 
   useEffect(() => {
-    if (city?.latitude && city?.longitude && locationStatus.current !== "success") {
+    if (
+      city?.latitude &&
+      city?.longitude &&
+      locationStatus.current !== "success"
+    ) {
       setCenter({ lat: city.latitude, lng: city.longitude });
     }
   }, [city?.latitude, city?.longitude]);

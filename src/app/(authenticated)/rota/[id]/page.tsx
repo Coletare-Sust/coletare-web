@@ -2,11 +2,7 @@
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import {
-  GoogleMap,
-  Marker,
-  Polyline
-} from "@react-google-maps/api";
+import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
