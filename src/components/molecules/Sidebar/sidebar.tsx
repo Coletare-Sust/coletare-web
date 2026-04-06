@@ -62,7 +62,7 @@ export default function Sidebar({
 
       <nav className="flex flex-col gap-4">
         {links.map((link, index) => {
-          const isActive = pathname.startsWith(link.url);
+          const isActive = pathname === link.url;
           const iconSrc = link.icon(headerColor);
 
           return (
