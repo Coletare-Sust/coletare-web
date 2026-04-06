@@ -39,12 +39,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const openedSolicitationsCount =
     solicitationsData?.filter((s) => !s.isResolved).length || 0;
 
-  const linksComNotificacao = baseLinks.map((link) => {
-    if (link.url === "/solicitacoes-retirada" && openedSolicitationsCount > 0) {
-      return { ...link, alertNumber: openedSolicitationsCount };
-    }
-    return link;
-  });
+  const linksComNotificacao = baseLinks
+    .filter((link) => !link.hiddenInSidebar)
+    .map((link) => {
+      if (
+        link.url === "/solicitacoes-retirada" &&
+        openedSolicitationsCount > 0
+      ) {
+        return { ...link, alertNumber: openedSolicitationsCount };
+      }
+      return link;
+    });
 
   const headerColor = isCity
     ? colors.find((color) => color.name === user?.color)?.hex || "#004A55"

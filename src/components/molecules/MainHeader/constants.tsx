@@ -17,7 +17,8 @@ export const linksCity = [
         "base64"
       )}`;
     },
-    alertNumber: -1
+    alertNumber: -1,
+    hiddenInSidebar: false
   },
   {
     label: "Rotas em tempo real",
@@ -28,10 +29,11 @@ export const linksCity = [
         "base64"
       )}`;
     },
-    alertNumber: -1
+    alertNumber: -1,
+    hiddenInSidebar: false
   },
   {
-    label: "Cadastrar rota",
+    label: "Visualizar rota",
     url: "/rotas",
     icon: (color?: string) => {
       const svgString = renderToString(<MapIcon color={color} />);
@@ -39,7 +41,20 @@ export const linksCity = [
         "base64"
       )}`;
     },
-    alertNumber: -1
+    alertNumber: -1,
+    hiddenInSidebar: false
+  },
+  {
+    label: "Cadastrar rota",
+    url: "/criar-rota",
+    icon: (color?: string) => {
+      const svgString = renderToString(<MapIcon color={color} />);
+      return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
+        "base64"
+      )}`;
+    },
+    alertNumber: -1,
+    hiddenInSidebar: true
   },
   {
     label: "Cadastrar ecopontos",
@@ -50,7 +65,8 @@ export const linksCity = [
         "base64"
       )}`;
     },
-    alertNumber: -1
+    alertNumber: -1,
+    hiddenInSidebar: false
   },
   {
     label: "Solicitação de retirada de lixo ",
@@ -61,7 +77,8 @@ export const linksCity = [
         "base64"
       )}`;
     },
-    alertNumber: -1
+    alertNumber: -1,
+    hiddenInSidebar: false
   },
   {
     label: "Colaboradores e veículos",
@@ -72,7 +89,32 @@ export const linksCity = [
         "base64"
       )}`;
     },
-    alertNumber: -1
+    alertNumber: -1,
+    hiddenInSidebar: false
+  },
+  {
+    label: "Cadastrar novo veículo",
+    url: "/cadastrar-veiculo",
+    icon: (color?: string) => {
+      const svgString = renderToString(<ColaboratorIcon color={color} />);
+      return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
+        "base64"
+      )}`;
+    },
+    alertNumber: -1,
+    hiddenInSidebar: true
+  },
+  {
+    label: "Cadastrar novo colaborador",
+    url: "/cadastrar-colaborador",
+    icon: (color?: string) => {
+      const svgString = renderToString(<ColaboratorIcon color={color} />);
+      return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
+        "base64"
+      )}`;
+    },
+    alertNumber: -1,
+    hiddenInSidebar: true
   },
   {
     label: "Avisos",
@@ -83,7 +125,8 @@ export const linksCity = [
         "base64"
       )}`;
     },
-    alertNumber: -1
+    alertNumber: -1,
+    hiddenInSidebar: false
   }
 ];
 
@@ -97,7 +140,8 @@ export const linksAdmin = [
         "base64"
       )}`;
     },
-    alertNumber: -1
+    alertNumber: -1,
+    hiddenInSidebar: false
   },
   {
     label: "Todas as rotas",
@@ -108,7 +152,8 @@ export const linksAdmin = [
         "base64"
       )}`;
     },
-    alertNumber: -1
+    alertNumber: -1,
+    hiddenInSidebar: false
   },
 
   {
@@ -120,7 +165,8 @@ export const linksAdmin = [
         "base64"
       )}`;
     },
-    alertNumber: -1
+    alertNumber: -1,
+    hiddenInSidebar: false
   },
   {
     label: "Municípios",
@@ -131,7 +177,8 @@ export const linksAdmin = [
         "base64"
       )}`;
     },
-    alertNumber: -1
+    alertNumber: -1,
+    hiddenInSidebar: false
   }
 ];
 

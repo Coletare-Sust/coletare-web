@@ -95,6 +95,23 @@ const CriarEcopontoPage = () => {
       setLat(String(clickedLat));
       setLng(String(clickedLng));
       setMarkerPosition({ lat: clickedLat, lng: clickedLng });
+
+      const geocoder = new window.google.maps.Geocoder();
+
+      geocoder.geocode(
+        { location: { lat: clickedLat, lng: clickedLng } },
+        (results, status) => {
+          if (status === "OK" && results && results[0]) {
+            setDescription(results[0].formatted_address);
+          } else {
+            setDescription(
+              `Localização selecionada (${clickedLat.toFixed(
+                4
+              )}, ${clickedLng.toFixed(4)})`
+            );
+          }
+        }
+      );
     }
   }, []);
 
