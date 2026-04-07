@@ -4,10 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { twMerge } from "tailwind-merge";
-import {
-  GoogleMap,
-  Marker
-} from "@react-google-maps/api";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 
 import Title from "@atoms/Title/title";
 import InputField from "@molecules/InputField/inputField";
@@ -98,6 +95,23 @@ const CriarEcopontoPage = () => {
       setLat(String(clickedLat));
       setLng(String(clickedLng));
       setMarkerPosition({ lat: clickedLat, lng: clickedLng });
+
+      const geocoder = new window.google.maps.Geocoder();
+
+      geocoder.geocode(
+        { location: { lat: clickedLat, lng: clickedLng } },
+        (results, status) => {
+          if (status === "OK" && results && results[0]) {
+            setDescription(results[0].formatted_address);
+          } else {
+            setDescription(
+              `Localização selecionada (${clickedLat.toFixed(
+                4
+              )}, ${clickedLng.toFixed(4)})`
+            );
+          }
+        }
+      );
     }
   }, []);
 

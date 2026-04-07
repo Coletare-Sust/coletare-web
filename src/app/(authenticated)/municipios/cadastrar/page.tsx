@@ -263,10 +263,24 @@ const Cadastrar = () => {
       return;
     }
     if (type === "create" && imageFile) {
-      await mutationCreate.mutateAsync({ data, color, imageFile, fullAddress, latitude, longitude });
+      await mutationCreate.mutateAsync({
+        data,
+        color,
+        imageFile,
+        fullAddress,
+        latitude,
+        longitude
+      });
     }
     if (type === "edit") {
-      await mutationUpdate.mutateAsync({ data, color, imageFile, fullAddress, latitude, longitude });
+      await mutationUpdate.mutateAsync({
+        data,
+        color,
+        imageFile,
+        fullAddress,
+        latitude,
+        longitude
+      });
     }
   };
 
