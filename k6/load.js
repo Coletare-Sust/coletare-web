@@ -2,7 +2,7 @@ import http from 'k6/http'
 import { check, sleep } from 'k6'
 
 export const options = {
-  vus: 200,           // simulate 50 users
+  vus: 50,           // simulate 50 users
   duration: '30s'    // test duration
 }
 
@@ -28,5 +28,5 @@ export default function () {
     'response time < 1000ms': (r) => r.timings.duration < 1000
   })
 
-  sleep(1)
+  sleep(0.3)
 }

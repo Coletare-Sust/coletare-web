@@ -39,30 +39,6 @@ test.describe('Route Creation - Basic Functionality', () => {
       return;
     }
 
-    // Select municipality - change from 'paudalho' to 'teste demonstrativo'
-    const municipalitySelect = page.locator('select, [role="combobox"]').first();
-    const municipalitySelectVisible = await municipalitySelect.isVisible().catch(() => false);
-    
-    if (municipalitySelectVisible) {
-      // Try to find and select 'teste demonstrativo' option
-      await municipalitySelect.click();
-      await page.waitForTimeout(500);
-      
-      // Look for 'teste demonstrativo' option
-      const testeOption = page.getByText('teste demonstrativo').first();
-      const testeOptionVisible = await testeOption.isVisible().catch(() => false);
-      
-      if (testeOptionVisible) {
-        await testeOption.click();
-        console.log('✅ Selected "teste demonstrativo" municipality');
-      } else {
-        // If not found, try selecting by value or other approaches
-        await municipalitySelect.selectOption({ label: 'teste demonstrativo' }).catch(() => {
-          console.log('⚠️ Could not find "teste demonstrativo" option in municipality dropdown');
-        });
-      }
-    }
-
     // Enter 'Rota Centro' in the route name field
     await page.getByPlaceholder('Digite o nome para a rota').fill('Rota Centro');
 
