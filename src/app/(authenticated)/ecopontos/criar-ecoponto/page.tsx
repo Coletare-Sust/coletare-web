@@ -46,7 +46,6 @@ const CriarEcopontoPage = () => {
   const [description, setDescription] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
-  // const [residueType, setResidueType] = useState<string[]>([RESIDUE_TYPES[0]]);
   const [residueType, setResidueType] = useState<string[]>([]);
   const [error, setError] = useState("");
 
@@ -107,12 +106,6 @@ const CriarEcopontoPage = () => {
   const onMapLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
   }, []);
-
-  // const dropdownOptions = RESIDUE_TYPES.map((resType) => ({
-  //   id: resType,
-  //   label: resType,
-  //   onClick: () => setResidueType([resType])
-  // }));
 
   async function handleSubmit() {
     setError("");
@@ -274,17 +267,6 @@ const CriarEcopontoPage = () => {
                     }}
                   />
                 </div>
-
-                {/* <div className="flex flex-col gap-2">
-                  <label className="font-medium text-greenDark-800">
-                    Tipo de Resíduo
-                  </label>
-                  <Dropdown
-                    options={dropdownOptions}
-                    className="w-full border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
-                    value={residueType[0]}
-                  />
-                </div> */}
 
                 <div className="flex flex-col gap-2">
                   <label className="font-medium text-greenDark-800">
