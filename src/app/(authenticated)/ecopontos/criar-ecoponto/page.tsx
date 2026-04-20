@@ -8,7 +8,6 @@ import { GoogleMap, Marker } from "@react-google-maps/api";
 
 import Title from "@atoms/Title/title";
 import InputField from "@molecules/InputField/inputField";
-import Dropdown from "@atoms/Dropdown/dropdown";
 import Button from "@atoms/Button/button";
 import FormErrorLabel from "@atoms/FormError/formError";
 import { successToast, errorToast } from "@/hooks/useAppToast";
@@ -20,15 +19,7 @@ import useCreateEcoponto from "@/hooks/queries/ecoponto/useCreateEcoponto";
 import useUpdateEcoponto from "@/hooks/queries/ecoponto/useUpdateEcoponto";
 import useGetEcopontoById from "@/hooks/queries/ecoponto/useGetEcopontoById";
 import EcopontoAddressInput from "@/components/atoms/EcopontoAddressInput/EcopontoAddressInput";
-
-const residuesTypesOptions = [
-  "Recicláveis",
-  "Resíduos Mistos (Mix)",
-  "Resíduos de Podas",
-  "Resíduo Comum",
-  "Resíduos de Construção",
-  "Grandes Volumes"
-];
+import { RESIDUE_TYPES } from "@/common/constants/residuesTypes";
 
 const initialCenter = {
   lat: -8.05224,
@@ -36,7 +27,6 @@ const initialCenter = {
 };
 
 const CriarEcopontoPage = () => {
-  // Removemos o useJsApiLoader daqui
 
   const router = useRouter();
   const params = useSearchParams();
@@ -56,9 +46,8 @@ const CriarEcopontoPage = () => {
   const [description, setDescription] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
-  const [residueType, setResidueType] = useState<string[]>([
-    residuesTypesOptions[0]
-  ]);
+  // const [residueType, setResidueType] = useState<string[]>([RESIDUE_TYPES[0]]);
+  const [residueType, setResidueType] = useState<string[]>([]);
   const [error, setError] = useState("");
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -119,11 +108,11 @@ const CriarEcopontoPage = () => {
     setMap(map);
   }, []);
 
-  const dropdownOptions = residuesTypesOptions.map((resType) => ({
-    id: resType,
-    label: resType,
-    onClick: () => setResidueType([resType])
-  }));
+  // const dropdownOptions = RESIDUE_TYPES.map((resType) => ({
+  //   id: resType,
+  //   label: resType,
+  //   onClick: () => setResidueType([resType])
+  // }));
 
   async function handleSubmit() {
     setError("");
@@ -250,7 +239,6 @@ const CriarEcopontoPage = () => {
                   onChange={(e) => setName(e.target.value)}
                 />
 
-                {/* Este componente agora está seguro pois só renderiza após o LoadScript terminar */}
                 <EcopontoAddressInput
                   label="Endereço / Buscar Local"
                   value={description}
@@ -287,7 +275,7 @@ const CriarEcopontoPage = () => {
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
+                {/* <div className="flex flex-col gap-2">
                   <label className="font-medium text-greenDark-800">
                     Tipo de Resíduo
                   </label>
@@ -296,6 +284,34 @@ const CriarEcopontoPage = () => {
                     className="w-full border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
                     value={residueType[0]}
                   />
+                </div> */}
+
+                <div className="flex flex-col gap-2">
+                  <label className="font-medium text-greenDark-800">
+                    Tipos de Resíduo <span className="text-sm font-normal text-gray-500">(selecione um ou mais)</span>
+                  </label>
+                  <div className="flex flex-col gap-2 rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-4 py-3">
+                    {RESIDUE_TYPES.map((type) => (
+                      <label key={type} className="flex cursor-pointer items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={residueType.includes(type)}
+                          onChange={() => {
+                            setResidueType((prev) =>
+                              prev.includes(type)
+                                ? prev.filter((t) => t !== type)
+                                : [...prev, type]
+                            );
+                          }}
+                          className="h-4 w-4 accent-greenBlue-1000"
+                        />
+                        <span className="text-sm text-greenDark-800">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {residueType.length === 0 && (
+                    <span className="text-xs text-red-500">Selecione ao menos um tipo.</span>
+                  )}
                 </div>
 
                 <FormErrorLabel>{error}</FormErrorLabel>
