@@ -1,4 +1,4 @@
-export const RESIDUE_TYPES = [
+export const residuesTypes = [
   "Resíduo Comum",
   "Recicláveis",
   "Eletroeletrônicos",
@@ -8,7 +8,7 @@ export const RESIDUE_TYPES = [
   "Grandes Volumes",
 ] as const;
 
-export type ResidueType = (typeof RESIDUE_TYPES)[number];
+export type ResidueType = (typeof residuesTypes)[number];
 
 export const residuesTypesEn: Record<string, ResidueType> = {
   common: "Resíduo Comum",
