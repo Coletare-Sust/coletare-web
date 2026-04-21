@@ -18,7 +18,7 @@ import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import LoadingComponent from "@atoms/Loading/loading";
 import EcopontoDetail from "@/components/molecules/EcopontoDetail/EcopontoDetail";
-import { RESIDUE_TYPES } from "@/common/constants/residuesTypes";
+import { residuesTypes } from "@/common/constants/residuesTypes";
 
 const EcopontosPage = () => {
   const router = useRouter();
@@ -106,7 +106,7 @@ const EcopontosPage = () => {
               Todos os tipos
             </p>
 
-            {RESIDUE_TYPES.map((item) => {
+            {residuesTypes.map((item) => {
               const isActive = activeFilters.includes(item);
               return (
                 <label

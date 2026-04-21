@@ -19,7 +19,7 @@ import useCreateEcoponto from "@/hooks/queries/ecoponto/useCreateEcoponto";
 import useUpdateEcoponto from "@/hooks/queries/ecoponto/useUpdateEcoponto";
 import useGetEcopontoById from "@/hooks/queries/ecoponto/useGetEcopontoById";
 import EcopontoAddressInput from "@/components/atoms/EcopontoAddressInput/EcopontoAddressInput";
-import { RESIDUE_TYPES } from "@/common/constants/residuesTypes";
+import { residuesTypes} from "@/common/constants/residuesTypes";
 
 const initialCenter = {
   lat: -8.05224,
@@ -273,7 +273,7 @@ const CriarEcopontoPage = () => {
                     Tipos de Resíduo <span className="text-sm font-normal text-gray-500">(selecione um ou mais)</span>
                   </label>
                   <div className="flex flex-col gap-2 rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-4 py-3">
-                    {RESIDUE_TYPES.map((type) => (
+                    {residuesTypes.map((type) => (
                       <label key={type} className="flex cursor-pointer items-center gap-3">
                         <input
                           type="checkbox"
