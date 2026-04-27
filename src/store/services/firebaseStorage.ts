@@ -1,17 +1,8 @@
-import {
-  deleteObject,
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytes
-} from "firebase/storage";
-const storage = getStorage();
-
+// Firebase Storage desativado no frontend (migrado para o backend)
 export const uploadImage = async (file: File, path = "images/") => {
   try {
-    const storageRef = ref(storage, path + file.name);
-    await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(storageRef);
+    // uploadBytes desativado
+    const downloadURL = "";
     return { image: downloadURL, error: null };
   } catch (error) {
     console.error("Erro ao fazer upload da imagem:", error);
@@ -19,18 +10,11 @@ export const uploadImage = async (file: File, path = "images/") => {
   }
 };
 
-export const deleteImage = (url: string | null | undefined) => {
+export const deleteImage = async (url: string | null | undefined) => {
   if (!url)
     return {
       error: "Não foi possível deletar a imagem"
     };
 
-  const fileRef = ref(storage, url);
-  return deleteObject(fileRef)
-    .then(() => ({
-      error: null
-    }))
-    .catch(() => ({
-      error: "Não foi possível deletar a imagem"
-    }));
+  return { error: null };
 };

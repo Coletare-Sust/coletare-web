@@ -1,6 +1,25 @@
-const API_URL =
-  process.env.NEXT_PUBLIC_API_ECOTOOLS_URL ||
-  "http://127.0.0.1:5001/coletare-60241/us-central1/ecoponto";
+import { apiFetch } from "@/utils/apiFetch";
+
+// ---------- Backend DTOs (EcopointOutputDTO) ----------
+
+interface AddressDTO {
+  fullAddress: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+}
+
+interface EcopointOutputDTO {
+  id: string;
+  cityId: string;
+  name: string;
+  isActive: boolean;
+  residueTypes: string[];
+  address: AddressDTO;
+}
+
+// ---------- Frontend entity ----------
 
 export type Ecoponto = {
   id: string;
@@ -18,71 +37,79 @@ export type Ecoponto = {
 export type CreateEcopontoDTO = {
   cityId: string;
   name: string;
-  description: string;
-  residueType: string[];
-  lat: number;
-  lng: number;
   isActive: boolean;
+  residueTypes: string[];
+  address: {
+    fullAddress: string;
+    location: {
+      latitude: number;
+      longitude: number;
+    };
+  };
 };
 
 export type UpdateEcopontoDTO = Partial<CreateEcopontoDTO>;
 
-async function http<T>(url: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {})
-    }
-  });
+// ---------- Mapper ----------
 
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.error("API ERROR:", errorText);
-
-    throw new Error(`Erro na requisição: ${res.status} - ${errorText}`);
-  }
-
-  return res.json() as Promise<T>;
+function mapEcopointOutputToEntity(dto: EcopointOutputDTO): Ecoponto {
+  return {
+    id: dto.id,
+    cityId: dto.cityId,
+    name: dto.name,
+    description: dto.address?.fullAddress ?? "",
+    residueType: dto.residueTypes ?? [],
+    lat: dto.address?.location?.latitude ?? 0,
+    lng: dto.address?.location?.longitude ?? 0,
+    isActive: dto.isActive,
+    createdAt: "",
+    updatedAt: "",
+  };
 }
 
-export const createEcoponto = (data: CreateEcopontoDTO) => {
-  console.log("Enviando dados para criação:", data);
+// ---------- Services ----------
 
-  return http<Ecoponto>(`${API_URL}`, {
-    method: "POST",
-    body: JSON.stringify(data)
-  });
-};
-
-export const updateEcoponto = (id: string, data: UpdateEcopontoDTO) => {
-  return http<Ecoponto>(`${API_URL}/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data)
-  });
-};
-
-export const deleteEcoponto = async (id: string) => {
-  const res = await fetch(`${API_URL}/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
-
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.error("API ERROR:", errorText);
-    throw new Error(`Erro ao excluir: ${res.status} - ${errorText}`);
+export const getEcopontosByCity = async (cityId: string): Promise<Ecoponto[]> => {
+  try {
+    const data = await apiFetch<EcopointOutputDTO[]>(`/ecopoint/${cityId}/city`);
+    return data.map(mapEcopointOutputToEntity);
+  } catch (error) {
+    console.error(error);
+    return [];
   }
+};
 
+export const getEcopontoById = async (id: string): Promise<Ecoponto | null> => {
+  try {
+    const data = await apiFetch<EcopointOutputDTO>(`/ecopoint/${id}`);
+    return mapEcopointOutputToEntity(data);
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+export const createEcoponto = async (data: CreateEcopontoDTO): Promise<Ecoponto> => {
+  console.log("Enviando dados para criação:", data);
+  const result = await apiFetch<EcopointOutputDTO>(`/ecopoint/${data.cityId}/city`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+  return mapEcopointOutputToEntity(result);
+};
+
+export const updateEcoponto = async (
+  id: string,
+  data: UpdateEcopontoDTO
+): Promise<Ecoponto> => {
+  const result = await apiFetch<EcopointOutputDTO>(`/ecopoint/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+  return mapEcopointOutputToEntity(result);
+};
+
+export const deleteEcoponto = async (id: string): Promise<true> => {
+  await apiFetch(`/ecopoint/${id}`, { method: "DELETE" });
   return true;
-};
-
-export const getEcopontoById = (id: string) => {
-  return http<Ecoponto>(`${API_URL}/${id}`);
-};
-
-export const getEcopontosByCity = (cityId: string) => {
-  return http<Ecoponto[]>(`${API_URL}/city/${cityId}`);
 };

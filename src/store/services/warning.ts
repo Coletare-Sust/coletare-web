@@ -1,87 +1,97 @@
-import { getUser } from "./user";
-import { UserEntity } from "@/common/entities/user";
-import { uploadImage } from "./firebaseStorage";
-import {
-  equalTo,
-  get,
-  getDatabase,
-  orderByChild,
-  push,
-  query as queryDatabase,
-  ref,
-  set,
-  remove,
-  update
-} from "firebase/database";
+import { apiFetch } from "@/utils/apiFetch";
 import { WarningEntity } from "@/common/entities/Warning";
-import app from "@/config/firebase";
-import { WarningDTO } from "@/common/dtos/WarningDTO";
 
-const database = getDatabase(app);
+// ---------- Backend DTOs (WarningOutputDTO) ----------
 
-export const createWarningService = async (warning: WarningDTO) => {
-  const user: UserEntity = await getUser(warning.cityId);
+interface WarningOutputDTO {
+  id: string;
+  title: string;
+  description: string;
+  image: string | null;
+  cityId: string;
+  createdAt?: string;
+}
 
-  if (user.role !== "admin") throw new Error("Usuário não autorizado!");
+// ---------- Input types ----------
 
-  const newWarningRef = push(ref(database, "warnings"));
-  const warningId = newWarningRef.key;
+export interface CreateWarningInput {
+  title: string;
+  description: string;
+  image?: string | null;
+}
 
-  if (!warningId) throw new Error("Erro ao criar id com push");
+export interface UpdateWarningInput {
+  title: string;
+  description: string;
+  image?: string | null;
+}
 
-  let imageUrl: string | null = null;
-  if (warning.image) {
-    const { image, error } = await uploadImage(
-      warning.image,
-      `warning/${warningId}`
-    );
-    imageUrl = image;
-    if (error || !imageUrl)
-      throw new Error(`Não foi possível subir a imagem!\n${error}`);
-  }
+// ---------- Mapper ----------
 
-  const now = new Date().toISOString();
-
-  const warningToSave: WarningEntity = {
-    id: warningId,
-    cityId: warning.cityId,
-    title: warning.title,
-    description: warning.description,
-    image: imageUrl,
-    createdAt: now,
-    updatedAt: now
+function mapWarningOutputToEntity(dto: WarningOutputDTO): WarningEntity {
+  return {
+    id: dto.id,
+    cityId: dto.cityId,
+    title: dto.title,
+    description: dto.description,
+    image: dto.image ?? null,
+    createdAt: dto.createdAt ?? "",
+    updatedAt: "",
   };
+}
 
-  await set(newWarningRef, warningToSave);
-  return warningToSave;
-};
+// ---------- Services ----------
 
 export const getAllWarningService = async (
   cityId: string
 ): Promise<WarningEntity[]> => {
-  const query = queryDatabase(
-    ref(database, `warnings`),
-    orderByChild("cityId"),
-    equalTo(cityId)
-  );
-
-  return get(query)
-    .then((snapshot) => {
-      const warningsObj = snapshot.val();
-      if (!warningsObj || warningsObj.length === 0) return [];
-      const response = Object.keys(warningsObj).map((key) => warningsObj[key]);
-      return response ?? [];
-    })
-    .catch((error) => {
-      console.error(error);
-      throw new Error(error);
-    });
+  try {
+    const data = await apiFetch<WarningOutputDTO[]>(`/warning/${cityId}/city`);
+    return data.map(mapWarningOutputToEntity);
+  } catch (error) {
+    console.error(error);
+    throw new Error(String(error));
+  }
 };
 
-export const deleteWarningService = async (warningId: string) => {
+export const createWarningService = async (
+  cityId: string,
+  warning: CreateWarningInput
+): Promise<WarningEntity> => {
+  const body = {
+    title: warning.title,
+    description: warning.description,
+    image: warning.image ?? null,
+    cityId,
+  };
+  const data = await apiFetch<WarningOutputDTO>(`/warning/${cityId}/city`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  return mapWarningOutputToEntity(data);
+};
+
+export const updateWarningService = async (
+  warningId: string,
+  data: UpdateWarningInput
+): Promise<WarningEntity> => {
+  const body = {
+    title: data.title,
+    description: data.description,
+    image: typeof data.image === "string" ? data.image : null,
+  };
+  const result = await apiFetch<WarningOutputDTO>(`/warning/${warningId}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+  return mapWarningOutputToEntity(result);
+};
+
+export const deleteWarningService = async (
+  warningId: string
+): Promise<{ error: string | null }> => {
   try {
-    const warningRef = ref(database, `warnings/${warningId}`);
-    await remove(warningRef);
+    await apiFetch(`/warning/${warningId}`, { method: "DELETE" });
     return { error: null };
   } catch (err) {
     console.error("Erro ao deletar aviso:", err);
@@ -92,44 +102,11 @@ export const deleteWarningService = async (warningId: string) => {
 export const getWarningService = async (
   warningId: string
 ): Promise<WarningEntity | null> => {
-  const snapshot = await get(ref(database, `warnings/${warningId}`));
-  if (!snapshot.exists()) return null;
-  return snapshot.val() as WarningEntity;
-};
-
-export const updateWarningService = async (
-  warningId: string,
-  data: {
-    title: string;
-    description: string;
-    image?: File | string | null;
+  try {
+    const data = await apiFetch<WarningOutputDTO>(`/warning/${warningId}`);
+    return mapWarningOutputToEntity(data);
+  } catch (error) {
+    console.error(error);
+    return null;
   }
-) => {
-  const now = new Date().toISOString();
-  const warningRef = ref(database, `warnings/${warningId}`);
-
-  let imageUrl: string | null = null;
-
-  if (data.image instanceof File) {
-    const { image, error } = await uploadImage(
-      data.image,
-      `warning/${warningId}`
-    );
-    imageUrl = image;
-    if (error || !imageUrl)
-      throw new Error(`Não foi possível subir a imagem!\n${error}`);
-  } else if (typeof data.image === "string") {
-    imageUrl = data.image;
-  }
-
-  const updateData = {
-    title: data.title,
-    description: data.description,
-    image: imageUrl,
-    updatedAt: now
-  };
-
-  await update(warningRef, updateData);
-
-  return await getWarningService(warningId);
 };

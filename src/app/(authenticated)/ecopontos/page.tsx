@@ -10,6 +10,7 @@ import Button from "@atoms/Button/button";
 import Title from "@atoms/Title/title";
 import { AccordionChildren } from "@atoms/Accordion/accordion";
 import { wrapper } from "@/common/constants/wrapper";
+import { getResidueTypeLabel } from "@/common/mappers/backendEnums";
 
 import useAllEcopontos from "@/hooks/queries/ecoponto/useAllEcopontos";
 import useDeleteEcoponto from "@/hooks/queries/ecoponto/useDeleteEcoponto";
@@ -44,7 +45,7 @@ const EcopontosPage = () => {
   const filteredPoints =
     ecopoints?.filter((point) => {
       if (filter === "Todos") return true;
-      return point.residueType.includes(filter);
+      return point.residueType.map(getResidueTypeLabel).includes(filter);
     }) ?? [];
 
   function handleDelete(id: string) {
@@ -152,7 +153,7 @@ const EcopontosPage = () => {
               },
               {
                 prop: "Tipos de resíduos",
-                answer: point.residueType.join(", ")
+                answer: point.residueType.map(getResidueTypeLabel).join(", ")
               }
             ],
             children: (

@@ -1,60 +1,26 @@
-import {
-  ref,
-  get,
-  getDatabase,
-  orderByChild,
-  equalTo,
-  query as queryDatabase,
-  update
-} from "firebase/database";
-
+import { apiFetch } from "@/utils/apiFetch";
 import { CollectEntity } from "@/common/entities/Collect";
-import { diffInMonths } from "@/utils/diffInMonths";
+import { CollectOutputDTO, mapCollectOutputToEntity } from "./collect";
+import { DashboardEntity } from "@/common/entities/dashboard";
 
 export const getAllCollectsByRoute = async (routeId: string) => {
-  const query = queryDatabase(
-    ref(getDatabase(), `collects`),
-    orderByChild("routeId"),
-    equalTo(routeId)
-  );
-
-  return get(query)
-    .then((snapshot) => {
-      const collects = snapshot.val();
-      if (!collects) return [];
-      const response = Object.keys(collects).map((key) => ({
-        id: key,
-        ...collects[key]
-      }));
-      return response ?? [];
-    })
-    .catch((error: any) => {
-      console.error(error);
-      return null;
-    });
+  try {
+    const data = await apiFetch<CollectOutputDTO[]>(`/collect/route/${routeId}`);
+    return data.map(mapCollectOutputToEntity);
+  } catch (error: any) {
+    console.error(error);
+    return null;
+  }
 };
 
 export const getAllCollectsByCity = async (cityId: string) => {
-  const query = queryDatabase(
-    ref(getDatabase(), `collects`),
-    orderByChild("cityId"),
-    equalTo(cityId)
-  );
-
-  return get(query)
-    .then((snapshot) => {
-      const collects = snapshot.val();
-      if (!collects) return [];
-      const response = Object.keys(collects).map((key) => ({
-        id: key,
-        ...collects[key]
-      }));
-      return response ?? [];
-    })
-    .catch((error: any) => {
-      console.error(error);
-      return null;
-    });
+  try {
+    const data = await apiFetch<CollectOutputDTO[]>(`/collect/${cityId}/city`);
+    return data.map(mapCollectOutputToEntity);
+  } catch (error: any) {
+    console.error(error);
+    return null;
+  }
 };
 
 export const updateCollect = async (
@@ -62,8 +28,30 @@ export const updateCollect = async (
   data: Partial<CollectEntity>
 ) => {
   try {
-    const reposne = await update(ref(getDatabase(), `collects/${id}`), data);
-    console.log(reposne);
+    const input = {
+      cityId: data.cityId,
+      routeId: data.routeId,
+      driverId: data.employeeId,
+      vehicleId: "", // Not available in frontend entity mapped structure currently
+      vehicleName: data.vehicleName,
+      carPlate: data.carPlate,
+      latitude: data.vehicleLatitude,
+      longitude: data.vehicleLongitude,
+      hasEnded: data.hasEnded,
+      durationSeconds: data.duration,
+      kmRun: data.kmRun,
+      mass: data.mass,
+      consume: data.consume,
+      emission: data.emission,
+      fuelCost: data.cost?.fuel,
+      landfillDeliveryCost: data.cost?.landfillDelivery,
+    };
+
+    const response = await apiFetch(`/collect/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(input),
+    });
+    console.log(response);
     return { error: null };
   } catch (error: any) {
     console.error(error);
@@ -71,141 +59,59 @@ export const updateCollect = async (
   }
 };
 
-export const getDashboardData = async (cityId: string, routeId?: string) => {
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const monthDays = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth() + 1,
-    0
-  ).getDate();
+// ---------- Dashboard ----------
 
-  const defaultDataValue: any = {
+// Backend response shape (DashboardDataOutputDTO / DashboardMetricDataDTO)
+interface DashboardMetricDataDTO {
+  year: number[];
+  semester: number[];
+  month: number[];
+}
+
+interface DashboardDataOutputDTO {
+  landfill: DashboardMetricDataDTO;
+  fuel: DashboardMetricDataDTO;
+  emission: DashboardMetricDataDTO;
+  mass: DashboardMetricDataDTO;
+}
+
+function mapDashboardOutputToEntity(dto: DashboardDataOutputDTO): DashboardEntity {
+  return {
     landfill: {
-      year: new Array(12).fill(0),
-      semester: new Array(6).fill(0),
-      month: new Array(monthDays).fill(0)
+      year: dto.landfill?.year ?? [],
+      semester: dto.landfill?.semester ?? [],
+      month: dto.landfill?.month ?? [],
     },
     fuel: {
-      year: new Array(12).fill(0),
-      semester: new Array(6).fill(0),
-      month: new Array(monthDays).fill(0)
+      year: dto.fuel?.year ?? [],
+      semester: dto.fuel?.semester ?? [],
+      month: dto.fuel?.month ?? [],
     },
     emission: {
-      year: new Array(12).fill(0),
-      semester: new Array(6).fill(0),
-      month: new Array(monthDays).fill(0)
+      year: dto.emission?.year ?? [],
+      semester: dto.emission?.semester ?? [],
+      month: dto.emission?.month ?? [],
     },
     mass: {
-      year: new Array(12).fill(0),
-      semester: new Array(6).fill(0),
-      month: new Array(monthDays).fill(0)
-    }
+      year: dto.mass?.year ?? [],
+      semester: dto.mass?.semester ?? [],
+      month: dto.mass?.month ?? [],
+    },
   };
+}
 
-  const finalData = defaultDataValue;
-
-  // get requisition all data of the city in the last 12 months
-  const queryRef = ref(getDatabase(), "collects");
-  const query = queryDatabase(
-    queryRef,
-    orderByChild("cityId"),
-    equalTo(cityId)
-  );
-
-  const response = await get(query)
-    .then((snapshot) => {
-      const collects = snapshot.val();
-      if (!collects) return [];
-      let response: CollectEntity[] = Object.keys(collects)
-        .map((key) => ({
-          id: key,
-          ...collects[key]
-        }))
-        .filter(
-          (collect) =>
-            diffInMonths(
-              currentDate,
-              new Date(collect.createdAt.seconds * 1000)
-            ) <= 12
-        );
-
-      if (routeId) {
-        response = response.filter((collect) => collect.routeId === routeId);
-      }
-
-      return response ?? [];
-    })
-    .catch((error: any) => {
-      console.error(error);
-      return null;
-    });
-
-  if (!response || response.length === 0) return defaultDataValue;
-
-  // order by month and year -> in this case year is in the january to december format
-  response.forEach((collect: CollectEntity) => {
-    const collectDate = new Date(collect.createdAt.seconds * 1000);
-    const collectMonth = collectDate.getMonth();
-    const collectDay = collectDate.getDate();
-
-    const isFromThisMonth = collectDate.getMonth() === currentMonth;
-
-    Object.keys(finalData).forEach((key) => {
-      const finalLandfillValue =
-        collect.mass && collect.cost?.landfillDelivery
-          ? parseFloat(
-              (collect.mass * collect.cost?.landfillDelivery).toFixed(2)
-            )
-          : 0;
-      const finalCollectEmission =
-        collect.consume && collect.kmRun && collect.emission
-          ? parseFloat(
-              (collect.consume * collect.kmRun * collect.emission).toFixed(2)
-            )
-          : 0;
-      const finalCollectFuelCost =
-        collect.cost?.fuel && collect.consume && collect.cost?.fuel
-          ? parseFloat(
-              (collect.consume * collect.kmRun * collect.cost?.fuel).toFixed(2)
-            )
-          : 0;
-
-      const finalMass = collect.mass ? parseFloat(collect.mass.toFixed(2)) : 0;
-
-      if (key === "landfill") {
-        finalData[key].year[collectMonth] += finalLandfillValue;
-        if (isFromThisMonth) {
-          finalData[key].month[collectDay - 1] += finalLandfillValue;
-        }
-      }
-      if (key === "fuel") {
-        finalData[key].year[collectMonth] += finalCollectFuelCost;
-        if (isFromThisMonth) {
-          finalData[key].month[collectDay - 1] += finalCollectFuelCost;
-        }
-      }
-      if (key === "emission") {
-        finalData[key].year[collectMonth] += finalCollectEmission;
-        if (isFromThisMonth) {
-          finalData[key].month[collectDay - 1] += finalCollectEmission;
-        }
-      }
-      if (key === "mass") {
-        finalData[key].year[collectMonth] += finalMass;
-        if (isFromThisMonth) {
-          finalData[key].month[collectDay - 1] += finalMass;
-        }
-      }
-    });
-  });
-
-  // order correctly the year + get semester (not jan to dec, but get the last 12 months)
-  Object.keys(finalData).forEach((key) => {
-    finalData[key].year = finalData[key].year
-      .slice(currentMonth + 1)
-      .concat(finalData[key].year.slice(0, currentMonth + 1));
-    finalData[key].semester = finalData[key].year.slice(-6);
-  });
-  return finalData;
+export const getDashboardData = async (
+  cityId: string,
+  routeId?: string
+): Promise<DashboardEntity | null> => {
+  try {
+    const url = routeId
+      ? `/metrics/${cityId}/dashboard?routeId=${routeId}`
+      : `/metrics/${cityId}/dashboard`;
+    const data = await apiFetch<DashboardDataOutputDTO>(url);
+    return mapDashboardOutputToEntity(data);
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 };
