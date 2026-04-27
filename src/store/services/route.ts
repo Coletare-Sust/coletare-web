@@ -1,24 +1,76 @@
-import {
-  get,
-  getDatabase,
-  orderByChild,
-  ref,
-  set,
-  equalTo,
-  query as queryDatabase,
-  remove,
-  update
-} from "firebase/database";
-
-import firebaseApp from "@/config/firebase";
+import { apiFetch } from "@/utils/apiFetch";
 import { RouteEntity } from "@/common/entities/route";
 
-const database = getDatabase(firebaseApp);
+// Backend Types
+interface WaypointDTO {
+  checked: boolean;
+  location: { latitude: number; longitude: number; altitude?: number };
+}
+
+interface RouteOutputDTO {
+  id: string;
+  name: string;
+  cityId: string;
+  period: string;
+  days: string[]; 
+  isSpecial: boolean;
+  residueType: string;
+  polyline: string;
+  waypoints: WaypointDTO[];
+}
+
+const DEFAULT_DAYS = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+
+export function mapRouteOutputToEntity(dto: RouteOutputDTO): RouteEntity {
+  const daysEntity = DEFAULT_DAYS.map(day => dto.days?.includes(day) || false);
+  return {
+    id: dto.id,
+    name: dto.name,
+    cityId: dto.cityId,
+    period: dto.period as any,
+    days: daysEntity,
+    isSpecial: dto.isSpecial,
+    residueType: dto.residueType,
+    polyline: dto.polyline || "",
+    wasChecked: false, 
+    withdrawalRequestsIds: [], 
+    waypoints: (dto.waypoints || []).map(wp => ({
+      lat: wp.location.latitude,
+      lng: wp.location.longitude,
+      wasChecked: wp.checked,
+    })),
+  };
+}
+
+export function mapEntityToRouteInput(entity: Partial<RouteEntity>) {
+  const daysSet: string[] = [];
+  if (entity.days) {
+    entity.days.forEach((isActive, index) => {
+      if (isActive) daysSet.push(DEFAULT_DAYS[index]);
+    });
+  }
+
+  return {
+    name: entity.name,
+    period: entity.period,
+    days: entity.days ? daysSet : undefined,
+    isSpecial: entity.isSpecial,
+    residueType: entity.residueType,
+    polyline: entity.polyline,
+    waypoints: entity.waypoints?.map(wp => ({
+      checked: wp.wasChecked,
+      location: { latitude: wp.lat, longitude: wp.lng }
+    }))
+  };
+}
 
 export const createRoute = async (data: RouteEntity) => {
   try {
-    console.log({ data });
-    set(ref(database, "routes/" + data.id), data);
+    const input = mapEntityToRouteInput(data);
+    await apiFetch(`/route/${data.cityId}/city`, {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
     return { error: null };
   } catch (error: any) {
     console.error(error);
@@ -27,28 +79,20 @@ export const createRoute = async (data: RouteEntity) => {
 };
 
 export const getRoutes = async (cityId: string) => {
-  const query = queryDatabase(
-    ref(getDatabase(), `routes`),
-    orderByChild("cityId"),
-    equalTo(cityId)
-  );
-  return get(query)
-    .then((snapshot) => {
-      const routesObj = snapshot.val();
-      if (!routesObj || routesObj.length === 0) return [];
-      const response = Object.keys(routesObj).map((key) => routesObj[key]);
-      return response ?? [];
-    })
-    .catch((error) => {
-      console.error(error);
-      return null;
-    });
+  try {
+    const data = await apiFetch<RouteOutputDTO[]>(`/route/${cityId}/city`);
+    return data.map(mapRouteOutputToEntity);
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 };
 
 export const deleteRoute = async (routeId: string) => {
   try {
-    const routeRef = ref(database, `routes/${routeId}`);
-    await remove(routeRef);
+    await apiFetch(`/route/${routeId}`, {
+      method: "DELETE",
+    });
     return { error: null };
   } catch (error: any) {
     console.error(error);
@@ -58,14 +102,8 @@ export const deleteRoute = async (routeId: string) => {
 
 export const getRoute = async (routeId: string) => {
   try {
-    const routeRef = ref(database, `routes/${routeId}`);
-    const snapshot = await get(routeRef);
-
-    if (snapshot.exists()) {
-      return { id: routeId, ...snapshot.val() };
-    } else {
-      return { error: "Route not found" };
-    }
+    const data = await apiFetch<RouteOutputDTO>(`/route/${routeId}`);
+    return mapRouteOutputToEntity(data);
   } catch (error: any) {
     console.error(error);
     return { error: error.message };
@@ -77,8 +115,11 @@ export const updateRouteDoc = async (
   data: Partial<RouteEntity>
 ) => {
   try {
-    const userRef = ref(database, `routes/${uid}`);
-    await update(userRef, data);
+    const input = mapEntityToRouteInput(data);
+    await apiFetch(`/route/${uid}`, {
+      method: "PUT",
+      body: JSON.stringify(input),
+    });
     return { error: null };
   } catch (error: any) {
     console.log(error);

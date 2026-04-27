@@ -48,7 +48,12 @@ export default function EditWarningPage() {
 
     setLoading(true);
     try {
-      await updateWarningService(id as string, { title, description, image });
+      await updateWarningService(id as string, {
+        title,
+        description,
+        // Backend aceita apenas string (URL) para image, não File
+        image: typeof image === "string" ? image : null,
+      });
       successToast("Aviso atualizado!");
       router.push("/avisos");
     } catch {

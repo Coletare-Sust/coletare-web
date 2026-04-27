@@ -33,7 +33,11 @@ const FilterBar = ({
   const { data: cities } = useAllCities();
   const [date, setDate] = useState<Date | undefined>();
   const [cityId, setCityId] = useState<string | undefined>(
-    user && user?.cityId ? user?.cityId : cities ? cities[0].id : undefined
+    user && user?.cityId
+      ? user?.cityId
+      : cities && cities.length > 0
+      ? cities[0].id
+      : undefined
   );
   const { data: cityCollects } = useAllCollectsByCity(cityId as string);
   const cityName = cities?.find((item) => item.id === cityId)?.name as string;

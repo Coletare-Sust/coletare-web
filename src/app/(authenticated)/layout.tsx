@@ -68,20 +68,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const deveMostrarSidebar = rotasComSidebar.includes(pathname);
 
   const renderContent = () => {
-    if (loadError)
-      return (
-        <div className="flex h-full items-center justify-center p-10">
-          <p>Erro ao carregar mapa</p>
-        </div>
-      );
-    if (!isLoaded)
-      return (
-        <div className="flex h-[calc(100vh-76px)] w-full items-center justify-center">
-          <div className="font-medium text-greenBlue-1000">
-            Carregando recursos locacionais...
-          </div>
-        </div>
-      );
+    // Maps não bloqueia o render da página — componentes que usam Maps
+    // tratam o estado de carregamento internamente.
+    // loadError é logado mas não impede a navegação.
+    if (loadError) {
+      console.warn("Google Maps não pôde ser carregado:", loadError);
+    }
     return children;
   };
 

@@ -34,11 +34,11 @@ export default function PostPage() {
 
     setLoading(true);
     try {
-      await createWarningService({
-        cityId: user.id,
+      await createWarningService(user.id, {
         title,
         description,
-        image
+        // Imagem File não suportada diretamente pelo backend (aceita apenas string/URL)
+        image: typeof image === "string" ? image : null,
       });
       successToast("Postagem criada!");
       router.push("/avisos");
