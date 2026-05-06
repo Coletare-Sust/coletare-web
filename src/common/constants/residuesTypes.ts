@@ -5,7 +5,7 @@ export const residuesTypes = [
   "Resíduos Mistos (Mix)",
   "Resíduos de Construção",
   "Resíduos de Podas",
-  "Grandes Volumes",
+  "Grandes Volumes"
 ] as const;
 
 export type ResidueType = (typeof residuesTypes)[number];
@@ -17,5 +17,5 @@ export const residuesTypesEn: Record<string, ResidueType> = {
   mixed: "Resíduos Mistos (Mix)",
   construction: "Resíduos de Construção",
   pruning: "Resíduos de Podas",
-  "high-volumes": "Grandes Volumes",
+  "high-volumes": "Grandes Volumes"
 };

@@ -19,7 +19,7 @@ import useCreateEcoponto from "@/hooks/queries/ecoponto/useCreateEcoponto";
 import useUpdateEcoponto from "@/hooks/queries/ecoponto/useUpdateEcoponto";
 import useGetEcopontoById from "@/hooks/queries/ecoponto/useGetEcopontoById";
 import EcopontoAddressInput from "@/components/atoms/EcopontoAddressInput/EcopontoAddressInput";
-import { residuesTypes} from "@/common/constants/residuesTypes";
+import { residuesTypes } from "@/common/constants/residuesTypes";
 
 const initialCenter = {
   lat: -8.05224,
@@ -27,7 +27,6 @@ const initialCenter = {
 };
 
 const CriarEcopontoPage = () => {
-
   const router = useRouter();
   const params = useSearchParams();
 
@@ -270,11 +269,17 @@ const CriarEcopontoPage = () => {
 
                 <div className="flex flex-col gap-2">
                   <label className="font-medium text-greenDark-800">
-                    Tipos de Resíduo <span className="text-sm font-normal text-gray-500">(selecione um ou mais)</span>
+                    Tipos de Resíduo{" "}
+                    <span className="text-sm font-normal text-gray-500">
+                      (selecione um ou mais)
+                    </span>
                   </label>
                   <div className="flex flex-col gap-2 rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-4 py-3">
                     {residuesTypes.map((type) => (
-                      <label key={type} className="flex cursor-pointer items-center gap-3">
+                      <label
+                        key={type}
+                        className="flex cursor-pointer items-center gap-3"
+                      >
                         <input
                           type="checkbox"
                           checked={residueType.includes(type)}
@@ -287,12 +292,16 @@ const CriarEcopontoPage = () => {
                           }}
                           className="h-4 w-4 accent-greenBlue-1000"
                         />
-                        <span className="text-sm text-greenDark-800">{type}</span>
+                        <span className="text-sm text-greenDark-800">
+                          {type}
+                        </span>
                       </label>
                     ))}
                   </div>
                   {residueType.length === 0 && (
-                    <span className="text-xs text-red-500">Selecione ao menos um tipo.</span>
+                    <span className="text-xs text-red-500">
+                      Selecione ao menos um tipo.
+                    </span>
                   )}
                 </div>
 
