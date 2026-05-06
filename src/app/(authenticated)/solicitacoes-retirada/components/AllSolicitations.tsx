@@ -45,17 +45,17 @@ const AllSolicitations = () => {
           ? item.residueType
           : [item.residueType]
         ).some((t) => t.toLowerCase() === activeResidue.toLowerCase())
-      : true
+      : true;
 
     const matchesStatus =
       activeStatus === "em andamento"
         ? !item.isResolved
         : activeStatus === "concluído"
         ? item.isResolved
-        : true
+        : true;
 
-    return matchesResidue && matchesStatus
-  })
+    return matchesResidue && matchesStatus;
+  });
 
   return (
     <section className="my-[64px] space-y-8">
