@@ -1,17 +1,21 @@
 export const residuesTypes = [
-  "Resíduo comum",
-  "Grandes Volumes",
-  "Resíduos de Construção",
+  "Resíduo Comum",
+  "Recicláveis",
+  "Eletroeletrônicos",
   "Resíduos Mistos (Mix)",
+  "Resíduos de Construção",
   "Resíduos de Podas",
-  "Recicláveis"
-];
+  "Grandes Volumes",
+] as const;
 
-export const residuesTypesEn = {
-  pruning: "Resíduos de Podas",
-  construction: "Resíduos de Construção",
+export type ResidueType = (typeof residuesTypes)[number];
+
+export const residuesTypesEn: Record<string, ResidueType> = {
+  common: "Resíduo Comum",
   recycled: "Recicláveis",
+  electronics: "Eletroeletrônicos",
   mixed: "Resíduos Mistos (Mix)",
+  construction: "Resíduos de Construção",
+  pruning: "Resíduos de Podas",
   "high-volumes": "Grandes Volumes",
-  common: "Resíduo comum"
 };

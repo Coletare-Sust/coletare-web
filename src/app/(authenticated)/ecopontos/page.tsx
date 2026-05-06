@@ -18,13 +18,7 @@ import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import LoadingComponent from "@atoms/Loading/loading";
 import EcopontoDetail from "@/components/molecules/EcopontoDetail/EcopontoDetail";
-
-const residuesTypesOptions = [
-  "Recicláveis",
-  "Orgânicos",
-  "Especiais",
-  "Resíduo Comum"
-];
+import { residuesTypes } from "@/common/constants/residuesTypes";
 
 const EcopontosPage = () => {
   const router = useRouter();
@@ -34,17 +28,16 @@ const EcopontosPage = () => {
   const cityId = user?.id as string;
 
   const { data: ecopoints, isLoading } = useAllEcopontos(cityId);
-
   const { mutateAsync: deletePoint } = useDeleteEcoponto(cityId);
 
-  const [filter, setFilter] = useState("Todos");
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [openItem, setOpenItem] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const filteredPoints =
     ecopoints?.filter((point) => {
-      if (filter === "Todos") return true;
-      return point.residueType.includes(filter);
+      if (activeFilters.length === 0) return true;
+      return activeFilters.some((f) => point.residueType.includes(f));
     }) ?? [];
 
   function handleDelete(id: string) {
@@ -86,49 +79,64 @@ const EcopontosPage = () => {
 
         <button
           onClick={() => setIsDropdownOpen((prev) => !prev)}
-          className="flex w-64 items-center justify-between rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-4 py-2 text-greenBlue-1000"
+          className="flex w-72 items-center justify-between rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-4 py-2 text-greenBlue-1000"
         >
-          {filter === "Todos" ? "Todos os tipos" : filter}
+          <span className="truncate">
+            {activeFilters.length === 0
+              ? "Todos os tipos"
+              : activeFilters.join(", ")}
+          </span>
           <ChevronDown
             size={18}
-            className={`transition-transform ${
+            className={`ml-2 shrink-0 transition-transform ${
               isDropdownOpen ? "rotate-180" : ""
             }`}
           />
         </button>
 
         {isDropdownOpen && (
-          <div className="absolute z-10 mt-2 w-64 rounded-lg border border-greenBlue-800 bg-white-1000 shadow-md">
+          <div className="absolute z-10 mt-2 w-72 rounded-lg border border-greenBlue-800 bg-white-1000 shadow-md">
             <p
-              className={`cursor-pointer px-4 py-2 hover:bg-greenBebe-200 ${
-                filter === "Todos"
-                  ? "font-semibold text-greenBlue-1000"
-                  : "text-greenDark-800"
-              }`}
+              className="cursor-pointer border-b border-greenBlue-200 px-4 py-2 font-semibold text-greenBlue-1000 hover:bg-greenBebe-200"
               onClick={() => {
-                setFilter("Todos");
+                setActiveFilters([]);
                 setIsDropdownOpen(false);
               }}
             >
-              Todos
+              Todos os tipos
             </p>
 
-            {residuesTypesOptions.map((item) => (
-              <p
-                key={item}
-                onClick={() => {
-                  setFilter(item);
-                  setIsDropdownOpen(false);
-                }}
-                className={`cursor-pointer px-4 py-2 hover:bg-greenBebe-200 ${
-                  filter === item
-                    ? "font-semibold text-greenBlue-1000"
-                    : "text-greenDark-800"
-                }`}
-              >
-                {item}
-              </p>
-            ))}
+            {residuesTypes.map((item) => {
+              const isActive = activeFilters.includes(item);
+              return (
+                <label
+                  key={item}
+                  className="flex cursor-pointer items-center gap-3 px-4 py-2 hover:bg-greenBebe-200"
+                >
+                  <input
+                    type="checkbox"
+                    checked={isActive}
+                    onChange={() => {
+                      setActiveFilters((prev) =>
+                        isActive
+                          ? prev.filter((f) => f !== item)
+                          : [...prev, item]
+                      );
+                    }}
+                    className="h-4 w-4 accent-greenBlue-1000"
+                  />
+                  <span
+                    className={`text-sm ${
+                      isActive
+                        ? "font-semibold text-greenBlue-1000"
+                        : "text-greenDark-800"
+                    }`}
+                  >
+                    {item}
+                  </span>
+                </label>
+              );
+            })}
           </div>
         )}
       </div>
