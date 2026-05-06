@@ -20,15 +20,7 @@ import useCreateEcoponto from "@/hooks/queries/ecoponto/useCreateEcoponto";
 import useUpdateEcoponto from "@/hooks/queries/ecoponto/useUpdateEcoponto";
 import useGetEcopontoById from "@/hooks/queries/ecoponto/useGetEcopontoById";
 import EcopontoAddressInput from "@/components/atoms/EcopontoAddressInput/EcopontoAddressInput";
-
-const residuesTypesOptions = [
-  "Recicláveis",
-  "Resíduos Mistos (Mix)",
-  "Resíduos de Podas",
-  "Resíduo Comum",
-  "Resíduos de Construção",
-  "Grandes Volumes"
-];
+import { RESIDUE_TYPE_LABELS, getResidueTypeLabel } from "@/common/mappers/backendEnums";
 
 const initialCenter = {
   lat: -8.05224,
@@ -57,7 +49,7 @@ const CriarEcopontoPage = () => {
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
   const [residueType, setResidueType] = useState<string[]>([
-    residuesTypesOptions[0]
+    Object.keys(RESIDUE_TYPE_LABELS)[0]
   ]);
   const [error, setError] = useState("");
 
@@ -119,10 +111,10 @@ const CriarEcopontoPage = () => {
     setMap(map);
   }, []);
 
-  const dropdownOptions = residuesTypesOptions.map((resType) => ({
-    id: resType,
-    label: resType,
-    onClick: () => setResidueType([resType])
+  const dropdownOptions = Object.entries(RESIDUE_TYPE_LABELS).map(([key, label]) => ({
+    id: key,
+    label: label,
+    onClick: () => setResidueType([key])
   }));
 
   async function handleSubmit() {
@@ -151,10 +143,14 @@ const CriarEcopontoPage = () => {
     const payload = {
       cityId,
       name,
-      description,
-      residueType,
-      lat: latNum,
-      lng: lngNum,
+      residueTypes: residueType,
+      address: {
+        fullAddress: description,
+        location: {
+          latitude: latNum,
+          longitude: lngNum
+        }
+      },
       isActive: true
     };
 
@@ -294,7 +290,7 @@ const CriarEcopontoPage = () => {
                   <Dropdown
                     options={dropdownOptions}
                     className="w-full border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
-                    value={residueType[0]}
+                    value={getResidueTypeLabel(residueType[0]) || residueType[0]}
                   />
                 </div>
 

@@ -17,7 +17,7 @@ interface WarningOutputDTO {
 export interface CreateWarningInput {
   title: string;
   description: string;
-  image?: string | null;
+  image?: File | null;
 }
 
 export interface UpdateWarningInput {
@@ -58,15 +58,18 @@ export const createWarningService = async (
   cityId: string,
   warning: CreateWarningInput
 ): Promise<WarningEntity> => {
-  const body = {
-    title: warning.title,
-    description: warning.description,
-    image: warning.image ?? null,
-    cityId,
-  };
+  const formData = new FormData();
+  formData.append("title", warning.title);
+  formData.append("description", warning.description);
+  if (warning.image instanceof File) {
+    formData.append("image", warning.image);
+  }
+
   const data = await apiFetch<WarningOutputDTO>(`/warning/${cityId}/city`, {
     method: "POST",
-    body: JSON.stringify(body),
+    body: formData,
+    // Sem Content-Type: o browser define automaticamente o boundary do multipart
+    headers: {},
   });
   return mapWarningOutputToEntity(data);
 };

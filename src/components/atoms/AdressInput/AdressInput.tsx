@@ -22,8 +22,10 @@ const AdressInput = ({
   };
 
   const onPlacesChanged = () => {
-    const places = searchBox!.getPlaces();
-    const place = places![0];
+    if (!searchBox) return;
+    const places = searchBox.getPlaces();
+    if (!places || places.length === 0) return;
+    const place = places[0];
 
     const location = {
       lat: place?.geometry?.location?.lat() || 0,

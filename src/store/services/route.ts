@@ -1,5 +1,6 @@
 import { apiFetch } from "@/utils/apiFetch";
 import { RouteEntity } from "@/common/entities/route";
+import { RESIDUE_TYPE_LABELS, getResidueTypeLabel } from "@/common/mappers/backendEnums";
 
 // Backend Types
 interface WaypointDTO {
@@ -27,10 +28,10 @@ export function mapRouteOutputToEntity(dto: RouteOutputDTO): RouteEntity {
     id: dto.id,
     name: dto.name,
     cityId: dto.cityId,
-    period: dto.period as any,
+    period: (dto.period?.toLowerCase() || "morning") as any,
     days: daysEntity,
     isSpecial: dto.isSpecial,
-    residueType: dto.residueType,
+    residueType: getResidueTypeLabel(dto.residueType),
     polyline: dto.polyline || "",
     wasChecked: false, 
     withdrawalRequestsIds: [], 
@@ -52,10 +53,10 @@ export function mapEntityToRouteInput(entity: Partial<RouteEntity>) {
 
   return {
     name: entity.name,
-    period: entity.period,
+    period: entity.period?.toUpperCase(),
     days: entity.days ? daysSet : undefined,
     isSpecial: entity.isSpecial,
-    residueType: entity.residueType,
+    residueType: Object.entries(RESIDUE_TYPE_LABELS).find(([key, val]) => val === entity.residueType)?.[0] || entity.residueType,
     polyline: entity.polyline,
     waypoints: entity.waypoints?.map(wp => ({
       checked: wp.wasChecked,

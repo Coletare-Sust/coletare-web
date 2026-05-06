@@ -91,9 +91,10 @@ export const getEcopontoById = async (id: string): Promise<Ecoponto | null> => {
 
 export const createEcoponto = async (data: CreateEcopontoDTO): Promise<Ecoponto> => {
   console.log("Enviando dados para criação:", data);
-  const result = await apiFetch<EcopointOutputDTO>(`/ecopoint/${data.cityId}/city`, {
+  const { cityId, ...input } = data;
+  const result = await apiFetch<EcopointOutputDTO>(`/ecopoint/${cityId}/city`, {
     method: "POST",
-    body: JSON.stringify(data),
+    body: JSON.stringify(input),
   });
   return mapEcopointOutputToEntity(result);
 };
@@ -102,9 +103,10 @@ export const updateEcoponto = async (
   id: string,
   data: UpdateEcopontoDTO
 ): Promise<Ecoponto> => {
+  const { cityId, ...input } = data;
   const result = await apiFetch<EcopointOutputDTO>(`/ecopoint/${id}`, {
     method: "PUT",
-    body: JSON.stringify(data),
+    body: JSON.stringify(input),
   });
   return mapEcopointOutputToEntity(result);
 };
