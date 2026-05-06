@@ -20,24 +20,48 @@ const InfoRow = ({ data }: { data: Extended }) => {
         {!data.isResolved ? "Aberto" : "Fechado"}
       </p>
 
-      <div className={boxStyles + " col-span-3 rounded-l-md overflow-hidden " + `${!data.isResolved ? "bg-greenAqua-200" : "bg-white-800"}`}>
+      <div
+        className={
+          boxStyles +
+          " col-span-3 overflow-hidden rounded-l-md " +
+          `${!data.isResolved ? "bg-greenAqua-200" : "bg-white-800"}`
+        }
+      >
         <span className={labelStyles}>Local</span>
         <span className="truncate">{data.fullAddress}</span>
       </div>
 
-      <div className={boxStyles + `col-span-2 overflow-hidden ${!data.isResolved ? "bg-greenAqua-200" : "bg-white-800"}`}>
+      <div
+        className={
+          boxStyles +
+          `col-span-2 overflow-hidden ${
+            !data.isResolved ? "bg-greenAqua-200" : "bg-white-800"
+          }`
+        }
+      >
         <span className={labelStyles}>Solicitante</span>
         <span className="truncate">{requesterData?.name}</span>
       </div>
 
-      <div className={boxStyles + `col-span-2 ${!data.isResolved ? "bg-greenAqua-200" : "bg-white-800"}`}>
+      <div
+        className={
+          boxStyles +
+          `col-span-2 ${!data.isResolved ? "bg-greenAqua-200" : "bg-white-800"}`
+        }
+      >
         <span className={labelStyles}>Data</span>
         <span>
           {format(data.createdAt.seconds * 1000, "P", { locale: ptBR })}
         </span>
       </div>
 
-      <div className={boxStyles + " col-span-2 rounded-r-md overflow-hidden " + `${!data.isResolved ? "bg-greenAqua-200" : "bg-white-800"}`}>
+      <div
+        className={
+          boxStyles +
+          " col-span-2 overflow-hidden rounded-r-md " +
+          `${!data.isResolved ? "bg-greenAqua-200" : "bg-white-800"}`
+        }
+      >
         <span className={labelStyles}>
           Tipo de <br />
           Residuo
