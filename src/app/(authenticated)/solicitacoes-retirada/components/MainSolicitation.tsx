@@ -19,7 +19,6 @@ import useProfile from "@/hooks/queries/useProfile";
 import useAllWithdrawalsRequest from "@/hooks/queries/useAllWithdrawalsRequests";
 import useOneUser from "@/hooks/queries/useOneUser";
 import { sendEmail } from "@/store/services/email";
-import { Divide } from "lucide-react";
 
 const Solicitations = () => {
   const { userUid } = useAuth();
@@ -71,7 +70,9 @@ const Solicitations = () => {
           { label: "Local", value: filteredData?.fullAddress },
           {
             label: "Tipo de Residuo",
-            value: filteredData?.residueType
+            value: Array.isArray(filteredData?.residueType)
+              ? filteredData.residueType.join(", ")
+              : filteredData?.residueType
           },
           {
             label: "Data",
