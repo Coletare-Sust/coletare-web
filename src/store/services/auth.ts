@@ -87,3 +87,26 @@ export const logout = async () => {
     console.error("Erro no logout remoto", e);
   }
 };
+
+export const registerVehicle = async (data: any) => {
+  return await apiFetch('/auth/register/vehicle', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+};
+
+export const registerEmployee = async (data: any) => {
+  return await apiFetch('/auth/register/employee', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+};
+
+export const registerCity = async (data: FormData) => {
+  // registerCity receives a multipart form data
+  return await apiFetch('/auth/register/city', {
+    method: 'POST',
+    body: data, // Form data is directly sent
+    // do not stringify FormData
+  });
+};

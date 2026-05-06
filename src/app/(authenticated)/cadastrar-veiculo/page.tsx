@@ -14,8 +14,9 @@ import InputField from "@molecules/InputField/inputField";
 import RegisterVehiclesCollaborators from "@organisms/RegisterVehiclesCollaborators/registerVehiclesCollaborators";
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
-import { successToast } from "@/hooks/useAppToast";
+import { successToast, errorToast } from "@/hooks/useAppToast";
 import { updateUserDoc } from "@/store/services/user";
+import { registerVehicle } from "@/store/services/auth";
 import EditVehicleFormSchema from "@/validations/editVehicle";
 
 type RegisterVehicleForm = z.infer<typeof RegisterVehicleFormSchema>;
@@ -70,35 +71,26 @@ const CadastrarVeiculoPage = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
-    async (data: RegisterVehicleForm) => {
-      return await createUserWithInternalService({
-        ...data,
-        id: v4(),
-        color: null,
-        cpf: null,
-        createdAt: Timestamp.now(),
-        facilitatorName: null,
-        fullAddress: null,
-        latitude: null,
-        longitude: null,
-        emission: data.emission,
-        consume: data.consume,
-        role: "vehicle",
-        supportEmail: null,
+    async (formData: RegisterVehicleForm) => {
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
         cityId: user?.id as string,
-        updatedAt: Timestamp.now(),
-        image: null,
-        calcData: {
-          landfillDelivery: null,
-          initialDate: Timestamp.now(),
-          fuel: null
-        }
-      });
+        carPlate: formData.carPlate,
+        consume: parseFloat(formData.consume),
+        emission: parseFloat(formData.emission),
+      };
+      return await registerVehicle(payload);
     },
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["vehicles"]);
+        successToast("Veículo cadastrado com sucesso!");
         reset();
+      },
+      onError: (err: any) => {
+        errorToast("Erro ao cadastrar veículo.");
       }
     }
   );

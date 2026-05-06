@@ -37,8 +37,7 @@ export default function PostPage() {
       await createWarningService(user.id, {
         title,
         description,
-        // Imagem File não suportada diretamente pelo backend (aceita apenas string/URL)
-        image: typeof image === "string" ? image : null,
+        image: image instanceof File ? image : null,
       });
       successToast("Postagem criada!");
       router.push("/avisos");
