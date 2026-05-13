@@ -11,7 +11,7 @@ import Sidebar from "@molecules/Sidebar/sidebar";
 
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
-import useAllWithdrawalsRequest from "@/hooks/queries/useAllWithdrawalsRequests";
+import useWithdrawalRequestCount from "@/hooks/queries/useWithdrawalRequestCount";
 
 import { colors, linksAdmin, linksCity } from "@molecules/MainHeader/constants";
 
@@ -33,11 +33,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const isCity = user?.role === "admin";
   const baseLinks = isCity ? linksCity : linksAdmin;
 
-  const { data: solicitationsData } = useAllWithdrawalsRequest(
+  const { data: openedSolicitationsCount = 0 } = useWithdrawalRequestCount(
     user?.id as string
   );
-  const openedSolicitationsCount =
-    solicitationsData?.filter((s) => !s.isResolved).length || 0;
 
   const linksComNotificacao = baseLinks
     .filter((link) => !link.hiddenInSidebar)
