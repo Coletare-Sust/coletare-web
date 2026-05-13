@@ -146,3 +146,18 @@ export const deleteWithdrawalRequest = async (
     return { error: error.message };
   }
 };
+
+export const getWithdrawalRequestCount = async (
+  cityId: string
+): Promise<number> => {
+  try {
+    const data = await apiFetch<{ count: number }>(
+      `/withdrawal-request/${cityId}/city/count`
+    );
+    return data.count ?? 0;
+  } catch (error) {
+    console.error(error);
+    return 0;
+  }
+};
+

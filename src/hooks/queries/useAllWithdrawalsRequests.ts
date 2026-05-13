@@ -7,8 +7,8 @@ import {
 } from "@common/constants/generic";
 
 import { getAllWithdrawalsRequests } from "@/store/services/withdrawalsRequests";
-import { DocumentData } from "firebase/firestore";
 import { WithdrawalsRequestEntity } from "@/common/entities/WithdrawalsRequest";
+import { DocumentData } from "firebase/firestore";
 
 export function getAllWithdrawalsRequestsQueryKey(cityId: string) {
   return ["withdrawals", cityId];
