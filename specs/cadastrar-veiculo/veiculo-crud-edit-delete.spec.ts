@@ -72,52 +72,33 @@ test.describe('Vehicle CRUD - Edit & Delete', () => {
     expect(reloadedPlate).toBe(testVehiclePlateEdited);
   });
 
-  test.fixme('Delete an existing vehicle and verify it no longer appears', async ({ page }) => {
-    // NOTE: Delete functionality may not be exposed on the vehicle edit form.
-    // This test is marked as fixme() because the app may implement delete as:
-    // 1. A separate action from the list view (not from edit form)
-    // 2. A context menu on the vehicle card
-    // 3. An admin-only operation not visible in current user role
-    // 4. Not yet implemented in the current version
-    
-    // Keeping test structure for future implementation once delete UI is identified
-    
-    // Step 1: Navigate to the edit form for a test vehicle
-    await page.goto('/cadastrar-veiculo?isEdit=true&id=motorista-teste');
-    await page.waitForTimeout(2000);
-
-    // Step 2: Look for a delete button on the edit form
-    let deleteButton = page.locator('button:has-text("Deletar"), button:has-text("Delete"), button[aria-label*="delete"]').first();
-    
-    if (!await deleteButton.isVisible().catch(() => false)) {
-      deleteButton = page.locator('button').filter({ hasText: /Deletar|Delete|Remover|Excluir/i }).first();
-    }
-
-    // Step 3: If no delete button is visible, test structure is correct but feature not implemented
-    expect(await deleteButton.isVisible().catch(() => false)).toBeTruthy();
-
-    // Step 4: Click the delete button
-    await deleteButton.click();
-    await page.waitForTimeout(1000);
-
-    // Step 5: Handle confirmation dialog
-    const confirmButton = page.getByRole('button', { name: /Sim|Confirmar|Excluir|Deletar/i })
-      .or(page.locator('button').filter({ hasText: /Sim|Confirmar/i }));
-    
-    if (await confirmButton.isVisible().catch(() => false)) {
-      await confirmButton.click();
-      await page.waitForTimeout(1500);
-    }
-
-    // Step 6: Assert success message or redirect away from edit page
-    const successAlert = page.locator('[role="alert"]').filter({ hasText: /deletado|removido|excluído|sucesso/i }).first();
-    const messageVisible = await successAlert.isVisible().catch(() => false);
-    const navigatedAway = !page.url().includes('isEdit=true');
-    
-    expect(messageVisible || navigatedAway).toBeTruthy();
-
-    // Step 7: Navigate to the vehicle list and verify the vehicle is gone
+  test('Delete an existing vehicle and verify it no longer appears', async ({ page }) => {
+    // Step 1: Navigate to the vehicle list
     await page.goto('/veiculos-colaboradores');
-    await page.waitForTimeout(2000);
+
+    // Step 2: Locate the first vehicle card and capture its name
+    const firstVehicleCard = page
+      .locator('div')
+      .filter({ has: page.getByText('Placa') })
+      .filter({ has: page.getByText('Login') })
+      .first();
+
+    await expect(firstVehicleCard).toBeVisible();
+
+    const vehicleName = await firstVehicleCard.locator('p').first().innerText();
+
+    // Step 3: Open the MoreDropdown menu in the card
+    await firstVehicleCard.locator('svg').first().click();
+
+    // Step 4: Click "Excluir" and confirm
+    await page.getByRole('menuitem', { name: 'Excluir' }).click();
+
+    const confirmDialog = page.getByRole('dialog');
+    await expect(confirmDialog).toBeVisible();
+    await page.getByRole('button', { name: 'Confirmar' }).click();
+
+    // Step 5: Assert success toast and that the vehicle is removed from the list
+    await expect(page.locator('[role="alert"]')).toContainText(/Usuário deletado com sucesso/i, { timeout: 10_000 });
+    await expect(page.getByText(vehicleName).first()).not.toBeVisible({ timeout: 10_000 });
   });
 });
