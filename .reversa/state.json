@@ -8,13 +8,13 @@
   "doc_level": "essencial",
   "output_folder": "_reversa_sdd",
   "forward_folder": "_reversa_forward",
-  "phase": "interpretacao",
+  "phase": "geracao",
   "completed": [
     "reconhecimento",
-    "escavacao"
+    "escavacao",
+    "interpretacao"
   ],
   "pending": [
-    "interpretacao",
     "geracao",
     "revisao"
   ],
@@ -68,6 +68,21 @@
         "notifications"
       ],
       "modules_pending": []
+    },
+    "detective": {
+      "completed_at": "2026-05-21T00:00:00Z",
+      "files": [
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/permissions.md",
+        "_reversa_sdd/state-machines.md"
+      ]
+    },
+    "architect": {
+      "completed_at": "2026-05-21T00:00:00Z",
+      "files": [
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/c4-context.md"
+      ]
     }
   },
   "engines": [
