@@ -1,0 +1,140 @@
+{
+  "generated_at": "2026-05-20T00:00:00Z",
+  "project_root": "/Users/ricardo/Downloads/coletare-web",
+  "languages": [
+    {
+      "name": "TypeScript",
+      "extensions": [".ts", ".tsx"],
+      "file_count": 227
+    },
+    {
+      "name": "JavaScript",
+      "extensions": [".js"],
+      "file_count": 5
+    },
+    {
+      "name": "CSS",
+      "extensions": [".css"],
+      "file_count": 1
+    }
+  ],
+  "primary_language": "TypeScript",
+  "frameworks": [
+    {
+      "name": "Next.js",
+      "version": "14.2.9",
+      "source": "package.json"
+    },
+    {
+      "name": "React",
+      "version": "18.2.0",
+      "source": "package.json"
+    },
+    {
+      "name": "Firebase",
+      "version": "^10.2.0",
+      "source": "package.json"
+    },
+    {
+      "name": "Firebase Admin",
+      "version": "^12.0.0",
+      "source": "package.json"
+    },
+    {
+      "name": "Tailwind CSS",
+      "version": "3.3.3",
+      "source": "package.json"
+    }
+  ],
+  "package_manager": "yarn",
+  "entry_points": [
+    {
+      "path": "src/app/layout.tsx",
+      "type": "app_entry"
+    },
+    {
+      "path": "src/app/page.tsx",
+      "type": "app_entry"
+    },
+    {
+      "path": "src/app/(authenticated)/layout.tsx",
+      "type": "authenticated_layout"
+    },
+    {
+      "path": "src/app/api/createAuth/route.ts",
+      "type": "api_route"
+    },
+    {
+      "path": "src/app/api/deleteAuth/route.ts",
+      "type": "api_route"
+    },
+    {
+      "path": "src/app/api/email/route.ts",
+      "type": "api_route"
+    },
+    {
+      "path": "src/app/api/notifications/route.ts",
+      "type": "api_route"
+    }
+  ],
+  "config_files": [
+    "next.config.js",
+    "tsconfig.json",
+    "tailwind.config.ts",
+    "firebase.json",
+    "apphosting.yaml",
+    "Dockerfile",
+    ".env.local",
+    "src/config/firebase.ts",
+    "src/config/firebaseAdmin.ts"
+  ],
+  "docker": {
+    "dockerfile": "Dockerfile"
+  },
+  "database_hints": [
+    {
+      "path": "src/config/firebase.ts",
+      "type": "firebase_client_config"
+    },
+    {
+      "path": "src/config/firebaseAdmin.ts",
+      "type": "firebase_admin_config"
+    }
+  ],
+  "test_framework": "k6 (load test)",
+  "test_file_count": 1,
+  "modules": [
+    "auth",
+    "dashboard",
+    "avisos",
+    "colaboradores",
+    "veiculos",
+    "rotas",
+    "rota",
+    "rotas-andamento",
+    "ecopontos",
+    "municipios",
+    "solicitacoes-retirada",
+    "email",
+    "notifications"
+  ],
+  "total_files": 409,
+  "organization_suggestion": {
+    "granularity": "endpoint",
+    "rationale": "O projeto usa roteamento centralizado no App Router com rotas explícitas em src/app/api/**/route.ts e páginas por rota em src/app/(authenticated).",
+    "signals": [
+      {
+        "type": "centralized_routing",
+        "evidence": [
+          "src/app/api/createAuth/route.ts",
+          "src/app/api/deleteAuth/route.ts",
+          "src/app/api/email/route.ts",
+          "src/app/api/notifications/route.ts",
+          "src/app/(authenticated)/dashboard/page.tsx",
+          "src/app/(authenticated)/rotas/page.tsx"
+        ]
+      }
+    ],
+    "features": []
+  }
+}

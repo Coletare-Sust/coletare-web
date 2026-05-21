@@ -1,0 +1,673 @@
+{
+  "generated_at": "2026-05-20T00:00:00Z",
+  "modules": [
+    {
+      "name": "auth",
+      "path": "src/store/services/auth.ts",
+      "purpose": "Autenticação de usuários, recuperação de senha e integração com criação/exclusão de contas Firebase Auth",
+      "primary_files": [
+        "src/store/services/auth.ts",
+        "src/store/services/firebaseAdmin.ts",
+        "src/app/page.tsx",
+        "src/app/api/createAuth/route.ts",
+        "src/app/api/deleteAuth/route.ts"
+      ],
+      "functions": [
+        {
+          "name": "loginWithGoogle",
+          "file": "src/store/services/auth.ts",
+          "params": [],
+          "returns": "Promise<{ user: User | null; error: string | null }>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "signInWithEmailAndPasswordLocal",
+          "file": "src/store/services/auth.ts",
+          "params": ["email: string", "password: string"],
+          "returns": "Promise<{ user: User | null; error: string | null }>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "createUserAuthAdmin",
+          "file": "src/store/services/firebaseAdmin.ts",
+          "params": ["email: string", "password: string"],
+          "returns": "Promise<{ uid: string; error: string | null }>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "deleteUserAuthAdmin",
+          "file": "src/store/services/firebaseAdmin.ts",
+          "params": ["uid: string"],
+          "returns": "Promise<{ error: string | null }>",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "UserEntity",
+          "fields": [
+            { "name": "id", "type": "string", "required": true },
+            { "name": "role", "type": "string", "required": true },
+            { "name": "email", "type": "string | null", "required": false }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Criação de conta envia verificação/redireciona para a URL de login definida em ambiente.",
+          "location": "src/store/services/auth.ts",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Criação e exclusão de contas administrativas são feitas via Firebase Admin no backend.",
+          "location": "src/app/api/createAuth/route.ts",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["email"],
+      "algorithms": [],
+      "complexity": "medium"
+    },
+    {
+      "name": "dashboard",
+      "path": "src/app/(authenticated)/dashboard/page.tsx",
+      "purpose": "Visão analítica consolidada de coletas, custos, massa e emissões",
+      "primary_files": [
+        "src/app/(authenticated)/dashboard/page.tsx",
+        "src/components/organisms/ChartsSection/*",
+        "src/hooks/queries/useDashboardData.ts",
+        "src/store/services/collects.ts"
+      ],
+      "functions": [
+        {
+          "name": "getDashboardData",
+          "file": "src/store/services/collects.ts",
+          "params": ["cityId: string", "routeId?: string"],
+          "returns": "Promise<DashboardEntity>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "useAllDashboard",
+          "file": "src/hooks/queries/useDashboardData.ts",
+          "params": ["cityId: string", "select?: (data: DocumentData) => T"],
+          "returns": "UseQueryResult",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "DashboardEntity",
+          "fields": [
+            { "name": "landfill", "type": "series by year/semester/month", "required": true },
+            { "name": "fuel", "type": "series by year/semester/month", "required": true },
+            { "name": "emission", "type": "series by year/semester/month", "required": true },
+            { "name": "mass", "type": "series by year/semester/month", "required": true }
+          ],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "CollectEntity",
+          "fields": [
+            { "name": "mass", "type": "number", "required": true },
+            { "name": "consume", "type": "number", "required": true },
+            { "name": "emission", "type": "number", "required": true },
+            { "name": "createdAt", "type": "Timestamp", "required": true }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "A agregação usa janela móvel de 12 meses e desdobra mês/semestre/ano em arrays fixos.",
+          "location": "src/store/services/collects.ts",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Custos e emissões são derivados de massa, consumo, km rodados e coeficientes do veículo/aterro.",
+          "location": "src/store/services/collects.ts",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["collects", "rotas", "route"],
+      "algorithms": ["rolling time-series aggregation", "cost/emission derivation", "month reordering"],
+      "complexity": "high"
+    },
+    {
+      "name": "avisos",
+      "path": "src/app/(authenticated)/avisos/page.tsx",
+      "purpose": "CRUD de avisos com upload e remoção de imagem, além de filtro por data",
+      "primary_files": [
+        "src/app/(authenticated)/avisos/page.tsx",
+        "src/app/(authenticated)/avisos/cadastrar/page.tsx",
+        "src/app/(authenticated)/avisos/cadastrar/[id]/page.tsx",
+        "src/store/services/warning.ts",
+        "src/store/services/firebaseStorage.ts"
+      ],
+      "functions": [
+        {
+          "name": "createWarningService",
+          "file": "src/store/services/warning.ts",
+          "params": ["warning: WarningDTO"],
+          "returns": "Promise<WarningEntity>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "updateWarningService",
+          "file": "src/store/services/warning.ts",
+          "params": ["warningId: string", "data: { title: string; description: string; image?: File | string | null }"] ,
+          "returns": "Promise<WarningEntity | null>",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "WarningEntity",
+          "fields": [
+            { "name": "id", "type": "string", "required": true },
+            { "name": "title", "type": "string", "required": true },
+            { "name": "description", "type": "string", "required": true },
+            { "name": "image", "type": "string | null", "required": false },
+            { "name": "createdAt", "type": "string", "required": true }
+          ],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "WarningDTO",
+          "fields": [
+            { "name": "cityId", "type": "string", "required": true },
+            { "name": "title", "type": "string", "required": true },
+            { "name": "description", "type": "string", "required": true },
+            { "name": "image", "type": "File", "required": true }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Só usuários admin da cidade podem criar avisos.",
+          "location": "src/store/services/warning.ts",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Imagem é enviada ao Storage em pasta dedicada por aviso e removida junto com o registro.",
+          "location": "src/store/services/warning.ts",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "A listagem permite filtrar avisos por dia exato e ordenar do mais recente para o mais antigo.",
+          "location": "src/app/(authenticated)/avisos/page.tsx",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["auth", "storage"],
+      "algorithms": ["date filtering", "image upload/delete lifecycle"],
+      "complexity": "medium"
+    },
+    {
+      "name": "colaboradores",
+      "path": "src/app/(authenticated)/colaboradores/page.tsx",
+      "purpose": "Listagem e manutenção de colaboradores vinculados à cidade",
+      "primary_files": [
+        "src/app/(authenticated)/colaboradores/page.tsx",
+        "src/app/(authenticated)/cadastrar-colaborador/page.tsx",
+        "src/store/services/user.ts",
+        "src/hooks/queries/useAllCollaborators.ts"
+      ],
+      "functions": [
+        {
+          "name": "getAllCollaborators",
+          "file": "src/store/services/user.ts",
+          "params": ["cityId: string"],
+          "returns": "Promise<UserEntity[] | { error: string }>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "createUser",
+          "file": "src/store/services/user.ts",
+          "params": ["data: UserEntity", "image: File"],
+          "returns": "Promise<{ error: null | string }>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "updateUserDoc",
+          "file": "src/store/services/user.ts",
+          "params": ["uid: string", "data: Partial<UserEntity>"],
+          "returns": "Promise<{ error: null | string }>",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "UserEntity",
+          "fields": [
+            { "name": "name", "type": "string", "required": true },
+            { "name": "cpf", "type": "string | null", "required": false },
+            { "name": "role", "type": "employee", "required": true },
+            { "name": "cityId", "type": "string", "required": true }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Colaborador pertence à cidade do usuário autenticado e pode receber foto de perfil.",
+          "location": "src/app/(authenticated)/cadastrar-colaborador/page.tsx",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["auth", "veiculos-colaboradores"],
+      "algorithms": [],
+      "complexity": "medium"
+    },
+    {
+      "name": "veiculos",
+      "path": "src/app/(authenticated)/veiculos/page.tsx",
+      "purpose": "Listagem e cadastro/edição de veículos da cidade",
+      "primary_files": [
+        "src/app/(authenticated)/veiculos/page.tsx",
+        "src/app/(authenticated)/cadastrar-veiculo/page.tsx",
+        "src/store/services/user.ts",
+        "src/hooks/queries/useAllVehicles.ts"
+      ],
+      "functions": [
+        {
+          "name": "getAllVehicles",
+          "file": "src/store/services/user.ts",
+          "params": ["cityId: string"],
+          "returns": "Promise<UserEntity[] | { error: string }>",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "UserEntity",
+          "fields": [
+            { "name": "name", "type": "string", "required": true },
+            { "name": "carPlate", "type": "string | null", "required": false },
+            { "name": "emission", "type": "string | null", "required": false },
+            { "name": "consume", "type": "string | null", "required": false }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Veículos são usuários com role vehicle e ficam vinculados à cidade do admin autenticado.",
+          "location": "src/app/(authenticated)/cadastrar-veiculo/page.tsx",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["auth", "colaboradores"],
+      "algorithms": [],
+      "complexity": "medium"
+    },
+    {
+      "name": "rotas",
+      "path": "src/app/(authenticated)/rotas/page.tsx",
+      "purpose": "Gestão de rotas, com leitura, criação, edição e exclusão",
+      "primary_files": [
+        "src/app/(authenticated)/rotas/page.tsx",
+        "src/app/(authenticated)/criar-rota/page.tsx",
+        "src/store/services/route.ts",
+        "src/hooks/queries/useAllRoutes.ts"
+      ],
+      "functions": [
+        {
+          "name": "createRoute",
+          "file": "src/store/services/route.ts",
+          "params": ["data: RouteEntity"],
+          "returns": "Promise<{ error: null | string }>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "getRoutes",
+          "file": "src/store/services/route.ts",
+          "params": ["cityId: string"],
+          "returns": "Promise<RouteEntity[] | null>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "updateRouteDoc",
+          "file": "src/store/services/route.ts",
+          "params": ["uid: string", "data: Partial<RouteEntity>"],
+          "returns": "Promise<{ error: null | string }>",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "RouteEntity",
+          "fields": [
+            { "name": "name", "type": "string", "required": true },
+            { "name": "period", "type": "morning | afternoon | night", "required": true },
+            { "name": "days", "type": "boolean[]", "required": true },
+            { "name": "waypoints", "type": "{ lat; lng; wasChecked }[]", "required": true }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "O componente converte o array booleano de dias em labels de semana e oculta a criação para platformAdmin.",
+          "location": "src/app/(authenticated)/rotas/page.tsx",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["rota", "collects"],
+      "algorithms": ["weekday label mapping"],
+      "complexity": "medium"
+    },
+    {
+      "name": "rota",
+      "path": "src/app/(authenticated)/rota/[id]/page.tsx",
+      "purpose": "Detalhe operacional de uma coleta/rota com mapa, métricas e exportação",
+      "primary_files": [
+        "src/app/(authenticated)/rota/[id]/page.tsx",
+        "src/store/services/collect.ts",
+        "src/store/services/route.ts",
+        "src/store/services/exportExcel.ts"
+      ],
+      "functions": [
+        {
+          "name": "getCollect",
+          "file": "src/store/services/collect.ts",
+          "params": ["collectId: string"],
+          "returns": "Promise<any>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "getRoute",
+          "file": "src/store/services/route.ts",
+          "params": ["routeId: string"],
+          "returns": "Promise<RouteEntity | { error: string }>",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "CollectEntity",
+          "fields": [
+            { "name": "routeId", "type": "string", "required": true },
+            { "name": "vehicleName", "type": "string", "required": true },
+            { "name": "mass", "type": "number", "required": true },
+            { "name": "duration", "type": "number", "required": true }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Desenha a rota no Google Maps a partir da polyline salva e mostra waypoints numerados.",
+          "location": "src/app/(authenticated)/rota/[id]/page.tsx",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Exporta relatório da coleta em XLSX com métricas calculadas de custo, massa, emissão e consumo.",
+          "location": "src/app/(authenticated)/rota/[id]/page.tsx",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["rotas", "dashboard"],
+      "algorithms": ["polyline decoding", "route report export", "metric derivation"],
+      "complexity": "high"
+    },
+    {
+      "name": "rotas-andamento",
+      "path": "src/app/(authenticated)/rotas-andamento/page.tsx",
+      "purpose": "Monitoramento das rotas em andamento e status operacional",
+      "primary_files": ["src/app/(authenticated)/rotas-andamento/page.tsx"],
+      "functions": [],
+      "entities": [
+        {
+          "name": "RouteEntity",
+          "fields": [
+            { "name": "isSpecial", "type": "boolean", "required": true },
+            { "name": "withdrawalRequestsIds", "type": "string[]", "required": true }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "A tela é consumida pelo menu operacional junto a veículos e acompanhamentos de coleta.",
+          "location": "src/app/(authenticated)/layout.tsx",
+          "confidence": "inferred"
+        }
+      ],
+      "dependencies": ["rotas", "veiculos"],
+      "algorithms": [],
+      "complexity": "low"
+    },
+    {
+      "name": "ecopontos",
+      "path": "src/app/(authenticated)/ecopontos/page.tsx",
+      "purpose": "CRUD de ecopontos via API externa e filtragem por tipo de resíduo",
+      "primary_files": [
+        "src/app/(authenticated)/ecopontos/page.tsx",
+        "src/app/(authenticated)/ecopontos/criar-ecoponto/page.tsx",
+        "src/hooks/queries/ecoponto/*",
+        "src/store/services/ecopoint.ts"
+      ],
+      "functions": [
+        {
+          "name": "getEcopontosByCity",
+          "file": "src/store/services/ecopoint.ts",
+          "params": ["cityId: string"],
+          "returns": "Promise<Ecoponto[]>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "createEcoponto",
+          "file": "src/store/services/ecopoint.ts",
+          "params": ["data: CreateEcopontoDTO"],
+          "returns": "Promise<Ecoponto>",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "Ecoponto",
+          "fields": [
+            { "name": "name", "type": "string", "required": true },
+            { "name": "residueType", "type": "string[]", "required": true },
+            { "name": "lat", "type": "number", "required": true },
+            { "name": "lng", "type": "number", "required": true }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "As operações usam uma API REST externa configurável por env e mantêm o fallback local de desenvolvimento.",
+          "location": "src/store/services/ecopoint.ts",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["auth", "municipios"],
+      "algorithms": ["client-side residue filter"],
+      "complexity": "medium"
+    },
+    {
+      "name": "municipios",
+      "path": "src/app/(authenticated)/municipios/page.tsx",
+      "purpose": "Cadastro, edição e exclusão de municípios/cidades com vínculo Firebase Auth + Realtime DB + email",
+      "primary_files": [
+        "src/app/(authenticated)/municipios/page.tsx",
+        "src/app/(authenticated)/municipios/cadastrar/page.tsx",
+        "src/store/services/user.ts",
+        "src/store/services/email.ts",
+        "src/store/services/firebaseStorage.ts"
+      ],
+      "functions": [
+        {
+          "name": "createUserAuth",
+          "file": "src/store/services/firebaseAdmin.ts",
+          "params": ["email: string", "password: string"],
+          "returns": "Promise<{ uid: string; error: string | null }>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "createUser",
+          "file": "src/store/services/user.ts",
+          "params": ["data: UserEntity", "image: File"],
+          "returns": "Promise<{ error: null | string }>",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "sendEmail",
+          "file": "src/store/services/email.ts",
+          "params": ["email: string", "subject: string", "html: string"],
+          "returns": "Promise<{ error: string | null }>",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "UserEntity",
+          "fields": [
+            { "name": "role", "type": "admin", "required": true },
+            { "name": "cityId", "type": "string", "required": true },
+            { "name": "calcData", "type": "object", "required": true }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "O cadastro cria primeiro a conta de autenticação e depois o perfil da cidade; por fim envia email com acesso.",
+          "location": "src/app/(authenticated)/municipios/cadastrar/page.tsx",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Na edição, imagem antiga é removida antes do upload da nova e o perfil da cidade é atualizado em sequência.",
+          "location": "src/app/(authenticated)/municipios/cadastrar/page.tsx",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["auth", "email", "storage"],
+      "algorithms": ["two-step city provisioning", "image replacement flow"],
+      "complexity": "high"
+    },
+    {
+      "name": "solicitacoes-retirada",
+      "path": "src/app/(authenticated)/solicitacoes-retirada/page.tsx",
+      "purpose": "Consulta e acompanhamento de solicitações de retirada",
+      "primary_files": [
+        "src/app/(authenticated)/solicitacoes-retirada/page.tsx",
+        "src/app/(authenticated)/solicitacoes-retirada/components/MainSolicitation.tsx",
+        "src/app/(authenticated)/solicitacoes-retirada/components/AllSolicitations.tsx",
+        "src/store/services/withdrawalsRequests.ts"
+      ],
+      "functions": [
+        {
+          "name": "getAllWithdrawalsRequests",
+          "file": "src/store/services/withdrawalsRequests.ts",
+          "params": ["cityId: string"],
+          "returns": "Promise<any[] | null>",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "WithdrawalsRequestEntity",
+          "fields": [
+            { "name": "type", "type": "residence | inappropriate-location", "required": true },
+            { "name": "isResolved", "type": "boolean", "required": true },
+            { "name": "createdById", "type": "string", "required": true }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "As solicitações são lidas por cidade e depois alimentam rotas especiais e notificações.",
+          "location": "src/store/services/withdrawalsRequests.ts",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["rotas", "notifications"],
+      "algorithms": [],
+      "complexity": "low"
+    },
+    {
+      "name": "email",
+      "path": "src/store/services/email.ts",
+      "purpose": "Disparo de emails transacionais via rota interna /api/email",
+      "primary_files": [
+        "src/store/services/email.ts",
+        "src/app/api/email/route.ts",
+        "src/app/(authenticated)/municipios/cadastrar/page.tsx"
+      ],
+      "functions": [
+        {
+          "name": "sendEmail",
+          "file": "src/store/services/email.ts",
+          "params": ["email: string", "subject: string", "html: string"],
+          "returns": "Promise<{ error: string | null }>",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [],
+      "business_rules": [
+        {
+          "description": "As credenciais de SMTP são lidas por variáveis de ambiente e a resposta da rota é normalizada em JSON.",
+          "location": "src/app/api/email/route.ts",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": [],
+      "algorithms": [],
+      "complexity": "low"
+    },
+    {
+      "name": "notifications",
+      "path": "src/app/api/notifications/route.ts",
+      "purpose": "Envio de push notifications Expo com seleção por proximidade da rota e casos especiais",
+      "primary_files": [
+        "src/app/api/notifications/route.ts",
+        "src/store/services/route.ts",
+        "src/store/services/user.ts",
+        "src/store/services/withdrawalsRequests.ts"
+      ],
+      "functions": [
+        {
+          "name": "POST",
+          "file": "src/app/api/notifications/route.ts",
+          "params": ["request: Request"],
+          "returns": "Promise<NextResponse>",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "WithdrawalsRequestEntity",
+          "fields": [
+            { "name": "id", "type": "string", "required": true },
+            { "name": "createdById", "type": "string", "required": true }
+          ],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "UserEntity",
+          "fields": [
+            { "name": "tokens", "type": "string[]", "required": false },
+            { "name": "latitude", "type": "number | null", "required": false },
+            { "name": "longitude", "type": "number | null", "required": false }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Usuários próximos à polyline da rota recebem notificação; em rotas especiais, os autores das solicitações vinculadas também entram na lista.",
+          "location": "src/app/api/notifications/route.ts",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["rotas", "solicitacoes-retirada", "auth"],
+      "algorithms": ["polyline proximity matching", "token chunking/sending"],
+      "complexity": "high"
+    }
+  ]
+}
