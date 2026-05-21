@@ -45,10 +45,10 @@
 
 ## Fase 4: Geração 📝
 
-- [ ] **Redator** — Specs SDD por componente
-- [ ] **Redator** — OpenAPI (se aplicável)
-- [ ] **Redator** — User Stories (se aplicável)
-- [ ] **Redator** — Code/Spec Matrix
+- [x] **Redator** — Specs SDD por componente ✅
+- [x] **Redator** — OpenAPI (se aplicável) ✅
+- [x] **Redator** — User Stories (se aplicável) ✅
+- [x] **Redator** — Code/Spec Matrix ✅
 
 ## Fase 5: Revisão ✅
 

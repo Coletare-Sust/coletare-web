@@ -8,14 +8,14 @@
   "doc_level": "essencial",
   "output_folder": "_reversa_sdd",
   "forward_folder": "_reversa_forward",
-  "phase": "geracao",
+  "phase": "revisao",
   "completed": [
     "reconhecimento",
     "escavacao",
-    "interpretacao"
+    "interpretacao",
+    "geracao"
   ],
   "pending": [
-    "geracao",
     "revisao"
   ],
   "checkpoints": {
@@ -83,7 +83,24 @@
         "_reversa_sdd/architecture.md",
         "_reversa_sdd/c4-context.md"
       ]
+    },
+    "writer": {
+      "completed_at": "2026-05-21T00:00:00Z",
+      "files_generated": 39,
+      "units_generated": 13,
+      "canonical_files": [
+        "requirements.md",
+        "design.md",
+        "tasks.md"
+      ]
     }
+  },
+  "redator_progress": {
+    "status": "completed",
+    "current_item": 39,
+    "total_items": 39,
+    "last_completed_file": "_reversa_sdd/notifications/tasks.md",
+    "updated_at": "2026-05-21T00:00:00Z"
   },
   "engines": [
     "github-copilot"
