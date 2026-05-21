@@ -13,11 +13,10 @@
     "reconhecimento",
     "escavacao",
     "interpretacao",
-    "geracao"
-  ],
-  "pending": [
+    "geracao",
     "revisao"
   ],
+  "pending": [],
   "checkpoints": {
     "scout": {
       "completed_at": "2026-05-20T00:00:00Z",
@@ -93,6 +92,27 @@
         "design.md",
         "tasks.md"
       ]
+    },
+    "reviewer": {
+      "completed_at": "2026-05-21T00:00:00Z",
+      "files": [
+        "_reversa_sdd/confidence-report.md",
+        "_reversa_sdd/questions.md"
+      ],
+      "specs_reviewed": 39,
+      "units_reviewed": 13,
+      "cross_review": false,
+      "reclassifications": {
+        "green_to_yellow": 0,
+        "yellow_to_green": 0,
+        "red_to_yellow": 0,
+        "red_to_green": 0
+      },
+      "questions": {
+        "generated": 0,
+        "answered": 0
+      },
+      "confidence_overall_percent": 86.1
     }
   },
   "redator_progress": {
