@@ -17,6 +17,7 @@ import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import useCity from "@/hooks/queries/useCity";
 import useRoutes from "@hooks/queries/useAllRoutes";
+import { successToast } from "@/hooks/useAppToast";
 
 import { decodePolyline } from "@utils/decodePolyline";
 
@@ -109,6 +110,13 @@ const RotasAndamento = () => {
         stompClient.subscribe(`/topic/locations/${user.cityId}`, (message) => {
           if (message.body) {
             const payload = JSON.parse(message.body);
+            
+            if (payload.hasEnded) {
+              successToast(`A coleta do veículo ${payload.vehicleName} foi finalizada!`);
+              setTrucks((prevTrucks) => prevTrucks.filter((t) => t.id !== payload.collectId));
+              return;
+            }
+            
             setTrucks((prevTrucks) => {
               const newTruck: LiveTruck = {
                 id: payload.collectId,
