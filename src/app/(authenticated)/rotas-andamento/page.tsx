@@ -98,6 +98,7 @@ const RotasAndamento = () => {
 
     const socketUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/ws`;
     const socket = new SockJS(socketUrl);
+    
     const stompClient = new Client({
       webSocketFactory: () => socket as any,
       debug: (str) => {
