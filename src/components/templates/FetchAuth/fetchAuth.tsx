@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import LoadingComponent from "@atoms/Loading/loading";
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
+import { logout } from "@/store/services/auth";
 
 interface Props {
   children: JSX.Element;
@@ -36,10 +37,9 @@ export default function FetchAuthState({ children }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sincronização concluída mas user não pôde ser carregado → redireciona para login
   useEffect(() => {
     if (mountComponent && !isLoadingUser && !user) {
-      router.push("/");
+      logout().finally(() => router.push("/"));
     }
   }, [mountComponent, isLoadingUser, user, router]);
 
