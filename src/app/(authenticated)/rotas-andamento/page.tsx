@@ -10,8 +10,8 @@ import {
 import { useEffect, useState, useMemo, useRef } from "react";
 import Title from "@/components/atoms/Title/title";
 
-import { ref, onValue, off, getDatabase } from "firebase/database";
-import firebaseApp from "@/config/firebase";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
@@ -96,28 +96,50 @@ const RotasAndamento = () => {
   useEffect(() => {
     if (!user?.cityId) return;
 
-    const liveMapRef = ref(
-      getDatabase(firebaseApp),
-      `live_map_data/${user.cityId}`
-    );
-    console.log(`Iniciando monitoramento em: live_map_data/${user.cityId}`);
-
-    const unsubscribe = onValue(liveMapRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const trucksArray = Object.entries(data).map(
-          ([key, value]: [string, any]) => ({
-            id: key,
-            ...value
-          })
-        );
-        setTrucks(trucksArray);
-      } else {
-        setTrucks([]);
-      }
+    const socketUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/ws`;
+    const socket = new SockJS(socketUrl);
+    const stompClient = new Client({
+      webSocketFactory: () => socket as any,
+      debug: (str) => {
+        // console.log(str);
+      },
+      onConnect: () => {
+        console.log(`STOMP conectado, inscrevendo-se em: /topic/locations/${user.cityId}`);
+        stompClient.subscribe(`/topic/locations/${user.cityId}`, (message) => {
+          if (message.body) {
+            const payload = JSON.parse(message.body);
+            setTrucks((prevTrucks) => {
+              const newTruck: LiveTruck = {
+                id: payload.collectId,
+                lat: payload.latitude,
+                lng: payload.longitude,
+                carPlate: payload.carPlate,
+                vehicleName: payload.vehicleName,
+                routeId: payload.routeId,
+              };
+              
+              const existingIndex = prevTrucks.findIndex(t => t.id === newTruck.id);
+              if (existingIndex >= 0) {
+                const newTrucks = [...prevTrucks];
+                newTrucks[existingIndex] = newTruck;
+                return newTrucks;
+              } else {
+                return [...prevTrucks, newTruck];
+              }
+            });
+          }
+        });
+      },
+      onStompError: (frame) => {
+        console.error('STOMP Error:', frame.headers['message']);
+      },
     });
 
-    return () => off(liveMapRef);
+    stompClient.activate();
+
+    return () => {
+      stompClient.deactivate();
+    };
   }, [user?.cityId]);
 
   return (
