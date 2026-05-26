@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: coletare-backend
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/coletare}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+coletare:
+  security:
+    session-cookie-name: COLETARE_SESSION
+    session-cookie-secure: false
+    session-cookie-max-age-seconds: 28800
+  keycloak:
+    base-url: ${KEYCLOAK_BASE_URL:http://localhost:8081}
+    realm: ${KEYCLOAK_REALM:coletare}
+    client-id: ${KEYCLOAK_CLIENT_ID:bff-client}
+    client-secret: ${KEYCLOAK_CLIENT_SECRET:change-me}
+    admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:admin-cli}
+    admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:change-me}

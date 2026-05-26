@@ -1,0 +1,17 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/coletare
+
+coletare:
+  security:
+    session-cookie-name: COLETARE_SESSION
+    session-cookie-secure: false
+    session-cookie-max-age-seconds: 28800
+  keycloak:
+    base-url: http://localhost:8081
+    realm: coletare
+    client-id: bff-client
+    client-secret: change-me
+    admin-client-id: admin-cli
+    admin-client-secret: change-me
