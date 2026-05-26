@@ -6,9 +6,7 @@ import { z } from "zod";
 
 import { errorToast, successToast } from "@/hooks/useAppToast";
 import {
-  createUserWithEmailAndPasswordLocal,
-  logout,
-  signInWithEmailAndPasswordLocal
+  logout
 } from "@/store/services/auth";
 import {
   createUserDoc,
@@ -18,14 +16,12 @@ import {
 import firebaseApp from "@/config/firebase";
 import {
   getAuth,
-  onAuthStateChanged,
-  sendEmailVerification,
   sendPasswordResetEmail
 } from "firebase/auth";
 import { UserEntity as UserDoc, UserEntity } from "@/common/entities/user";
+import { bffLogin, bffLogout, bffMe } from "@/store/services/bffAuth";
 
 import AuthContext from "./context";
-import router from "next/router";
 
 interface Props {
   children: React.ReactNode;
@@ -51,16 +47,8 @@ const AuthProvider = ({ children }: Props) => {
   const auth = getAuth(firebaseApp);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserUid(user.uid);
-      } else {
-        setUserUid("");
-      }
-      setLoading((prev) => ({ ...prev, onAuthUserChanged: true }));
-    });
-
-    return () => unsubscribe();
+    waitForUserSync();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const createUserAuth = async (email: string, password: string) => {
@@ -72,19 +60,12 @@ const AuthProvider = ({ children }: Props) => {
 
   const loginWithInternalService = async (email: string, password: string) => {
     setLoading((prev) => ({ ...prev, loginWithInternalService: true }));
-    const { user } = await signInWithEmailAndPasswordLocal(email, password);
-    if (user && !user?.emailVerified) {
-      errorToast("Por favor, verifique seu email.");
-      sendEmailVerification(user);
-      setLoading((prev) => ({ ...prev, loginWithInternalService: false }));
-      logout();
-      return { error: "Verifique seu email" };
-    }
+    const response = await bffLogin(email, password);
 
     setLoading((prev) => ({ ...prev, loginWithInternalService: false }));
-    if (user) {
+    if (!response?.error && response?.user?.uid) {
       successToast("Bem vindo!");
-      setUserUid(user.uid);
+      setUserUid(response.user.uid);
       return { error: null };
     } else {
       setUserUid("");
@@ -128,13 +109,15 @@ const AuthProvider = ({ children }: Props) => {
 
   const waitForUserSync = async () => {
     setLoading((prev) => ({ ...prev, onAuthUserChanged: true }));
-    waitForUser(async (userCred) => {
-      if (userCred && !userCred?.emailVerified) {
-        logout();
-        setLoading((prev) => ({ ...prev, onAuthUserChanged: false }));
-      }
-    });
-    setLoading((prev) => ({ ...prev, onAuthUserChanged: false }));
+    try {
+      const me = await bffMe();
+      const uid = me?.userId || me?.uid || "";
+      setUserUid(me?.authenticated ? uid : "");
+    } catch {
+      setUserUid("");
+    } finally {
+      setLoading((prev) => ({ ...prev, onAuthUserChanged: false }));
+    }
   };
 
   const deleteUserAuth = async (userUid: string) => {
@@ -150,7 +133,8 @@ const AuthProvider = ({ children }: Props) => {
 
   const logoutUser = async () => {
     setLoading((prev) => ({ ...prev, logout: true }));
-    logout();
+    await bffLogout();
+    setUserUid("");
     router.push("/");
     setLoading((prev) => ({ ...prev, logout: false }));
   };
