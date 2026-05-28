@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/coletare
+      uri: mongodb://localhost:27017/coletapp
 
 coletare:
   security:
@@ -11,7 +11,10 @@ coletare:
   keycloak:
     base-url: http://localhost:8081
     realm: coletare
+    admin-realm: master
     client-id: bff-client
     client-secret: change-me
     admin-client-id: admin-cli
     admin-client-secret: change-me
+    admin-username: admin
+    admin-password: admin

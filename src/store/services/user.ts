@@ -1,6 +1,5 @@
 import firebaseApp from "@/config/firebase";
 import { UserEntity } from "@common/entities/user";
-import { User, getAuth } from "firebase/auth";
 import {
   get,
   getDatabase,
@@ -14,8 +13,6 @@ import {
 } from "firebase/database";
 import { uploadImage } from "./firebaseStorage";
 
-const auth = getAuth(firebaseApp);
-
 const database = getDatabase(firebaseApp);
 
 export const createUserDoc = async (data: UserEntity) => {
@@ -26,10 +23,6 @@ export const createUserDoc = async (data: UserEntity) => {
     console.error(error);
     return { errorDoc: error.message };
   }
-};
-
-export const waitForUser = (callback: (user: User | null) => void) => {
-  return auth.onAuthStateChanged(callback);
 };
 
 export const getUsers = async () => {

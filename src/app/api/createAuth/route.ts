@@ -15,17 +15,20 @@ const getRequiredEnv = (name: string): string => {
 const getAdminAccessToken = async () => {
   const baseUrl = getRequiredEnv("KEYCLOAK_BASE_URL");
   const realm = getRequiredEnv("KEYCLOAK_REALM");
-  const clientId = getRequiredEnv("KEYCLOAK_ADMIN_CLIENT_ID");
-  const clientSecret = getRequiredEnv("KEYCLOAK_ADMIN_CLIENT_SECRET");
+  const adminRealm = process.env.KEYCLOAK_ADMIN_REALM || "master";
+  const clientId = process.env.KEYCLOAK_ADMIN_CLIENT_ID || "admin-cli";
+  const username = process.env.KEYCLOAK_ADMIN_USERNAME || "admin";
+  const password = process.env.KEYCLOAK_ADMIN_PASSWORD || "admin";
 
   const body = new URLSearchParams({
-    grant_type: "client_credentials",
+    grant_type: "password",
     client_id: clientId,
-    client_secret: clientSecret
+    username,
+    password
   });
 
   const tokenResponse = await fetch(
-    `${baseUrl}/realms/${realm}/protocol/openid-connect/token`,
+    `${baseUrl}/realms/${adminRealm}/protocol/openid-connect/token`,
     {
       method: "POST",
       headers: {
@@ -80,9 +83,31 @@ const findUserIdByEmail = async (
   return users?.[0]?.id ?? "";
 };
 
+const syncUserInBackend = async (payload: {
+  id: string;
+  externalId: string;
+  email: string;
+  displayName: string;
+}) => {
+  const backendBaseUrl = process.env.NEXT_PUBLIC_BFF_BASE_URL || "http://localhost:8080";
+
+  const response = await fetch(`${backendBaseUrl}/bff/users/internal-sync`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload),
+    cache: "no-store"
+  });
+
+  if (!response.ok) {
+    throw new Error("Usuário criado no Keycloak, mas não foi possível salvar no Mongo");
+  }
+};
+
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const { email, password, displayName } = await request.json();
 
     if (!email || !password) {
       return NextResponse.json(
@@ -137,6 +162,13 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    await syncUserInBackend({
+      id: uid,
+      externalId: uid,
+      email,
+      displayName: displayName || email
+    });
 
     return NextResponse.json({ uid, error: null });
   } catch (error: any) {

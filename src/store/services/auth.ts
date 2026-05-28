@@ -1,124 +1,79 @@
-import {
-  getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
-  signOut,
-  User,
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  deleteUser,
-  updatePassword as updatePasswordFirebase
-} from "firebase/auth";
-import firebaseApp from "@/config/firebase";
+import { bffLogin, bffLogout, bffResetPassword } from "@/store/services/bffAuth";
 
-const auth = getAuth(firebaseApp);
-export const waitForUser = (callback: (user: User | null) => void) => {
-  return auth.onAuthStateChanged(callback);
+type AuthUser = {
+  uid: string;
+  email?: string;
+  roles?: string[];
+} | null;
+
+export const waitForUser = async (callback: (user: AuthUser) => void) => {
+  try {
+    const response = await fetch("/api/bff/auth/me", { method: "GET" });
+    const data = await response.json();
+    if (data?.authenticated) {
+      callback({ uid: data.userId || data.uid || "", email: data.email, roles: data.roles });
+      return;
+    }
+  } catch {
+    // ignore
+  }
+  callback(null);
 };
 
 export const loginWithGoogle = async () => {
-  try {
-    const userCred = await signInWithPopup(auth, new GoogleAuthProvider());
-    return {
-      user: userCred.user,
-      error: null
-    };
-  } catch (error: any) {
-    return {
-      user: null,
-      error: error.message
-    };
-  }
+  return {
+    user: null,
+    error: "Login com Google não está disponível no Keycloak"
+  };
 };
 
 export const loginWithFacebook = async () => {
-  try {
-    const userCred = await signInWithPopup(auth, new FacebookAuthProvider());
-    return {
-      user: userCred.user,
-      error: null
-    };
-  } catch (error: any) {
-    return {
-      user: null,
-      error: error.message
-    };
-  }
+  return {
+    user: null,
+    error: "Login com Facebook não está disponível no Keycloak"
+  };
 };
 
 export const createUserWithEmailAndPasswordLocal = async (
   email: string,
   password: string
 ) => {
-  try {
-    const userCred = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-    await sendEmailVerification(userCred.user, {
-      url: String(process.env.NEXT_PUBLIC_LOGIN_URL)
-    });
-    return {
-      user: userCred.user,
-      error: null
-    };
-  } catch (error: any) {
-    return {
-      user: null,
-      error: error.message
-    };
-  }
+  const response = await fetch("/api/createAuth", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await response.json();
+  return {
+    user: data?.uid ? { uid: data.uid, email } : null,
+    error: data?.error ?? null
+  };
 };
 
 export const signInWithEmailAndPasswordLocal = async (
   email: string,
   password: string
 ) => {
-  try {
-    const userCred = await signInWithEmailAndPassword(auth, email, password);
-    return { user: userCred.user, error: null };
-  } catch (error: any) {
-    return { user: null, error: error.message };
+  const response = await bffLogin(email, password);
+  if (!response?.error && response?.user?.uid) {
+    return { user: response.user, error: null };
   }
+  return { user: null, error: response?.error ?? "Credenciais inválidas" };
 };
 
 export const recoverPassword = async (email: string) => {
-  try {
-    await sendPasswordResetEmail(auth, email, {
-      url: String(process.env.NEXT_PUBLIC_LOGIN_URL)
-    });
-    return { error: null };
-  } catch (error: any) {
-    return { error: error.message };
-  }
+  const response = await bffResetPassword(email);
+  return { error: response?.error ?? null };
 };
 
 export const deleteOwnAccount = async () => {
-  if (auth.currentUser !== null) {
-    try {
-      await deleteUser(auth.currentUser);
-      return { error: null };
-    } catch (error: any) {
-      return { error: error.message };
-    }
-  }
+  return { error: "Remoção de conta deve ser feita via Keycloak Admin" };
 };
 
 export const updatePassword = async (password: string) => {
-  if (auth.currentUser !== null) {
-    try {
-      await updatePasswordFirebase(auth.currentUser, password);
-      return { error: null };
-    } catch (error: any) {
-      return { error: error.message };
-    }
-  }
+  return { error: "Atualização de senha deve ser feita via Keycloak" };
 };
 
 export const logout = async () => {
-  await signOut(auth);
+  await bffLogout();
 };

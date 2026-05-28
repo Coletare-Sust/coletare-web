@@ -6,20 +6,11 @@ import { z } from "zod";
 
 import { errorToast, successToast } from "@/hooks/useAppToast";
 import {
-  logout
-} from "@/store/services/auth";
-import {
   createUserDoc,
-  deleteUserDoc,
-  waitForUser
+  deleteUserDoc
 } from "@/store/services/user";
-import firebaseApp from "@/config/firebase";
-import {
-  getAuth,
-  sendPasswordResetEmail
-} from "firebase/auth";
 import { UserEntity as UserDoc, UserEntity } from "@/common/entities/user";
-import { bffLogin, bffLogout, bffMe } from "@/store/services/bffAuth";
+import { bffLogin, bffLogout, bffMe, bffResetPassword } from "@/store/services/bffAuth";
 
 import AuthContext from "./context";
 
@@ -44,8 +35,6 @@ const AuthProvider = ({ children }: Props) => {
   const [userUid, setUserUid] = useState<string>("");
   const [loading, setLoading] = useState(initialLoadingObject);
   const router = useRouter();
-  const auth = getAuth(firebaseApp);
-
   useEffect(() => {
     waitForUserSync();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -142,14 +131,14 @@ const AuthProvider = ({ children }: Props) => {
   const redefinePassword = async (email: string) => {
     setLoading((prev) => ({ ...prev, redefinePassword: true }));
     try {
-      await sendPasswordResetEmail(auth, email);
-      successToast("Email de redefinição de senha enviado.");
-    } catch (err: any) {
-      if (err.message === "Firebase: Error (auth/user-not-found).") {
-        errorToast("Não existe usuário com esse email.");
+      const response = await bffResetPassword(email);
+      if (response?.error) {
+        errorToast(response.error);
       } else {
-        errorToast("Não foi possível mandar o email de redefinição de senha.");
+        successToast("Email de redefinição de senha enviado.");
       }
+    } catch {
+      errorToast("Não foi possível mandar o email de redefinição de senha.");
     }
     setLoading((prev) => ({ ...prev, redefinePassword: false }));
   };

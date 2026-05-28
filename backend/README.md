@@ -37,6 +37,8 @@ Variáveis:
 - `KEYCLOAK_ADMIN_CLIENT_ID`
 - `KEYCLOAK_ADMIN_CLIENT_SECRET`
 
+Por padrão, o backend usa o banco Mongo `coletapp` quando `MONGODB_URI` não é definido.
+
 ## Ambiente local (infra)
 Na pasta `backend/`:
 

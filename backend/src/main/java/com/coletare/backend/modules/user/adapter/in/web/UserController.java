@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +48,30 @@ public class UserController {
         );
 
         User saved = userUseCase.upsert(user);
-        return ResponseEntity.ok(Map.of("error", (Object) null, "user", saved));
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", null);
+        response.put("user", saved);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/internal-sync")
+    public ResponseEntity<Map<String, Object>> internalSync(@RequestBody @Valid UpsertUserRequest request) {
+        User user = new User(
+                request.id(),
+                request.externalId(),
+                request.email(),
+                request.displayName(),
+                request.roles() == null ? List.of() : request.roles(),
+                request.metadata() == null ? Map.of() : request.metadata(),
+                Instant.now(),
+                Instant.now()
+        );
+
+        User saved = userUseCase.upsert(user);
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", null);
+        response.put("user", saved);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")

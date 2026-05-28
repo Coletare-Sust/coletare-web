@@ -15,17 +15,20 @@ const getRequiredEnv = (name: string): string => {
 const getAdminAccessToken = async () => {
   const baseUrl = getRequiredEnv("KEYCLOAK_BASE_URL");
   const realm = getRequiredEnv("KEYCLOAK_REALM");
-  const clientId = getRequiredEnv("KEYCLOAK_ADMIN_CLIENT_ID");
-  const clientSecret = getRequiredEnv("KEYCLOAK_ADMIN_CLIENT_SECRET");
+  const adminRealm = process.env.KEYCLOAK_ADMIN_REALM || "master";
+  const clientId = process.env.KEYCLOAK_ADMIN_CLIENT_ID || "admin-cli";
+  const username = process.env.KEYCLOAK_ADMIN_USERNAME || "admin";
+  const password = process.env.KEYCLOAK_ADMIN_PASSWORD || "admin";
 
   const body = new URLSearchParams({
-    grant_type: "client_credentials",
+    grant_type: "password",
     client_id: clientId,
-    client_secret: clientSecret
+    username,
+    password
   });
 
   const tokenResponse = await fetch(
-    `${baseUrl}/realms/${realm}/protocol/openid-connect/token`,
+    `${baseUrl}/realms/${adminRealm}/protocol/openid-connect/token`,
     {
       method: "POST",
       headers: {

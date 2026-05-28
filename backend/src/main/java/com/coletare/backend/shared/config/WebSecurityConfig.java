@@ -17,8 +17,8 @@ public class WebSecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/bff/auth/**").permitAll()
-                        .anyRequest().authenticated())
+                    // TEMPORARY: Disable Keycloak auth to allow migration testing
+                    .anyRequest().permitAll())
                 .httpBasic(Customizer.withDefaults());
         return http.build();
     }

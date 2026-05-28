@@ -10,6 +10,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,17 +29,17 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody @Valid LoginRequest request) {
         var session = authUseCase.login(request.email(), request.password());
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", null);
+        response.put("user", Map.of(
+                "uid", session.userId(),
+                "email", session.email(),
+                "emailVerified", true,
+                "roles", session.tokens().roles()
+        ));
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, buildCookie(session.sessionId()).toString())
-                .body(Map.of(
-                        "error", (Object) null,
-                        "user", Map.of(
-                                "uid", session.userId(),
-                                "email", session.email(),
-                                "emailVerified", true,
-                                "roles", session.tokens().roles()
-                        )
-                ));
+                .body(response);
     }
 
     @GetMapping("/me")
@@ -60,20 +61,28 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, Object>> refresh(@CookieValue(name = "COLETARE_SESSION", required = false) String sessionId) {
         if (sessionId == null || sessionId.isBlank()) {
-            return ResponseEntity.status(401).body(Map.of("error", "Sessão ausente"));
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", "Sessão ausente");
+            return ResponseEntity.status(401).body(response);
         }
 
         return authUseCase.refresh(sessionId)
-                .map(session -> ResponseEntity.ok(Map.of(
-                        "error", (Object) null,
-                        "user", Map.of(
-                                "uid", session.userId(),
-                                "email", session.email(),
-                                "emailVerified", true,
-                                "roles", session.tokens().roles()
-                        )
-                )))
-                .orElseGet(() -> ResponseEntity.status(401).body(Map.of("error", "Sessão inválida")));
+                .map(session -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("error", null);
+                    response.put("user", Map.of(
+                            "uid", session.userId(),
+                            "email", session.email(),
+                            "emailVerified", true,
+                            "roles", session.tokens().roles()
+                    ));
+                    return ResponseEntity.ok(response);
+                })
+                .orElseGet(() -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("error", "Sessão inválida");
+                    return ResponseEntity.status(401).body(response);
+                });
     }
 
     @PostMapping("/logout")
@@ -90,9 +99,12 @@ public class AuthController {
                 .sameSite("Strict")
                 .build();
 
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", null);
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, clearCookie.toString())
-                .body(Map.of("error", (Object) null));
+            .body(response);
     }
 
     private ResponseCookie buildCookie(String sessionId) {
