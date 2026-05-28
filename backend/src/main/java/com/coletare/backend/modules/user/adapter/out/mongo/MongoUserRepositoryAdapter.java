@@ -49,6 +49,10 @@ public class MongoUserRepositoryAdapter implements UserRepositoryPort {
         d.setExternalId(user.externalId());
         d.setEmail(user.email());
         d.setDisplayName(user.displayName());
+        d.setName(user.displayName());
+        if (user.roles() != null && !user.roles().isEmpty()) {
+            d.setRole(user.roles().get(0));
+        }
         d.setRoles(user.roles());
         d.setMetadata(user.metadata());
         d.setCreatedAt(user.createdAt());
@@ -61,8 +65,8 @@ public class MongoUserRepositoryAdapter implements UserRepositoryPort {
                 document.getId(),
                 document.getExternalId(),
                 document.getEmail(),
-                document.getDisplayName(),
-                document.getRoles(),
+                document.getDisplayName() != null ? document.getDisplayName() : document.getName(),
+                document.getRoles() != null ? document.getRoles() : (document.getRole() != null ? java.util.List.of(document.getRole()) : java.util.List.of()),
                 document.getMetadata(),
                 document.getCreatedAt(),
                 document.getUpdatedAt()

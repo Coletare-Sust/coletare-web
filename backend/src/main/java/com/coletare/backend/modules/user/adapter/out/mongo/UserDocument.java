@@ -13,6 +13,8 @@ public class UserDocument {
     private String id;
     private String externalId;
     private String email;
+    private String name;
+    private String role;
     private String displayName;
     private List<String> roles;
     private Map<String, Object> metadata;
@@ -25,6 +27,10 @@ public class UserDocument {
     public void setExternalId(String externalId) { this.externalId = externalId; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
     public String getDisplayName() { return displayName; }
     public void setDisplayName(String displayName) { this.displayName = displayName; }
     public List<String> getRoles() { return roles; }
