@@ -1,6 +1,6 @@
 const API_URL =
   process.env.NEXT_PUBLIC_API_ECOTOOLS_URL ||
-  "http://127.0.0.1:5001/coletare-60241/us-central1/ecoponto";
+  "http://localhost:8080/api/ecopontos";
 
 export type Ecoponto = {
   id: string;
