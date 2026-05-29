@@ -13,6 +13,7 @@ import { weekDays } from "@molecules/CreateRoute/constants";
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import { wrapper } from "@/common/constants/wrapper";
+import { getResidueTypeLabel } from "@/common/mappers/backendEnums";
 
 import RouteComponent from "./components/RouteComponent/routeComponent";
 
@@ -101,7 +102,7 @@ const Rotas = () => {
                     properties: [
                       { prop: "Funcionamento", answer: period },
                       { prop: "Dias", answer: routeDays },
-                      { prop: "Tipo de residuo", answer: route.residueType }
+                      { prop: "Tipo de residuo", answer: getResidueTypeLabel(route.residueType) }
                     ],
                     children: (
                       <RouteComponent

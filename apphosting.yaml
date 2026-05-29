@@ -1,0 +1,51 @@
+# Settings for Backend (on Cloud Run).
+# See https://firebase.google.com/docs/app-hosting/configure#cloud-run
+runConfig:
+  minInstances: 1
+  maxInstances: 100
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+# Environment variables and secrets.
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "AIzaSyA7UCWZlQbKbjtL5QeiqM2wyojo7eqOjHQ"
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: "coletare-60241.firebaseapp.com"
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: "coletare-60241"
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: "coletare-60241.appspot.com"
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGIN_SENDER_ID
+    value: "36779171237"
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:36779171237:web:ce6e062046124de56d9c4c"
+  - variable: NEXT_PUBLIC_FIREBASE_DATABASE_URL
+    value: "https://coletare-60241-default-rtdb.firebaseio.com/"
+  - variable: NEXT_PUBLIC_FIREBASE_CLIENT_EMAIL
+    value: "firebase-adminsdk-uhu39@coletare-60241.iam.gserviceaccount.com"
+  - variable: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    value: "AIzaSyA7UCWZlQbKbjtL5QeiqM2wyojo7eqOjHQ"
+  - variable: NEXT_PUBLIC_LOGIN_URL
+    value: "https://www.coletarepgs.com/"
+  - variable: NEXT_PUBLIC_NODEMAILER_USER
+    value: "coletarepegasusambiental@gmail.com"
+  - variable: NEXT_PUBLIC_NODEMAILER_PASS
+    value: "rbra mpsb twwt tpwz"
+  - variable: EXPO_ACCESS_TOKEN
+    value: "HTmDE47ExOb5fq44CS-E3li3lFRkRy6m8KYDjB"
+  - variable: NEXT_PUBLIC_FIREBASE_ADMIN_PRIVATE_KEY
+    value: "\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCf5OLq+Igz5D0s\nU+rgWLvEVKInAyAG3oAWd2zKquN6yRl1V8gWN3IpM/l+qCkZyzYbiwT3GmGONbCA\nIiZEliJwArf9j9HQe3+CrtgZVZfCiuVqIhAN69nWMTIFC1NLEO6ldeTbB6E2dW8J\nYBbYgQLiq0BZy9+K/dLzoyBEYRVUPSgZ4k2mszAu4he7J+hQ19XFXch7Q26rh2p4\nD38XbtKkalpPxULzMB++96Qqg+AnWbJ0z6Pv4huOmnZqCrMAnsjRvsSBPCIBRbyi\nNJVvU5NVZFFnZDEl9VYaOs0rGJYsw5qkDBXD57Qq0gtzKk8ZTQt1NUpqz470ZxkQ\n1+ymgyw7AgMBAAECggEAGLyVapq2n6iQ2jnFXZ38tpwNVhHCs61ajZ8+QoB7nvRb\nru68ssszKzKyR6kGasoofcxdIUmAjDq8Kqad2wCLJV8WTfEhGarxiCs6nXjDeMJ6\nSZgpea3iTqPfxC4DXdqpwQljNYuRolY6rm2iOy6CXsT1uK60z9EDANRc2pdWcGij\nC1NP1lOR4vEG248Ojg7iUSkmE5PGcwmK0qxsftNxvSLgNW15RDCKBpmOEgRSl9+P\nM3dvNOu0OGE5FmMpPq2cQmzW+zwg90CjOOggJlKEzwlHkU++Z7P1DAANBHt04Ag1\nZDa8HsmRX/Qi3O/Mp2zhbHRNG0ATqHaYTknGQ9s94QKBgQDVDFwiDHfkVIJqBRJG\ncmQezhKPlsYDXVUqbzdlk/Kg4zuM+8ENkV8dcdYJ3M63TGwFB7r+d7wq+jt2Jert\nAhqBmxM8ih2g2vpDjapAL2rNTMiJE/TlqH/cnUYGh3LXtUbAkUp5Mh2twF4oYZZq\nMbYpUQzjiOEmR+eMHFgEBNAPCwKBgQDAIS8h/eEZ8rDVg6Oa0lJGh+iX79SaebNa\nHIHE2Od2mBZNQeVJQvePD6kSeXrEtmoaUxVWGkZHvLU29yIubaQxzS1TfvTJux9m\nwszpzb3SV1UyOw/Cej48aWky5McqKrQJGf/kfaX3IIK2eh4ESJUrlQ2frdAJXszx\n2mpVAoRVkQKBgFq16ISWynVthhmeDynvirGTDFQW3jiQhLKMqAmX9LaMCc79YjVk\nsBrZXUjVuy5QW63InNW8JWInKSok+uHvA1orrQUZyYOzuNsKdnLdvZusFbZHyP3/\nwHEuhaJCCaPOi1Fyi0MPE5PnVC/dXS3Z/LWazOIUZcjm1K/TYaZUZkIBAoGBAJNd\n4KUV8n7Qo8phui+aevkWbdV8Y3pJNsQ7cV3ncUKJzTFdBd13vCLDRE+jVgNkV2Xx\nrD/qz1Ve7TBHxrQN7Q817TpJ+sBxAtjzOfFrmdmomvR4UNI+qVX1FHew+wLg1k7U\n3m4H4jD3gsssR7HJaoGPRm/gBd3qFRC9Eyo5T//BAoGBAM7aGjj+Qy4kBkTDmFeM\nvoDtWCKpJx/y8wQfIS1UL0FW9+s7zuB+mio7s+tMTbRElHYIidfRVW1r8YVwcrsp\nJAXkGrsSWxYwTkfaOv4FQFHRPHWPP9e+1Pq9RbqJ2pdiJgBj2pkQY4TgkmOP/ITq\nFkcCc8qmZStGpL7nXMyc73vx\n\n"
+  # Configure environment variables.
+  # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
+  # - variable: MESSAGE
+  #   value: Hello world!
+  #   availability:
+  #     - BUILD
+  #     - RUNTIME
+
+  # Grant access to secrets in Cloud Secret Manager.
+  # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
+  # - variable: MY_SECRET
+  #   secret: mySecretRef

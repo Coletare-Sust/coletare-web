@@ -1,6 +1,7 @@
 import { Expo, ExpoPushMessage } from "expo-server-sdk";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { RouteEntity } from "@/common/entities/route";
 import { getRoute } from "@/store/services/route";
 import { getAllCitizens } from "@/store/services/user";
 import { decodePolyline, getDistanceBetweenTwoPoints } from "@/utils/location";
@@ -27,12 +28,12 @@ export async function POST(request: Request) {
   const messages: ExpoPushMessage[] = [];
 
   const users = await getAllCitizens(cityId);
-  const route = await getRoute(routeId);
+  const routeResponse = await getRoute(routeId);
   const withdrawalRequests = (await getAllWithdrawalsRequests(
     cityId
   )) as WithdrawalsRequestEntity[];
 
-  if (route.error) {
+  if ('error' in routeResponse && routeResponse.error) {
     return NextResponse.json(
       {},
       {
@@ -41,7 +42,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const polylineCoordinates = decodePolyline(route.polyline).map(
+  const route = routeResponse as RouteEntity;
+
+  const polylineCoordinates = decodePolyline(route.polyline || "").map(
     ([latitude, longitude]) => ({ latitude, longitude })
   );
 

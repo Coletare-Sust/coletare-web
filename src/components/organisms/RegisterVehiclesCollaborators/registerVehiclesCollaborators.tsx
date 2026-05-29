@@ -30,8 +30,7 @@ const RegisterVehiclesCollaborators = ({
         {type === "vehicle" ? "Veículo" : "Colaborador"}
       </Title>
 
-      <BackgroundWrapper className="grid  grid-cols-2 items-center gap-20">
-        <Image src={image} height={450} width={450} alt={image} />
+      <BackgroundWrapper className="flex w-full flex-col">
         <div className={className}>{children}</div>
       </BackgroundWrapper>
     </div>

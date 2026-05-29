@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Title from "@atoms/Title/title";
 import LoadingComponent from "@atoms/Loading/loading";
 import MoreDropdown from "@atoms/MoreDropdown/moreDropdown";
@@ -12,7 +12,8 @@ import { monthsArray } from "@/common/constants/chartData";
 import { wrapper } from "@/common/constants/wrapper";
 import { errorToast } from "@/hooks/useAppToast";
 import useAllCities from "@/hooks/queries/useAllCities";
-
+import useProfile from "@/hooks/queries/useProfile";
+import useAuth from "@/hooks/useAuth";
 import useAllRoutes from "@/hooks/queries/useAllRoutes";
 import useAllCollectsByCity from "@/hooks/queries/useAllCollectsByCity";
 import { exportExcel } from "@/store/services/exportExcel";
@@ -23,9 +24,21 @@ import { formatTime } from "@/utils/formatTime";
 
 const ChartsSection = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const cityId = searchParams.get("city");
   const { data: cities, isLoading: isLoadingCities } = useAllCities();
   const cityName = cities?.find((c) => c.id === cityId)?.name as string;
+
+  const { userUid } = useAuth();
+  const { data: currentUser } = useProfile(userUid);
+  const isPlatformAdmin = currentUser?.role === "platformAdmin";
+
+  // platformAdmin sem cidade selecionada → redireciona para a primeira cidade disponível
+  useEffect(() => {
+    if (isPlatformAdmin && !cityId && cities && cities.length > 0) {
+      router.replace(`/dashboard?city=${cities[0].id}`);
+    }
+  }, [isPlatformAdmin, cityId, cities, router]);
 
   const { data: dashboardData, isLoading } = useAllDashboard(cityId as string);
 

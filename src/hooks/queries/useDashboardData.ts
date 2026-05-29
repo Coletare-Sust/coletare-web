@@ -1,35 +1,64 @@
-import { useQuery } from "@tanstack/react-query";
-
-import {
-  ONE_DAY_IN_MS,
-  FORTY_FIVE_MINUTES_IN_MS
-} from "@common/constants/generic";
-
-import { DocumentData } from "firebase/firestore";
+import { useState, useEffect, useRef } from "react";
 import { getDashboardData } from "@/store/services/collects";
 import { DashboardEntity } from "@/common/entities/dashboard";
 
-export function getDashboardDataQueryKey(cityId: string) {
-  return ["dashboard", cityId];
-}
-
-export const getDashboardDataQueryFn = (cityId: string) => {
-  return () => getDashboardData(cityId);
-};
-
-const useAllDashboard = <T = DashboardEntity>(
-  cityId: string,
-  select?: (data: DocumentData) => T
+const useAllDashboard = <T = DashboardEntity | null>(
+  cityId: string | null,
+  select?: (data: DashboardEntity | null) => T
 ) => {
-  return useQuery(
-    getDashboardDataQueryKey(cityId),
-    getDashboardDataQueryFn(cityId),
-    {
-      select,
-      staleTime: FORTY_FIVE_MINUTES_IN_MS,
-      cacheTime: ONE_DAY_IN_MS
+  const [data, setData] = useState<T | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const selectRef = useRef(select);
+
+  useEffect(() => {
+    selectRef.current = select;
+  }, [select]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!cityId || cityId === "null") {
+      if (isMounted) {
+        setData(null);
+        setIsLoading(false);
+        setError(null);
+      }
+      return;
     }
-  );
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const responseData = await getDashboardData(cityId);
+        if (isMounted) {
+          if (selectRef.current) {
+            setData(selectRef.current(responseData));
+          } else {
+            setData(responseData as unknown as T);
+          }
+        }
+      } catch (err: any) {
+        if (isMounted) {
+          setError(err.message || "Failed to fetch dashboard data");
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [cityId]);
+
+  return { data, isLoading, error };
 };
 
 export default useAllDashboard;
+

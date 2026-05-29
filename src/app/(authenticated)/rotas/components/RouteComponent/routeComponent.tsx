@@ -3,12 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import {
-  GoogleMap,
-  LoadScript,
-  Marker,
-  Polyline
-} from "@react-google-maps/api";
+import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import { useState } from "react";
 
 import Button from "@atoms/Button/button";
@@ -88,12 +83,7 @@ const RouteComponent = ({
       </div>
       <div className="col-span-3 flex h-[518px] w-full items-start justify-between">
         <div className="relative flex h-full w-[95%]">
-          <LoadScript
-            googleMapsApiKey={
-              process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
-            }
-            libraries={["places", "geometry"]}
-          >
+          <>
             <GoogleMap
               onLoad={onMapLoad}
               mapContainerStyle={{ width: "100%", height: "100%" }}
@@ -124,7 +114,7 @@ const RouteComponent = ({
                 />
               ))}
             </GoogleMap>
-          </LoadScript>
+          </>
         </div>
         <Image
           width={20}

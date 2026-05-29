@@ -7,25 +7,18 @@ import { z } from "zod";
 import { errorToast, successToast } from "@/hooks/useAppToast";
 import {
   createUserWithEmailAndPasswordLocal,
-  logout,
-  signInWithEmailAndPasswordLocal
+  logout as logoutService,
+  recoverPassword,
+  signInWithEmailAndPasswordLocal,
+  waitForUser
 } from "@/store/services/auth";
 import {
   createUserDoc,
-  deleteUserDoc,
-  waitForUser
+  deleteUserDoc
 } from "@/store/services/user";
-import firebaseApp from "@/config/firebase";
-import {
-  getAuth,
-  onAuthStateChanged,
-  sendEmailVerification,
-  sendPasswordResetEmail
-} from "firebase/auth";
 import { UserEntity as UserDoc, UserEntity } from "@/common/entities/user";
 
 import AuthContext from "./context";
-import router from "next/router";
 
 interface Props {
   children: React.ReactNode;
@@ -48,20 +41,9 @@ const AuthProvider = ({ children }: Props) => {
   const [userUid, setUserUid] = useState<string>("");
   const [loading, setLoading] = useState(initialLoadingObject);
   const router = useRouter();
-  const auth = getAuth(firebaseApp);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserUid(user.uid);
-      } else {
-        setUserUid("");
-      }
-      setLoading((prev) => ({ ...prev, onAuthUserChanged: true }));
-    });
-
-    return () => unsubscribe();
-  }, []);
+  // No initial effect watching "onAuthStateChanged" anymore, since HTTPOnly is stateless for frontend
+  // And requires active polling or single fetch. "waitForUserSync" will be executed by components relying on Auth state.
 
   const createUserAuth = async (email: string, password: string) => {
     return await fetch("/api/createAuth", {
@@ -72,23 +54,16 @@ const AuthProvider = ({ children }: Props) => {
 
   const loginWithInternalService = async (email: string, password: string) => {
     setLoading((prev) => ({ ...prev, loginWithInternalService: true }));
-    const { user } = await signInWithEmailAndPasswordLocal(email, password);
-    if (user && !user?.emailVerified) {
-      errorToast("Por favor, verifique seu email.");
-      sendEmailVerification(user);
-      setLoading((prev) => ({ ...prev, loginWithInternalService: false }));
-      logout();
-      return { error: "Verifique seu email" };
-    }
-
+    const { user, error } = await signInWithEmailAndPasswordLocal(email, password);
+    
     setLoading((prev) => ({ ...prev, loginWithInternalService: false }));
-    if (user) {
+    if (user && !error) {
       successToast("Bem vindo!");
       setUserUid(user.uid);
       return { error: null };
     } else {
       setUserUid("");
-      errorToast("Credenciais erradas");
+      errorToast("Credenciais incorretas ou erro de comunicação.");
       return { error: "Credenciais erradas" };
     }
   };
@@ -109,7 +84,7 @@ const AuthProvider = ({ children }: Props) => {
       }
       delete data.password;
       delete data.confirmPassword;
-      const { errorDoc } = await createUserDoc({
+      const { error: errorDoc } = await createUserDoc({
         ...data,
         id: uid
       });
@@ -127,19 +102,23 @@ const AuthProvider = ({ children }: Props) => {
   };
 
   const waitForUserSync = async () => {
-    setLoading((prev) => ({ ...prev, onAuthUserChanged: true }));
-    waitForUser(async (userCred) => {
-      if (userCred && !userCred?.emailVerified) {
-        logout();
+    return new Promise<void>((resolve) => {
+      setLoading((prev) => ({ ...prev, onAuthUserChanged: true }));
+      waitForUser(async (userCred) => {
+        if (userCred) {
+          setUserUid(userCred.uid);
+        } else {
+          setUserUid("");
+        }
         setLoading((prev) => ({ ...prev, onAuthUserChanged: false }));
-      }
+        resolve();
+      });
     });
-    setLoading((prev) => ({ ...prev, onAuthUserChanged: false }));
   };
 
   const deleteUserAuth = async (userUid: string) => {
-    const { errorDoc } = await deleteUserDoc(userUid);
-    if (errorDoc) {
+    const { error: errorDoc } = await deleteUserDoc(userUid);
+    if (!errorDoc) {
       return { error: null };
     }
     return await fetch("/api/deleteAuth", {
@@ -150,7 +129,8 @@ const AuthProvider = ({ children }: Props) => {
 
   const logoutUser = async () => {
     setLoading((prev) => ({ ...prev, logout: true }));
-    logout();
+    await logoutService();
+    setUserUid("");
     router.push("/");
     setLoading((prev) => ({ ...prev, logout: false }));
   };
@@ -158,14 +138,11 @@ const AuthProvider = ({ children }: Props) => {
   const redefinePassword = async (email: string) => {
     setLoading((prev) => ({ ...prev, redefinePassword: true }));
     try {
-      await sendPasswordResetEmail(auth, email);
+      const { error } = await recoverPassword(email);
+      if (error) throw new Error(error);
       successToast("Email de redefinição de senha enviado.");
     } catch (err: any) {
-      if (err.message === "Firebase: Error (auth/user-not-found).") {
-        errorToast("Não existe usuário com esse email.");
-      } else {
-        errorToast("Não foi possível mandar o email de redefinição de senha.");
-      }
+      errorToast("Não foi possível solicitar a redefinição de senha no momento.");
     }
     setLoading((prev) => ({ ...prev, redefinePassword: false }));
   };
