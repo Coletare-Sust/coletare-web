@@ -8,12 +8,29 @@ import {
 import type { UserEntity } from "@common/entities/user";
 import { getUser } from "@/store/services/user";
 import { DocumentData } from "firebase/firestore";
+import {
+  DEV_LOGIN_ENABLED,
+  DEV_LOGIN_UID
+} from "@/common/constants/devAuth";
 
 export function getProfileQueryKey(uid: string) {
   return ["profile", uid];
 }
 
 export const getProfileQueryFn = (uid: string) => {
+  if (DEV_LOGIN_ENABLED && uid === DEV_LOGIN_UID) {
+    return () =>
+      Promise.resolve({
+        id: "demo-city",
+        uid: DEV_LOGIN_UID,
+        name: "Administrador Demo",
+        role: "platformAdmin",
+        status: "Ativo",
+        color: "green",
+        email: "admin@coletare.local"
+      });
+  }
+
   return () => getUser(uid);
 };
 

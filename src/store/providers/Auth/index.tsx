@@ -11,6 +11,12 @@ import {
 } from "@/store/services/user";
 import { UserEntity as UserDoc, UserEntity } from "@/common/entities/user";
 import { bffLogin, bffLogout, bffMe, bffResetPassword } from "@/store/services/bffAuth";
+import {
+  DEV_LOGIN_EMAIL,
+  DEV_LOGIN_ENABLED,
+  DEV_LOGIN_PASSWORD,
+  DEV_LOGIN_UID
+} from "@/common/constants/devAuth";
 
 import AuthContext from "./context";
 
@@ -49,6 +55,18 @@ const AuthProvider = ({ children }: Props) => {
 
   const loginWithInternalService = async (email: string, password: string) => {
     setLoading((prev) => ({ ...prev, loginWithInternalService: true }));
+
+    if (
+      DEV_LOGIN_ENABLED &&
+      email === DEV_LOGIN_EMAIL &&
+      password === DEV_LOGIN_PASSWORD
+    ) {
+      setUserUid(DEV_LOGIN_UID);
+      successToast("Bem vindo!");
+      setLoading((prev) => ({ ...prev, loginWithInternalService: false }));
+      return { error: null };
+    }
+
     const response = await bffLogin(email, password);
 
     setLoading((prev) => ({ ...prev, loginWithInternalService: false }));
@@ -101,9 +119,17 @@ const AuthProvider = ({ children }: Props) => {
     try {
       const me = await bffMe();
       const uid = me?.userId || me?.uid || "";
-      setUserUid(me?.authenticated ? uid : "");
+      if (me?.authenticated) {
+        setUserUid(uid);
+      } else if (DEV_LOGIN_ENABLED && userUid === DEV_LOGIN_UID) {
+        setUserUid(DEV_LOGIN_UID);
+      } else {
+        setUserUid("");
+      }
     } catch {
-      setUserUid("");
+      if (!(DEV_LOGIN_ENABLED && userUid === DEV_LOGIN_UID)) {
+        setUserUid("");
+      }
     } finally {
       setLoading((prev) => ({ ...prev, onAuthUserChanged: false }));
     }

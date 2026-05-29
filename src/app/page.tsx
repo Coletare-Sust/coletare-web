@@ -12,6 +12,11 @@ import Title from "@atoms/Title/title";
 import InputField from "@molecules/InputField/inputField";
 import { errorToast } from "@/hooks/useAppToast";
 import Image from "next/image";
+import {
+  DEV_LOGIN_EMAIL,
+  DEV_LOGIN_ENABLED,
+  DEV_LOGIN_PASSWORD
+} from "@/common/constants/devAuth";
 
 type SignInForm = z.infer<typeof SignInFormSchema>;
 
@@ -28,7 +33,13 @@ export default function LoginPage() {
   } = useForm<SignInForm>({
     mode: "all",
     criteriaMode: "all",
-    resolver: zodResolver(SignInFormSchema)
+    resolver: zodResolver(SignInFormSchema),
+    defaultValues: DEV_LOGIN_ENABLED
+      ? {
+          email: DEV_LOGIN_EMAIL,
+          password: DEV_LOGIN_PASSWORD
+        }
+      : undefined
   });
 
   const email = watch().email;
@@ -86,6 +97,12 @@ export default function LoginPage() {
             >
               Redefinir senha?
             </button>
+
+            {DEV_LOGIN_ENABLED && (
+              <p className="text-center text-xs text-greenBlue-1000">
+                Login padrão ativo: {DEV_LOGIN_EMAIL} / {DEV_LOGIN_PASSWORD}
+              </p>
+            )}
           </div>
           <Button loading={loading.loginWithInternalService}>Entrar</Button>
         </form>
