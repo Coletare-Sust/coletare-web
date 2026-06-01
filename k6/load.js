@@ -1,25 +1,26 @@
 import http from 'k6/http'
 import { check, sleep } from 'k6'
 
+// Use environment variables to avoid committing secrets/endpoints.
+// Recommended env vars: TARGET_URL, AUTH_TOKEN, USER_AGENT, NEXT_URL, RSC, VUS, DURATION, SLEEP
 export const options = {
-  vus: 50,           // simulate 50 users
-  duration: '30s'    // test duration
+  vus: __ENV.VUS ? parseInt(__ENV.VUS) : 50,
+  duration: __ENV.DURATION
 }
 
 export default function () {
+  const url = __ENV.TARGET_URL
 
-  const url = 'https://www.coletarepgs.com/dashboard?city=5TWzDEnYsQM4HUVigcWajwbAm0g1&_rsc=2z2io'
-
-  const params = {
-    headers: {
-      'Accept': '*/*',
-      'Next-Url': '/dashboard',
-      'RSC': '1',
-      'Sec-Fetch-Mode': 'cors',
-      'Sec-Fetch-Site': 'same-origin',
-      'User-Agent': 'k6-load-test'
-    }
+  const headers = {
+    'Accept': '*/*',
+    'User-Agent': __ENV.USER_AGENT
   }
+
+  if (__ENV.NEXT_URL) headers['Next-Url'] = __ENV.NEXT_URL
+  if (__ENV.RSC) headers['RSC'] = __ENV.RSC
+  if (__ENV.AUTH_TOKEN) headers['Authorization'] = `Bearer ${__ENV.AUTH_TOKEN}`
+
+  const params = { headers }
 
   const res = http.get(url, params)
 
@@ -28,5 +29,5 @@ export default function () {
     'response time < 1000ms': (r) => r.timings.duration < 1000
   })
 
-  sleep(0.3)
+  sleep(__ENV.SLEEP ? parseFloat(__ENV.SLEEP) : 0.3)
 }
