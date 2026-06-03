@@ -7,6 +7,9 @@ spring:
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017/coletapp}
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
 
 management:
   endpoints:

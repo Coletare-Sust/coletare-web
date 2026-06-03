@@ -9,6 +9,7 @@ public record User(
         String externalId,
         String email,
         String displayName,
+        String cityId,
         List<String> roles,
         Map<String, Object> metadata,
         Instant createdAt,

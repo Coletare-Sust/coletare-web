@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 
 type KeycloakTokenResponse = {
   access_token?: string;
 };
 
+const skipKeycloak = () => process.env.SKIP_KEYCLOAK === "true";
+
 const getRequiredEnv = (name: string): string => {
   const value = process.env[name];
-  if (!value) {
-    throw new Error(`${name} não configurado`);
-  }
+  if (!value) throw new Error(`${name} não configurado`);
   return value;
 };
 
@@ -31,9 +32,7 @@ const getAdminAccessToken = async () => {
     `${baseUrl}/realms/${adminRealm}/protocol/openid-connect/token`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body,
       cache: "no-store"
     }
@@ -48,11 +47,7 @@ const getAdminAccessToken = async () => {
     throw new Error("Token de acesso do Keycloak inválido");
   }
 
-  return {
-    accessToken: tokenData.access_token,
-    baseUrl,
-    realm
-  };
+  return { accessToken: tokenData.access_token, baseUrl, realm };
 };
 
 const extractUserIdFromLocation = (location: string | null) => {
@@ -71,13 +66,10 @@ const findUserIdByEmail = async (
     `${baseUrl}/admin/realms/${realm}/users?email=${encodeURIComponent(email)}&exact=true`,
     {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      },
+      headers: { Authorization: `Bearer ${accessToken}` },
       cache: "no-store"
     }
   );
-
   if (!response.ok) return "";
   const users = (await response.json()) as Array<{ id?: string }>;
   return users?.[0]?.id ?? "";
@@ -89,19 +81,20 @@ const syncUserInBackend = async (payload: {
   email: string;
   displayName: string;
 }) => {
-  const backendBaseUrl = process.env.NEXT_PUBLIC_BFF_BASE_URL || "http://localhost:8080";
+  const backendBaseUrl =
+    process.env.BFF_BASE_URL ||
+    process.env.NEXT_PUBLIC_BFF_BASE_URL ||
+    "http://localhost:8080";
 
   const response = await fetch(`${backendBaseUrl}/bff/users/internal-sync`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
     cache: "no-store"
   });
 
   if (!response.ok) {
-    throw new Error("Usuário criado no Keycloak, mas não foi possível salvar no Mongo");
+    throw new Error("Usuário não foi possível salvar no MongoDB");
   }
 };
 
@@ -114,6 +107,13 @@ export async function POST(request: Request) {
         { uid: "", error: "Email e senha são obrigatórios" },
         { status: 400 }
       );
+    }
+
+    // Bypass Keycloak: gera UUID e sincroniza direto no MongoDB
+    if (skipKeycloak()) {
+      const uid = randomUUID();
+      await syncUserInBackend({ id: uid, externalId: uid, email, displayName: displayName || email });
+      return NextResponse.json({ uid, error: null });
     }
 
     const { accessToken, baseUrl, realm } = await getAdminAccessToken();
@@ -129,13 +129,7 @@ export async function POST(request: Request) {
         email,
         enabled: true,
         emailVerified: true,
-        credentials: [
-          {
-            type: "password",
-            value: password,
-            temporary: false
-          }
-        ]
+        credentials: [{ type: "password", value: password, temporary: false }]
       }),
       cache: "no-store"
     });
@@ -163,12 +157,7 @@ export async function POST(request: Request) {
       );
     }
 
-    await syncUserInBackend({
-      id: uid,
-      externalId: uid,
-      email,
-      displayName: displayName || email
-    });
+    await syncUserInBackend({ id: uid, externalId: uid, email, displayName: displayName || email });
 
     return NextResponse.json({ uid, error: null });
   } catch (error: any) {

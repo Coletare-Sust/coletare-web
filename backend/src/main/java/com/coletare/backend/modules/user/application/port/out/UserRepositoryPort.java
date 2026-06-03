@@ -10,5 +10,8 @@ public interface UserRepositoryPort {
     Optional<User> findById(String id);
     Optional<User> findByEmail(String email);
     List<User> findAll();
+    List<User> findByRole(String role);
+    List<User> findByCityId(String cityId);
+    List<User> findByCityIdAndRole(String cityId, String role);
     void deleteById(String id);
 }

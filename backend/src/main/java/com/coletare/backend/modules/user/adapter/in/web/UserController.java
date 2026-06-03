@@ -23,7 +23,19 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> list() {
+    public ResponseEntity<List<User>> list(
+            @RequestParam(required = false) String cityId,
+            @RequestParam(required = false) String role
+    ) {
+        if (cityId != null && role != null) {
+            return ResponseEntity.ok(userUseCase.listByCityIdAndRole(cityId, role));
+        }
+        if (cityId != null) {
+            return ResponseEntity.ok(userUseCase.listByCityId(cityId));
+        }
+        if (role != null) {
+            return ResponseEntity.ok(userUseCase.listByRole(role));
+        }
         return ResponseEntity.ok(userUseCase.list());
     }
 
@@ -41,6 +53,7 @@ public class UserController {
                 request.externalId(),
                 request.email(),
                 request.displayName(),
+                request.cityId(),
                 request.roles() == null ? List.of() : request.roles(),
                 request.metadata() == null ? Map.of() : request.metadata(),
                 Instant.now(),
@@ -61,6 +74,7 @@ public class UserController {
                 request.externalId(),
                 request.email(),
                 request.displayName(),
+                request.cityId(),
                 request.roles() == null ? List.of() : request.roles(),
                 request.metadata() == null ? Map.of() : request.metadata(),
                 Instant.now(),

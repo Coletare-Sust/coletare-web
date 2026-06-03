@@ -17,12 +17,12 @@ export const getAllWithdrawalsRequests = async (cityId: string) => {
   return get(query)
     .then((snapshot) => {
       const wdObj = snapshot.val();
+      if (!wdObj) return [];
       const response = Object.keys(wdObj).map((key) => ({
         id: key,
         ...wdObj[key]
       }));
-
-      return response ?? [];
+      return response;
     })
     .catch((error) => {
       console.error(error);

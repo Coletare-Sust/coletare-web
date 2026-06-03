@@ -4,11 +4,11 @@ type KeycloakTokenResponse = {
   access_token?: string;
 };
 
+const skipKeycloak = () => process.env.SKIP_KEYCLOAK === "true";
+
 const getRequiredEnv = (name: string): string => {
   const value = process.env[name];
-  if (!value) {
-    throw new Error(`${name} não configurado`);
-  }
+  if (!value) throw new Error(`${name} não configurado`);
   return value;
 };
 
@@ -31,9 +31,7 @@ const getAdminAccessToken = async () => {
     `${baseUrl}/realms/${adminRealm}/protocol/openid-connect/token`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body,
       cache: "no-store"
     }
@@ -48,18 +46,20 @@ const getAdminAccessToken = async () => {
     throw new Error("Token de acesso do Keycloak inválido");
   }
 
-  return {
-    accessToken: tokenData.access_token,
-    baseUrl,
-    realm
-  };
+  return { accessToken: tokenData.access_token, baseUrl, realm };
 };
 
 export async function POST(request: Request) {
   try {
     const userUid = await request.json();
+
     if (!userUid || typeof userUid !== "string") {
       return NextResponse.json({ error: "ID de usuário inválido" }, { status: 400 });
+    }
+
+    // Bypass Keycloak: remoção do Keycloak pulada, MongoDB é deletado pelo service diretamente
+    if (skipKeycloak()) {
+      return NextResponse.json({ error: null });
     }
 
     const { accessToken, baseUrl, realm } = await getAdminAccessToken();
@@ -68,9 +68,7 @@ export async function POST(request: Request) {
       `${baseUrl}/admin/realms/${realm}/users/${encodeURIComponent(userUid)}`,
       {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        },
+        headers: { Authorization: `Bearer ${accessToken}` },
         cache: "no-store"
       }
     );

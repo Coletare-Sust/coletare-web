@@ -22,7 +22,11 @@ import useAuth from "@/hooks/useAuth";
 import useCity from "@/hooks/queries/useCity";
 import { wrapper } from "@/common/constants/wrapper";
 import { createUser, updateUser } from "@/store/services/user";
-import { deleteImage, uploadImage } from "@/store/services/firebaseStorage";
+// TODO: substituir por MinIO quando o upload de imagens for migrado
+const uploadImage = async (_file: File): Promise<{ image: string | null; error: any }> =>
+  ({ image: null, error: null });
+const deleteImage = async (_url?: string | null): Promise<{ error: null }> =>
+  ({ error: null });
 import { queryClient } from "@/store/providers/queryClient";
 import { ColorsOptions } from "@/common/entities/colors";
 import { sendEmail } from "@/store/services/email";

@@ -16,6 +16,7 @@ public class UserDocument {
     private String name;
     private String role;
     private String displayName;
+    private String cityId;
     private List<String> roles;
     private Map<String, Object> metadata;
     private Instant createdAt;
@@ -41,4 +42,6 @@ public class UserDocument {
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+    public String getCityId() { return cityId; }
+    public void setCityId(String cityId) { this.cityId = cityId; }
 }

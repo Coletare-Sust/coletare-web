@@ -21,12 +21,15 @@ public class UserService implements UserUseCase {
     @Override
     public User upsert(User user) {
         Instant now = Instant.now();
+        List<String> normalizedRoles = user.roles() == null ? List.of()
+                : user.roles().stream().map(String::toUpperCase).toList();
         User persisted = new User(
                 user.id(),
                 user.externalId(),
                 user.email(),
                 user.displayName(),
-                user.roles(),
+                user.cityId(),
+                normalizedRoles,
                 user.metadata(),
                 user.createdAt() == null ? now : user.createdAt(),
                 now
@@ -42,6 +45,21 @@ public class UserService implements UserUseCase {
     @Override
     public List<User> list() {
         return userRepositoryPort.findAll();
+    }
+
+    @Override
+    public List<User> listByRole(String role) {
+        return userRepositoryPort.findByRole(role.toUpperCase());
+    }
+
+    @Override
+    public List<User> listByCityId(String cityId) {
+        return userRepositoryPort.findByCityId(cityId);
+    }
+
+    @Override
+    public List<User> listByCityIdAndRole(String cityId, String role) {
+        return userRepositoryPort.findByCityIdAndRole(cityId, role.toUpperCase());
     }
 
     @Override

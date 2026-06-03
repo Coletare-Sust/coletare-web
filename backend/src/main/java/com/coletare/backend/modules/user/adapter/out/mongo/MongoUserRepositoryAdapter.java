@@ -39,6 +39,21 @@ public class MongoUserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
+    public List<User> findByRole(String role) {
+        return repository.findByRole(role).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<User> findByCityId(String cityId) {
+        return repository.findByCityId(cityId).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<User> findByCityIdAndRole(String cityId, String role) {
+        return repository.findByCityIdAndRole(cityId, role).stream().map(this::toDomain).toList();
+    }
+
+    @Override
     public void deleteById(String id) {
         repository.deleteById(id);
     }
@@ -50,6 +65,7 @@ public class MongoUserRepositoryAdapter implements UserRepositoryPort {
         d.setEmail(user.email());
         d.setDisplayName(user.displayName());
         d.setName(user.displayName());
+        d.setCityId(user.cityId());
         if (user.roles() != null && !user.roles().isEmpty()) {
             d.setRole(user.roles().get(0));
         }
@@ -66,6 +82,7 @@ public class MongoUserRepositoryAdapter implements UserRepositoryPort {
                 document.getExternalId(),
                 document.getEmail(),
                 document.getDisplayName() != null ? document.getDisplayName() : document.getName(),
+                document.getCityId(),
                 document.getRoles() != null ? document.getRoles() : (document.getRole() != null ? java.util.List.of(document.getRole()) : java.util.List.of()),
                 document.getMetadata(),
                 document.getCreatedAt(),

@@ -11,6 +11,7 @@ public record UpsertUserRequest(
         String externalId,
         @Email @NotBlank String email,
         @NotBlank String displayName,
+        String cityId,
         List<String> roles,
         Map<String, Object> metadata
 ) {
