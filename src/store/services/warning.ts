@@ -1,135 +1,100 @@
-import { getUser } from "./user";
-import { UserEntity } from "@/common/entities/user";
-import { uploadImage } from "./firebaseStorage";
-import {
-  equalTo,
-  get,
-  getDatabase,
-  orderByChild,
-  push,
-  query as queryDatabase,
-  ref,
-  set,
-  remove,
-  update
-} from "firebase/database";
 import { WarningEntity } from "@/common/entities/Warning";
-import app from "@/config/firebase";
 import { WarningDTO } from "@/common/dtos/WarningDTO";
 
-const database = getDatabase(app);
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_WARNINGS_URL || "http://localhost:8080/bff/avisos";
 
-export const createWarningService = async (warning: WarningDTO) => {
-  const user: UserEntity = await getUser(warning.cityId);
-
-  if (user.role !== "admin") throw new Error("Usuário não autorizado!");
-
-  const newWarningRef = push(ref(database, "warnings"));
-  const warningId = newWarningRef.key;
-
-  if (!warningId) throw new Error("Erro ao criar id com push");
-
-  let imageUrl: string | null = null;
-  if (warning.image) {
-    const { image, error } = await uploadImage(
-      warning.image,
-      `warning/${warningId}`
-    );
-    imageUrl = image;
-    if (error || !imageUrl)
-      throw new Error(`Não foi possível subir a imagem!\n${error}`);
+async function http<T>(url: string, options: RequestInit = {}): Promise<T> {
+  const res = await fetch(url, {
+    ...options,
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || `HTTP ${res.status}`);
   }
+  return res.json() as Promise<T>;
+}
 
-  const now = new Date().toISOString();
+interface BackendAviso {
+  id: string;
+  cityId: string;
+  title: string;
+  description: string;
+  imageUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
-  const warningToSave: WarningEntity = {
-    id: warningId,
+function toWarningEntity(a: BackendAviso): WarningEntity {
+  return {
+    id: a.id,
+    cityId: a.cityId,
+    title: a.title,
+    description: a.description,
+    image: a.imageUrl ?? null,
+    createdAt: a.createdAt,
+    updatedAt: a.updatedAt
+  };
+}
+
+export const createWarningService = async (warning: WarningDTO): Promise<WarningEntity> => {
+  // Upload de imagem para MinIO ainda não implementado — imageUrl fica null por ora
+  const payload = {
     cityId: warning.cityId,
     title: warning.title,
     description: warning.description,
-    image: imageUrl,
-    createdAt: now,
-    updatedAt: now
+    imageUrl: null
   };
-
-  await set(newWarningRef, warningToSave);
-  return warningToSave;
+  const created = await http<BackendAviso>(API_BASE, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+  return toWarningEntity(created);
 };
 
-export const getAllWarningService = async (
-  cityId: string
-): Promise<WarningEntity[]> => {
-  const query = queryDatabase(
-    ref(database, `warnings`),
-    orderByChild("cityId"),
-    equalTo(cityId)
+export const getAllWarningService = async (cityId: string): Promise<WarningEntity[]> => {
+  const avisos = await http<BackendAviso[]>(
+    `${API_BASE}?cityId=${encodeURIComponent(cityId)}`
   );
-
-  return get(query)
-    .then((snapshot) => {
-      const warningsObj = snapshot.val();
-      if (!warningsObj || warningsObj.length === 0) return [];
-      const response = Object.keys(warningsObj).map((key) => warningsObj[key]);
-      return response ?? [];
-    })
-    .catch((error) => {
-      console.error(error);
-      throw new Error(error);
-    });
+  return avisos.map(toWarningEntity);
 };
 
-export const deleteWarningService = async (warningId: string) => {
+export const getWarningService = async (warningId: string): Promise<WarningEntity | null> => {
   try {
-    const warningRef = ref(database, `warnings/${warningId}`);
-    await remove(warningRef);
-    return { error: null };
-  } catch (err) {
-    console.error("Erro ao deletar aviso:", err);
-    return { error: "Não foi possível deletar o aviso" };
+    const aviso = await http<BackendAviso>(`${API_BASE}/${warningId}`);
+    return toWarningEntity(aviso);
+  } catch {
+    return null;
   }
-};
-
-export const getWarningService = async (
-  warningId: string
-): Promise<WarningEntity | null> => {
-  const snapshot = await get(ref(database, `warnings/${warningId}`));
-  if (!snapshot.exists()) return null;
-  return snapshot.val() as WarningEntity;
 };
 
 export const updateWarningService = async (
   warningId: string,
-  data: {
-    title: string;
-    description: string;
-    image?: File | string | null;
-  }
-) => {
-  const now = new Date().toISOString();
-  const warningRef = ref(database, `warnings/${warningId}`);
-
-  let imageUrl: string | null = null;
-
-  if (data.image instanceof File) {
-    const { image, error } = await uploadImage(
-      data.image,
-      `warning/${warningId}`
-    );
-    imageUrl = image;
-    if (error || !imageUrl)
-      throw new Error(`Não foi possível subir a imagem!\n${error}`);
-  } else if (typeof data.image === "string") {
-    imageUrl = data.image;
-  }
-
-  const updateData = {
+  data: { title: string; description: string; image?: File | string | null }
+): Promise<WarningEntity | null> => {
+  const imageUrl = typeof data.image === "string" ? data.image : null;
+  const current = await getWarningService(warningId);
+  const payload = {
+    cityId: current?.cityId ?? "",
     title: data.title,
     description: data.description,
-    image: imageUrl,
-    updatedAt: now
+    imageUrl: imageUrl ?? current?.image ?? null
   };
+  const updated = await http<BackendAviso>(`${API_BASE}/${warningId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload)
+  });
+  return toWarningEntity(updated);
+};
 
-  await update(warningRef, updateData);
-
-  return await getWarningService(warningId);
+export const deleteWarningService = async (warningId: string): Promise<{ error: string | null }> => {
+  try {
+    const res = await fetch(`${API_BASE}/${warningId}`, { method: "DELETE" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return { error: null };
+  } catch (err: any) {
+    console.error("Erro ao deletar aviso:", err);
+    return { error: err.message ?? "Não foi possível deletar o aviso" };
+  }
 };

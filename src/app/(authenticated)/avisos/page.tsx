@@ -5,11 +5,12 @@ import Button from "@/components/atoms/Button/button";
 import Title from "@/components/atoms/Title/title";
 import useProfile from "@/hooks/queries/useProfile";
 import useAuth from "@/hooks/useAuth";
-import { deleteImage } from "@/store/services/firebaseStorage";
 import {
   getAllWarningService,
   deleteWarningService
 } from "@/store/services/warning";
+// TODO: substituir por MinIO quando upload de imagens for migrado
+const deleteImage = async (_url?: string | null) => ({ error: null });
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
