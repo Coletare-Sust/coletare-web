@@ -10,4 +10,9 @@ export interface RouteEntity {
   wasChecked: boolean;
   withdrawalRequestsIds: string[];
   isSpecial: boolean;
+  assignedVehicleId?: string | null;
+  assignedCollaborators?: string[];
+  status?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
