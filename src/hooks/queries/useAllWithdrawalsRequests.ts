@@ -2,12 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 
 import {
   ONE_DAY_IN_MS,
-  FORTY_FIVE_MINUTES_IN_MS,
   FIFTEEN_MINUTES_IN_MS
 } from "@common/constants/generic";
 
 import { getAllWithdrawalsRequests } from "@/store/services/withdrawalsRequests";
-import { DocumentData } from "firebase/firestore";
 import { WithdrawalsRequestEntity } from "@/common/entities/WithdrawalsRequest";
 
 export function getAllWithdrawalsRequestsQueryKey(cityId: string) {
@@ -20,7 +18,7 @@ export const getAllWithdrawalsRequestsQueryFn = (cityId: string) => {
 
 const useAllWithdrawalsRequest = <T = WithdrawalsRequestEntity[]>(
   cityId: string,
-  select?: (data: DocumentData) => T
+  select?: (data: WithdrawalsRequestEntity[]) => T
 ) => {
   return useQuery(
     getAllWithdrawalsRequestsQueryKey(cityId),
