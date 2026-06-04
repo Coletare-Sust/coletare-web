@@ -1,11 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-
-import {
-  ONE_DAY_IN_MS,
-  FORTY_FIVE_MINUTES_IN_MS
-} from "@common/constants/generic";
-
-import { DocumentData } from "firebase/firestore";
+import { ONE_DAY_IN_MS, FORTY_FIVE_MINUTES_IN_MS } from "@common/constants/generic";
 import { CollectEntity } from "@/common/entities/Collect";
 import { getAllCollects } from "@/store/services/collect";
 
@@ -18,7 +12,7 @@ export const getAllCollectsQueryFn = () => {
 };
 
 const useAllCollects = <T = CollectEntity[]>(
-  select?: (data: DocumentData) => T
+  select?: (data: CollectEntity[]) => T
 ) => {
   return useQuery(getAllCollectsQueryKey(), getAllCollectsQueryFn(), {
     select,

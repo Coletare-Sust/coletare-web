@@ -1,15 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-
-import {
-  ONE_DAY_IN_MS,
-  FORTY_FIVE_MINUTES_IN_MS
-} from "@common/constants/generic";
-
+import { ONE_DAY_IN_MS, FORTY_FIVE_MINUTES_IN_MS } from "@common/constants/generic";
 import type { CollectEntity } from "@common/entities/Collect";
 import { getAllCollectsByRoute } from "@/store/services/collects";
-import { DocumentData } from "firebase/firestore";
-
-// Get de todas as cidades (que no caso são users).
 
 export function getAllCollectsQueryKey(routeId: string) {
   return ["collects", routeId];
@@ -21,7 +13,7 @@ export const getAllCollectsQueryFn = (routeId: string) => {
 
 const useAllCollectsByRoute = <T = CollectEntity[]>(
   routeId: string,
-  select?: (data: DocumentData) => T
+  select?: (data: CollectEntity[]) => T
 ) => {
   return useQuery(
     getAllCollectsQueryKey(routeId),

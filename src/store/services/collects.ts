@@ -1,69 +1,110 @@
-import {
-  ref,
-  get,
-  getDatabase,
-  orderByChild,
-  equalTo,
-  query as queryDatabase,
-  update
-} from "firebase/database";
-
 import { CollectEntity } from "@/common/entities/Collect";
-import { diffInMonths } from "@/utils/diffInMonths";
 
-export const getAllCollectsByRoute = async (routeId: string) => {
-  const query = queryDatabase(
-    ref(getDatabase(), `collects`),
-    orderByChild("routeId"),
-    equalTo(routeId)
-  );
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_COLLECTS_URL || "http://localhost:8080/bff/coletas";
 
-  return get(query)
-    .then((snapshot) => {
-      const collects = snapshot.val();
-      if (!collects) return [];
-      const response = Object.keys(collects).map((key) => ({
-        id: key,
-        ...collects[key]
-      }));
-      return response ?? [];
-    })
-    .catch((error: any) => {
-      console.error(error);
-      return null;
-    });
+async function http<T>(url: string, options: RequestInit = {}): Promise<T> {
+  const res = await fetch(url, {
+    ...options,
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+interface BackendColeta {
+  id: string;
+  cityId: string;
+  routeId: string;
+  vehicleName: string;
+  carPlate: string;
+  employeeId: string;
+  mass: number | null;
+  consume: number | null;
+  emission: number | null;
+  cost: { landfillDelivery: number | null; fuel: number | null } | null;
+  kmRun: number;
+  withdrawalRequestsIds: string[] | null;
+  duration: number;
+  vehicleLatitude: number;
+  vehicleLongitude: number;
+  hasEnded: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+function toTimestamp(iso: string | null | undefined) {
+  if (!iso) return { seconds: 0, nanoseconds: 0, toDate: () => new Date(0) };
+  const ms = new Date(iso).getTime();
+  return {
+    seconds: Math.floor(ms / 1000),
+    nanoseconds: (ms % 1000) * 1_000_000,
+    toDate: () => new Date(ms)
+  };
+}
+
+function toEntity(c: BackendColeta): CollectEntity {
+  return {
+    id: c.id,
+    cityId: c.cityId,
+    routeId: c.routeId,
+    vehicleName: c.vehicleName,
+    carPlate: c.carPlate,
+    employeeId: c.employeeId,
+    mass: c.mass ?? 0,
+    consume: c.consume ?? 0,
+    emission: c.emission ?? 0,
+    cost: {
+      landfillDelivery: c.cost?.landfillDelivery ?? 0,
+      fuel: c.cost?.fuel ?? 0
+    },
+    kmRun: c.kmRun,
+    withdrawalRequestsIds: c.withdrawalRequestsIds ?? [],
+    duration: c.duration,
+    vehicleLatitude: c.vehicleLatitude,
+    vehicleLongitude: c.vehicleLongitude,
+    hasEnded: c.hasEnded,
+    createdAt: toTimestamp(c.createdAt) as any
+  };
+}
+
+export const getAllCollectsByRoute = async (routeId: string): Promise<CollectEntity[]> => {
+  try {
+    const coletas = await http<BackendColeta[]>(
+      `${API_BASE}?routeId=${encodeURIComponent(routeId)}`
+    );
+    return coletas.map(toEntity);
+  } catch (error: any) {
+    console.error(error);
+    return [];
+  }
 };
 
-export const getAllCollectsByCity = async (cityId: string) => {
-  const query = queryDatabase(
-    ref(getDatabase(), `collects`),
-    orderByChild("cityId"),
-    equalTo(cityId)
-  );
-
-  return get(query)
-    .then((snapshot) => {
-      const collects = snapshot.val();
-      if (!collects) return [];
-      const response = Object.keys(collects).map((key) => ({
-        id: key,
-        ...collects[key]
-      }));
-      return response ?? [];
-    })
-    .catch((error: any) => {
-      console.error(error);
-      return null;
-    });
+export const getAllCollectsByCity = async (cityId: string): Promise<CollectEntity[]> => {
+  try {
+    const coletas = await http<BackendColeta[]>(
+      `${API_BASE}?cityId=${encodeURIComponent(cityId)}`
+    );
+    return coletas.map(toEntity);
+  } catch (error: any) {
+    console.error(error);
+    return [];
+  }
 };
 
 export const updateCollect = async (
   id: string,
   data: Partial<CollectEntity>
-) => {
+): Promise<{ error: string | null }> => {
   try {
-    const reposne = await update(ref(getDatabase(), `collects/${id}`), data);
-    console.log(reposne);
+    await fetch(`${API_BASE}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
     return { error: null };
   } catch (error: any) {
     console.error(error);
@@ -72,140 +113,13 @@ export const updateCollect = async (
 };
 
 export const getDashboardData = async (cityId: string, routeId?: string) => {
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const monthDays = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth() + 1,
-    0
-  ).getDate();
-
-  const defaultDataValue: any = {
-    landfill: {
-      year: new Array(12).fill(0),
-      semester: new Array(6).fill(0),
-      month: new Array(monthDays).fill(0)
-    },
-    fuel: {
-      year: new Array(12).fill(0),
-      semester: new Array(6).fill(0),
-      month: new Array(monthDays).fill(0)
-    },
-    emission: {
-      year: new Array(12).fill(0),
-      semester: new Array(6).fill(0),
-      month: new Array(monthDays).fill(0)
-    },
-    mass: {
-      year: new Array(12).fill(0),
-      semester: new Array(6).fill(0),
-      month: new Array(monthDays).fill(0)
-    }
-  };
-
-  const finalData = defaultDataValue;
-
-  // get requisition all data of the city in the last 12 months
-  const queryRef = ref(getDatabase(), "collects");
-  const query = queryDatabase(
-    queryRef,
-    orderByChild("cityId"),
-    equalTo(cityId)
-  );
-
-  const response = await get(query)
-    .then((snapshot) => {
-      const collects = snapshot.val();
-      if (!collects) return [];
-      let response: CollectEntity[] = Object.keys(collects)
-        .map((key) => ({
-          id: key,
-          ...collects[key]
-        }))
-        .filter(
-          (collect) =>
-            diffInMonths(
-              currentDate,
-              new Date(collect.createdAt.seconds * 1000)
-            ) <= 12
-        );
-
-      if (routeId) {
-        response = response.filter((collect) => collect.routeId === routeId);
-      }
-
-      return response ?? [];
-    })
-    .catch((error: any) => {
-      console.error(error);
-      return null;
-    });
-
-  if (!response || response.length === 0) return defaultDataValue;
-
-  // order by month and year -> in this case year is in the january to december format
-  response.forEach((collect: CollectEntity) => {
-    const collectDate = new Date(collect.createdAt.seconds * 1000);
-    const collectMonth = collectDate.getMonth();
-    const collectDay = collectDate.getDate();
-
-    const isFromThisMonth = collectDate.getMonth() === currentMonth;
-
-    Object.keys(finalData).forEach((key) => {
-      const finalLandfillValue =
-        collect.mass && collect.cost?.landfillDelivery
-          ? parseFloat(
-              (collect.mass * collect.cost?.landfillDelivery).toFixed(2)
-            )
-          : 0;
-      const finalCollectEmission =
-        collect.consume && collect.kmRun && collect.emission
-          ? parseFloat(
-              (collect.consume * collect.kmRun * collect.emission).toFixed(2)
-            )
-          : 0;
-      const finalCollectFuelCost =
-        collect.cost?.fuel && collect.consume && collect.cost?.fuel
-          ? parseFloat(
-              (collect.consume * collect.kmRun * collect.cost?.fuel).toFixed(2)
-            )
-          : 0;
-
-      const finalMass = collect.mass ? parseFloat(collect.mass.toFixed(2)) : 0;
-
-      if (key === "landfill") {
-        finalData[key].year[collectMonth] += finalLandfillValue;
-        if (isFromThisMonth) {
-          finalData[key].month[collectDay - 1] += finalLandfillValue;
-        }
-      }
-      if (key === "fuel") {
-        finalData[key].year[collectMonth] += finalCollectFuelCost;
-        if (isFromThisMonth) {
-          finalData[key].month[collectDay - 1] += finalCollectFuelCost;
-        }
-      }
-      if (key === "emission") {
-        finalData[key].year[collectMonth] += finalCollectEmission;
-        if (isFromThisMonth) {
-          finalData[key].month[collectDay - 1] += finalCollectEmission;
-        }
-      }
-      if (key === "mass") {
-        finalData[key].year[collectMonth] += finalMass;
-        if (isFromThisMonth) {
-          finalData[key].month[collectDay - 1] += finalMass;
-        }
-      }
-    });
-  });
-
-  // order correctly the year + get semester (not jan to dec, but get the last 12 months)
-  Object.keys(finalData).forEach((key) => {
-    finalData[key].year = finalData[key].year
-      .slice(currentMonth + 1)
-      .concat(finalData[key].year.slice(0, currentMonth + 1));
-    finalData[key].semester = finalData[key].year.slice(-6);
-  });
-  return finalData;
+  try {
+    const url = routeId
+      ? `${API_BASE}/dashboard?cityId=${encodeURIComponent(cityId)}&routeId=${encodeURIComponent(routeId)}`
+      : `${API_BASE}/dashboard?cityId=${encodeURIComponent(cityId)}`;
+    return await http(url);
+  } catch (error: any) {
+    console.error(error);
+    return null;
+  }
 };

@@ -1,7 +1,3 @@
-import { Timestamp } from "firebase/firestore";
-
-import { Timestamp as TimestampEntity } from "./timestamp";
-
 export interface CollectEntity {
   id: string;
   cityId: string;
@@ -21,6 +17,6 @@ export interface CollectEntity {
   duration: number;
   vehicleLatitude: number;
   vehicleLongitude: number;
-  createdAt: Timestamp | TimestampEntity;
+  createdAt: { seconds: number; nanoseconds: number; toDate: () => Date };
   hasEnded: boolean;
 }
