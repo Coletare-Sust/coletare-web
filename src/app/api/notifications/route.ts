@@ -32,13 +32,8 @@ export async function POST(request: Request) {
     cityId
   )) as WithdrawalsRequestEntity[];
 
-  if (route.error) {
-    return NextResponse.json(
-      {},
-      {
-        status: 400
-      }
-    );
+  if (!route) {
+    return NextResponse.json({}, { status: 400 });
   }
 
   const polylineCoordinates = decodePolyline(route.polyline).map(

@@ -1,11 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { DocumentData } from "firebase/firestore";
-
-import {
-  ONE_DAY_IN_MS,
-  FIFTEEN_MINUTES_IN_MS
-} from "@common/constants/generic";
-
+import { ONE_DAY_IN_MS, FIFTEEN_MINUTES_IN_MS } from "@common/constants/generic";
 import { getRoutes } from "@/store/services/route";
 import { RouteEntity } from "@/common/entities/route";
 
@@ -19,7 +13,7 @@ export const getAllUsersQueryFn = (cityId: string) => {
 
 const useAllRoutes = <T = RouteEntity[]>(
   cityId: string,
-  select?: (data: DocumentData) => T
+  select?: (data: RouteEntity[]) => T
 ) => {
   return useQuery(getAllUsersQueryKey(cityId), getAllUsersQueryFn(cityId), {
     select,

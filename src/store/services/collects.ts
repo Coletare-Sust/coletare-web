@@ -112,12 +112,15 @@ export const updateCollect = async (
   }
 };
 
-export const getDashboardData = async (cityId: string, routeId?: string) => {
+export const getDashboardData = async (
+  cityId: string,
+  routeId?: string
+): Promise<import("@/common/entities/dashboard").DashboardEntity | null> => {
   try {
     const url = routeId
       ? `${API_BASE}/dashboard?cityId=${encodeURIComponent(cityId)}&routeId=${encodeURIComponent(routeId)}`
       : `${API_BASE}/dashboard?cityId=${encodeURIComponent(cityId)}`;
-    return await http(url);
+    return await http<import("@/common/entities/dashboard").DashboardEntity>(url);
   } catch (error: any) {
     console.error(error);
     return null;

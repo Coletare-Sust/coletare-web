@@ -10,8 +10,8 @@ import {
 import { useEffect, useState, useMemo, useRef } from "react";
 import Title from "@/components/atoms/Title/title";
 
-import { ref, onValue, off, getDatabase } from "firebase/database";
-import firebaseApp from "@/config/firebase";
+const COLLECTS_API =
+  process.env.NEXT_PUBLIC_API_COLLECTS_URL || "http://localhost:8080/bff/coletas";
 
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
@@ -96,28 +96,32 @@ const RotasAndamento = () => {
   useEffect(() => {
     if (!user?.cityId) return;
 
-    const liveMapRef = ref(
-      getDatabase(firebaseApp),
-      `live_map_data/${user.cityId}`
-    );
-    console.log(`Iniciando monitoramento em: live_map_data/${user.cityId}`);
-
-    const unsubscribe = onValue(liveMapRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const trucksArray = Object.entries(data).map(
-          ([key, value]: [string, any]) => ({
-            id: key,
-            ...value
-          })
+    const fetchActive = async () => {
+      try {
+        const res = await fetch(
+          `${COLLECTS_API}/live?cityId=${encodeURIComponent(user.cityId!)}`
         );
+        if (!res.ok) return;
+        const data: any[] = await res.json();
+        const trucksArray: LiveTruck[] = data
+          .filter((c) => c.vehicleLatitude && c.vehicleLongitude)
+          .map((c) => ({
+            id: c.id,
+            lat: c.vehicleLatitude,
+            lng: c.vehicleLongitude,
+            carPlate: c.carPlate,
+            vehicleName: c.vehicleName,
+            routeId: c.routeId
+          }));
         setTrucks(trucksArray);
-      } else {
-        setTrucks([]);
+      } catch (e) {
+        console.error("Erro ao buscar coletas ativas:", e);
       }
-    });
+    };
 
-    return () => off(liveMapRef);
+    fetchActive();
+    const interval = setInterval(fetchActive, 10000);
+    return () => clearInterval(interval);
   }, [user?.cityId]);
 
   return (
