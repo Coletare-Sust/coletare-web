@@ -1,13 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-
-import {
-  ONE_DAY_IN_MS,
-  FORTY_FIVE_MINUTES_IN_MS
-} from "@common/constants/generic";
-
+import { ONE_DAY_IN_MS, FORTY_FIVE_MINUTES_IN_MS } from "@common/constants/generic";
 import type { UserEntity } from "@common/entities/user";
 import { getAllCollaborators } from "@/store/services/user";
-import { DocumentData } from "firebase/firestore";
 
 export function getAllCollaboratorsQueryKey(cityid: string) {
   return ["collaborators", cityid];
@@ -19,7 +13,7 @@ export const getAllCollaboratorsQueryFn = (cityid: string) => {
 
 const useAllCollaborators = <T = UserEntity[]>(
   cityid: string,
-  select?: (data: DocumentData) => T
+  select?: (data: UserEntity[]) => T
 ) => {
   return useQuery(
     getAllCollaboratorsQueryKey(cityid),

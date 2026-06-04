@@ -1,15 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { DocumentData } from "firebase/firestore";
-
-import {
-  ONE_DAY_IN_MS,
-  FORTY_FIVE_MINUTES_IN_MS
-} from "@common/constants/generic";
-
+import { ONE_DAY_IN_MS, FORTY_FIVE_MINUTES_IN_MS } from "@common/constants/generic";
 import type { UserEntity } from "@common/entities/user";
 import { getUser } from "@/store/services/user";
-
-// Get  de uma cidade (que no caso é um user)
 
 export function getCityQueryKey(id: string | null) {
   return ["city", id];
@@ -19,9 +11,9 @@ export const getCityQueryFn = (id: string | null) => {
   return () => getUser(id);
 };
 
-const useCity = <T = UserEntity>(
+const useCity = <T = UserEntity | null>(
   id: string | null,
-  select?: (data: DocumentData) => T
+  select?: (data: UserEntity | null) => T
 ) => {
   return useQuery(getCityQueryKey(id), getCityQueryFn(id), {
     select,

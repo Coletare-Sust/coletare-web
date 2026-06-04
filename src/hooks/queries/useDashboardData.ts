@@ -1,11 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-
-import {
-  ONE_DAY_IN_MS,
-  FORTY_FIVE_MINUTES_IN_MS
-} from "@common/constants/generic";
-
-import { DocumentData } from "firebase/firestore";
+import { ONE_DAY_IN_MS, FORTY_FIVE_MINUTES_IN_MS } from "@common/constants/generic";
 import { getDashboardData } from "@/store/services/collects";
 import { DashboardEntity } from "@/common/entities/dashboard";
 
@@ -17,9 +11,9 @@ export const getDashboardDataQueryFn = (cityId: string) => {
   return () => getDashboardData(cityId);
 };
 
-const useAllDashboard = <T = DashboardEntity>(
+const useAllDashboard = <T = DashboardEntity | null>(
   cityId: string,
-  select?: (data: DocumentData) => T
+  select?: (data: DashboardEntity | null) => T
 ) => {
   return useQuery(
     getDashboardDataQueryKey(cityId),
