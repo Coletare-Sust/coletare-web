@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from "./timestamp";
 import { ColorsOptions } from "./colors";
 
 export interface UserEntity {

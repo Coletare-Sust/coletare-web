@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import React from "react";
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from "@/common/entities/timestamp";
 import { useSearchParams } from "next/navigation";
 import { AccordionChildren } from "@atoms/Accordion/accordion";
 import Title from "@atoms/Title/title";

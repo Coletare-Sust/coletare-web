@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Timestamp } from "firebase/firestore";
 import Subtitle from "@atoms/Subtitle/subtitle";
 import Button from "@atoms/Button/button";
 import LateralInputField from "@molecules/LateralInputField/LateralInputField";
@@ -47,7 +46,11 @@ const CalcData = ({ cityId }: CalcDataProps) => {
         calcData: {
           fuel: parseFloat(data.fuel),
           landfillDelivery: parseFloat(data.landfillDelivery),
-          initialDate: Timestamp.fromDate(currentDate)
+          initialDate: {
+            seconds: Math.floor(currentDate.getTime() / 1000),
+            nanoseconds: 0,
+            toDate: () => currentDate
+          } as any
         }
       });
     },
