@@ -13,6 +13,7 @@ public interface ColetaUseCase {
     List<Coleta> listAll();
     List<Coleta> listByCityId(String cityId);
     List<Coleta> listByRouteId(String routeId);
+    List<Coleta> listActiveByCityId(String cityId);
     void delete(String id);
     DashboardData getDashboardData(String cityId, String routeId);
 }

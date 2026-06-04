@@ -72,6 +72,11 @@ public class ColetaService implements ColetaUseCase {
     }
 
     @Override
+    public List<Coleta> listActiveByCityId(String cityId) {
+        return repository.findByCityIdAndHasEndedFalse(cityId);
+    }
+
+    @Override
     public void delete(String id) {
         repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Coleta não encontrada: " + id));

@@ -7,4 +7,5 @@ import java.util.List;
 public interface SpringDataColetaRepository extends MongoRepository<ColetaDocument, String> {
     List<ColetaDocument> findByCityIdOrderByCreatedAtDesc(String cityId);
     List<ColetaDocument> findByRouteIdOrderByCreatedAtDesc(String routeId);
+    List<ColetaDocument> findByCityIdAndHasEndedFalse(String cityId);
 }

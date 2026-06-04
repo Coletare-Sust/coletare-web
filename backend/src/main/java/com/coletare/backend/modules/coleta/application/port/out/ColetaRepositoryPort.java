@@ -11,5 +11,6 @@ public interface ColetaRepositoryPort {
     List<Coleta> findAll();
     List<Coleta> findByCityId(String cityId);
     List<Coleta> findByRouteId(String routeId);
+    List<Coleta> findByCityIdAndHasEndedFalse(String cityId);
     void deleteById(String id);
 }

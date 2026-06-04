@@ -42,6 +42,11 @@ public class MongoColetaRepositoryAdapter implements ColetaRepositoryPort {
     }
 
     @Override
+    public List<Coleta> findByCityIdAndHasEndedFalse(String cityId) {
+        return repository.findByCityIdAndHasEndedFalse(cityId).stream().map(this::toDomain).toList();
+    }
+
+    @Override
     public void deleteById(String id) {
         repository.deleteById(id);
     }

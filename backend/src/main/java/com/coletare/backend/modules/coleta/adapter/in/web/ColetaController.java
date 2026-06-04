@@ -36,6 +36,11 @@ public class ColetaController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/live")
+    public ResponseEntity<List<Coleta>> live(@RequestParam String cityId) {
+        return ResponseEntity.ok(useCase.listActiveByCityId(cityId));
+    }
+
     @GetMapping("/dashboard")
     public ResponseEntity<DashboardData> dashboard(
             @RequestParam String cityId,
