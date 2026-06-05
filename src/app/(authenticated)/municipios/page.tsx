@@ -17,7 +17,6 @@ import useAuth from "@/hooks/useAuth";
 import { UserEntity } from "@/common/entities/user";
 import { deleteUser } from "@/store/services/user";
 import { queryClient } from "@/store/providers/queryClient";
-import { deleteImage } from "@/store/services/firebaseStorage";
 
 const Municipios = () => {
   const router = useRouter();
@@ -36,11 +35,6 @@ const Municipios = () => {
       const { error: errorAuth } = await deleteUserAuth(data.id);
       if (errorAuth) {
         throw new Error(errorUser);
-      }
-      const { error: errorDeleteImage } = await deleteImage(data.image);
-      if (errorDeleteImage) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        throw new Error(errorDeleteImage as any);
       }
     },
     {

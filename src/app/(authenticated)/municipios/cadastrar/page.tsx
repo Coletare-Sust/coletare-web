@@ -8,7 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { Timestamp } from "firebase/firestore";
 import EcopontoAddressInput from "@/components/atoms/EcopontoAddressInput/EcopontoAddressInput";
 
 import Title from "@atoms/Title/title";
@@ -22,17 +21,22 @@ import useAuth from "@/hooks/useAuth";
 import useCity from "@/hooks/queries/useCity";
 import { wrapper } from "@/common/constants/wrapper";
 import { createUser, updateUser } from "@/store/services/user";
-// TODO: substituir por MinIO quando o upload de imagens for migrado
-const uploadImage = async (_file: File): Promise<{ image: string | null; error: any }> =>
-  ({ image: null, error: null });
-const deleteImage = async (_url?: string | null): Promise<{ error: null }> =>
-  ({ error: null });
 import { queryClient } from "@/store/providers/queryClient";
 import { ColorsOptions } from "@/common/entities/colors";
 import { sendEmail } from "@/store/services/email";
 
 import { colors, inputsData } from "./constants";
 import Radio from "@/components/atoms/Radio/Radio";
+
+function nowTimestamp() {
+  const ms = Date.now();
+  return { seconds: Math.floor(ms / 1000), nanoseconds: (ms % 1000) * 1_000_000, toDate: () => new Date(ms) };
+}
+
+function fromDateTimestamp(date: Date) {
+  const ms = date.getTime();
+  return { seconds: Math.floor(ms / 1000), nanoseconds: (ms % 1000) * 1_000_000, toDate: () => new Date(ms) };
+}
 
 type AddCityForm = z.infer<typeof AddCitySchema>;
 
@@ -86,14 +90,12 @@ const Cadastrar = () => {
     async ({
       data,
       color,
-      imageFile,
       fullAddress,
       latitude,
       longitude
     }: {
       data: AddCityForm;
       color: ColorsOptions;
-      imageFile: File;
       fullAddress: string;
       latitude: number | null;
       longitude: number | null;
@@ -126,16 +128,15 @@ const Cadastrar = () => {
           fullAddress: fullAddress || null,
           latitude: latitude || null,
           longitude: longitude || null,
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now(),
+          createdAt: nowTimestamp(),
+          updatedAt: nowTimestamp(),
           calcData: {
-            initialDate: Timestamp.fromDate(currentDate),
+            initialDate: fromDateTimestamp(currentDate),
             landfillDelivery: parseFloat(data.landfillDelivery),
             fuel: parseFloat(data.fuel)
           },
           status: data.status
-        },
-        imageFile
+        }
       );
 
       if (errorUser) {
@@ -176,14 +177,12 @@ const Cadastrar = () => {
     async ({
       data,
       color,
-      imageFile,
       fullAddress,
       latitude,
       longitude
     }: {
       data: AddCityForm;
       color: ColorsOptions;
-      imageFile: File | undefined;
       fullAddress: string;
       latitude: number | null;
       longitude: number | null;
@@ -197,44 +196,20 @@ const Cadastrar = () => {
         latitude: latitude || null,
         longitude: longitude || null,
         calcData: {
-          initialDate: Timestamp.fromDate(currentDate),
+          initialDate: fromDateTimestamp(currentDate),
           landfillDelivery: parseFloat(data.landfillDelivery),
           fuel: parseFloat(data.fuel)
         },
         status: data.status
       };
 
-      if (imageFile) {
-        const { error: errorDelete } = await deleteImage(city?.image);
-        if (errorDelete) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          throw new Error(errorDelete as any).props;
-        }
-
-        const { image: imageUrl, error: errorUpload } =
-          await uploadImage(imageFile);
-        if (errorUpload) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          throw new Error(errorUpload as any).props;
-        }
-
-        const { error: errorUpdate } = await updateUser(
-          toEditCityId as string,
-          { ...objToUpdate, image: imageUrl }
-        );
-        if (errorUpdate) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          throw new Error(errorUpdate as any).props;
-        }
-      } else {
-        const { error: errorUpdate } = await updateUser(
-          toEditCityId as string,
-          objToUpdate
-        );
-        if (errorUpdate) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          throw new Error(errorUpdate as any).props;
-        }
+      const { error: errorUpdate } = await updateUser(
+        toEditCityId as string,
+        objToUpdate
+      );
+      if (errorUpdate) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        throw new Error(errorUpdate as any).props;
       }
     },
     {
@@ -261,30 +236,10 @@ const Cadastrar = () => {
       setLoading(false);
       return;
     }
-    if (type === "create" && !imageFile) {
-      errorToast("Escolha uma imagem");
-      setLoading(false);
-      return;
-    }
-    if (type === "create" && imageFile) {
-      await mutationCreate.mutateAsync({
-        data,
-        color,
-        imageFile,
-        fullAddress,
-        latitude,
-        longitude
-      });
-    }
-    if (type === "edit") {
-      await mutationUpdate.mutateAsync({
-        data,
-        color,
-        imageFile,
-        fullAddress,
-        latitude,
-        longitude
-      });
+    if (type === "create") {
+      await mutationCreate.mutateAsync({ data, color, fullAddress, latitude, longitude });
+    } else {
+      await mutationUpdate.mutateAsync({ data, color, fullAddress, latitude, longitude });
     }
   };
 
