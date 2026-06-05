@@ -1,105 +1,88 @@
 import { Expo, ExpoPushMessage } from "expo-server-sdk";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getRoute } from "@/store/services/route";
-import { getAllCitizens } from "@/store/services/user";
-import { decodePolyline, getDistanceBetweenTwoPoints } from "@/utils/location";
-import { getAllWithdrawalsRequests } from "@/store/services/withdrawalsRequests";
-import { WithdrawalsRequestEntity } from "@/common/entities/WithdrawalsRequest";
 
 const expo = new Expo({
   useFcmV1: true,
   accessToken: process.env.EXPO_ACCESS_TOKEN
 });
 
+const BFF_BASE =
+  process.env.BFF_BASE_URL ||
+  process.env.NEXT_PUBLIC_BFF_BASE_URL ||
+  "http://localhost:8080";
+
 const bodySchema = z.object({
-  title: z.string(),
-  content: z.string(),
-  routeId: z.string(),
-  cityId: z.string()
+  title: z.string().min(1),
+  content: z.string().min(1),
+  routeId: z.string().min(1),
+  cityId: z.string().min(1)
 });
 
 export async function POST(request: Request) {
-  const body = await request.json();
-
-  const { content, title, routeId, cityId } = bodySchema.parse(body);
-
-  const messages: ExpoPushMessage[] = [];
-
-  const users = await getAllCitizens(cityId);
-  const route = await getRoute(routeId);
-  const withdrawalRequests = (await getAllWithdrawalsRequests(
-    cityId
-  )) as WithdrawalsRequestEntity[];
-
-  if (!route) {
-    return NextResponse.json({}, { status: 400 });
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const polylineCoordinates = decodePolyline(route.polyline).map(
-    ([latitude, longitude]) => ({ latitude, longitude })
-  );
+  const parsed = bodySchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  }
 
-  const usersCloseToRoute = users.filter((user) => {
-    const dir = polylineCoordinates.find(
-      (item) =>
-        getDistanceBetweenTwoPoints(
-          {
-            lat: Number(user.latitude),
-            lng: Number(user.longitude)
-          },
-          {
-            lat: item.latitude,
-            lng: item.longitude
-          }
-        ) <= 0.1
-    );
+  const { title, content, routeId, cityId } = parsed.data;
 
-    return dir;
+  // Backend selects eligible recipients, calculates proximity and persists the record
+  const prepareRes = await fetch(`${BFF_BASE}/bff/notifications/prepare`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, content, routeId, cityId }),
+    cache: "no-store"
   });
 
-  if (withdrawalRequests && route.isSpecial) {
-    const withdrawalRequestInRoute = withdrawalRequests.filter((item) =>
-      (route.withdrawalRequestsIds ?? []).includes(item.id)
+  if (!prepareRes.ok) {
+    const err = await prepareRes.text();
+    return NextResponse.json(
+      { error: err || `Backend error ${prepareRes.status}` },
+      { status: prepareRes.status === 400 ? 400 : 502 }
     );
-
-    const usersWithWithdrawalRequests = users.filter((item) =>
-      withdrawalRequestInRoute
-        .map((withdrawal) => withdrawal.createdById)
-        .includes(item.id)
-    );
-
-    usersCloseToRoute.push(...usersWithWithdrawalRequests);
   }
 
-  for (const user of usersCloseToRoute) {
-    for (const token of user.tokens ?? []) {
-      if (!Expo.isExpoPushToken(token)) {
-        console.error(`Push token $${token} is not a valid Expo push token`);
-        continue;
+  const payload = await prepareRes.json() as {
+    id: string;
+    tokens: string[];
+    title: string;
+    content: string;
+    recipientCount: number;
+  };
+
+  const validTokens = (payload.tokens ?? []).filter(Expo.isExpoPushToken);
+
+  if (validTokens.length > 0) {
+    const messages: ExpoPushMessage[] = validTokens.map((token) => ({
+      to: token,
+      title: payload.title,
+      body: payload.content,
+      priority: "high"
+    }));
+
+    const chunks = expo.chunkPushNotifications(messages);
+    for (const chunk of chunks) {
+      try {
+        await expo.sendPushNotificationsAsync(chunk);
+      } catch (err) {
+        console.error("Expo chunk send error:", err);
       }
-
-      messages.push({
-        to: token,
-        body: content,
-        title,
-        priority: "high"
-      });
     }
+
+    // Mark notification as sent in the backend
+    await fetch(`${BFF_BASE}/bff/notifications/${payload.id}/sent`, {
+      method: "PATCH",
+      cache: "no-store"
+    }).catch((err) => console.error("markSent error:", err));
   }
 
-  const chunks = expo.chunkPushNotifications(messages);
-
-  for (const chunk of chunks) {
-    await expo.sendPushNotificationsAsync(chunk);
-  }
-
-  return NextResponse.json(
-    {
-      success: true
-    },
-    {
-      status: 200
-    }
-  );
+  return NextResponse.json({ success: true, recipientCount: payload.recipientCount });
 }
