@@ -1,6 +1,5 @@
 "use client";
 
-import { Timestamp } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +16,11 @@ import useProfile from "@/hooks/queries/useProfile";
 import { successToast } from "@/hooks/useAppToast";
 import { updateUserDoc } from "@/store/services/user";
 import EditVehicleFormSchema from "@/validations/editVehicle";
+
+function nowTimestamp() {
+  const ms = Date.now();
+  return { seconds: Math.floor(ms / 1000), nanoseconds: (ms % 1000) * 1_000_000, toDate: () => new Date(ms) };
+}
 
 type RegisterVehicleForm = z.infer<typeof RegisterVehicleFormSchema>;
 type EditVehicleForm = z.infer<typeof EditVehicleFormSchema>;
@@ -76,7 +80,7 @@ const CadastrarVeiculoPage = () => {
         id: v4(),
         color: null,
         cpf: null,
-        createdAt: Timestamp.now(),
+        createdAt: nowTimestamp(),
         facilitatorName: null,
         fullAddress: null,
         latitude: null,
@@ -86,11 +90,11 @@ const CadastrarVeiculoPage = () => {
         role: "vehicle",
         supportEmail: null,
         cityId: user?.id as string,
-        updatedAt: Timestamp.now(),
+        updatedAt: nowTimestamp(),
         image: null,
         calcData: {
           landfillDelivery: null,
-          initialDate: Timestamp.now(),
+          initialDate: nowTimestamp(),
           fuel: null
         }
       });

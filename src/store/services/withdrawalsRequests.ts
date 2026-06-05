@@ -31,7 +31,7 @@ interface BackendSolicitacao {
   updatedAt: string;
 }
 
-// Converte ISO string para objeto compatível com Firebase Timestamp (createdAt.seconds)
+// Converte ISO string para objeto Timestamp compatível com { seconds, nanoseconds, toDate }
 function toTimestamp(iso: string | null | undefined) {
   if (!iso) return { seconds: 0, nanoseconds: 0, toDate: () => new Date(0) };
   const ms = new Date(iso).getTime();

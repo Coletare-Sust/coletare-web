@@ -27,7 +27,7 @@ interface BackendUser {
   updatedAt?: string;
 }
 
-// Converte ISO string em objeto compatível com Firebase Timestamp (seconds, nanoseconds, toDate)
+// Converte ISO string em objeto Timestamp compatível com { seconds, nanoseconds, toDate }
 function toTimestamp(value?: string | null | { seconds: number; nanoseconds: number }) {
   if (!value) {
     return { seconds: 0, nanoseconds: 0, toDate: () => new Date(0) };
@@ -74,7 +74,7 @@ function toUserEntity(u: BackendUser): UserEntity {
   };
 }
 
-// Extrai o valor de um Timestamp (Firebase ou compatível) para ISO string
+// Converte Timestamp { seconds, toDate } ou ISO string para ISO string
 function timestampToIso(value: any): string | null {
   if (!value) return null;
   if (typeof value === "string") return value;
@@ -144,7 +144,7 @@ export const getUsers = async (): Promise<UserEntity[]> => {
   }
 };
 
-export const createUser = async (data: UserEntity, image?: File | null) => {
+export const createUser = async (data: UserEntity, _image?: File | null) => {
   try {
     // Upload de imagem para MinIO ainda não implementado.
     // Se data.image for uma string (URL), é preservada via toBackendPayload.

@@ -1,6 +1,5 @@
 "use client";
 
-import { Timestamp } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +17,11 @@ import registerCollaboratorFormSchema from "@/validations/registerCollaborator";
 import { successToast, errorToast } from "@/hooks/useAppToast";
 import useProfile from "@/hooks/queries/useProfile";
 import useAuth from "@/hooks/useAuth";
+
+function nowTimestamp() {
+  const ms = Date.now();
+  return { seconds: Math.floor(ms / 1000), nanoseconds: (ms % 1000) * 1_000_000, toDate: () => new Date(ms) };
+}
 
 type registerCollaborator = z.infer<typeof registerCollaboratorFormSchema>;
 
@@ -63,13 +67,13 @@ const CadastrarVeiculoPage = () => {
         id: currentId,
         role: "employee",
         cityId: user?.id as string,
-        updatedAt: Timestamp.now()
+        updatedAt: nowTimestamp()
       };
 
       if (!isEdit) {
         // Campos obrigatórios apenas para novos usuários
         payload.color = null;
-        payload.createdAt = Timestamp.now();
+        payload.createdAt = nowTimestamp();
         payload.facilitatorName = null;
         payload.fullAddress = null;
         payload.latitude = null;
@@ -80,7 +84,7 @@ const CadastrarVeiculoPage = () => {
         payload.email = null;
         payload.carPlate = null;
         payload.calcData = {
-          initialDate: Timestamp.now(),
+          initialDate: nowTimestamp(),
           landfillDelivery: null,
           fuel: null
         };
