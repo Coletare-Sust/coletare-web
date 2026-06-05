@@ -92,7 +92,7 @@ function toBackendPayload(data: Partial<UserEntity> & { id?: string }) {
 
   return {
     id,
-    email: email || "",
+    email: email || null,
     displayName: name || "",
     cityId: cityId ?? null,
     roles: role ? [role.toUpperCase()] : [],

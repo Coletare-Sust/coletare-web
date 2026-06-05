@@ -9,7 +9,7 @@ import java.util.Map;
 public record UpsertUserRequest(
         String id,
         String externalId,
-        @Email @NotBlank String email,
+        @Email String email,
         @NotBlank String displayName,
         String cityId,
         List<String> roles,

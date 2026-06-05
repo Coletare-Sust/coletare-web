@@ -21,7 +21,8 @@ const useAllVehicles = <T = UserEntity[]>(
     {
       select,
       staleTime: FORTY_FIVE_MINUTES_IN_MS,
-      cacheTime: ONE_DAY_IN_MS
+      cacheTime: ONE_DAY_IN_MS,
+      enabled: !!cityId
     }
   );
 };

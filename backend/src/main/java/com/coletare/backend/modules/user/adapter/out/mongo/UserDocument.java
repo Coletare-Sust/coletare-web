@@ -1,6 +1,8 @@
 package com.coletare.backend.modules.user.adapter.out.mongo;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -8,6 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 @Document("users")
+@CompoundIndexes({
+        @CompoundIndex(name = "idx_users_city_role", def = "{'cityId': 1, 'role': 1}"),
+        @CompoundIndex(name = "idx_users_city_role_created", def = "{'cityId': 1, 'role': 1, 'createdAt': -1}")
+})
 public class UserDocument {
     @Id
     private String id;
