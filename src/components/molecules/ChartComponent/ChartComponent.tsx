@@ -1,8 +1,12 @@
+"use client";
+
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import Dropdown from "@atoms/Dropdown/dropdown";
-import BarChart from "@atoms/BarChart/barChart";
 import Subtitle from "@atoms/Subtitle/subtitle";
-import StackedChartLabels from "@molecules/StackedChartLabels/StackedChartLabels";
+
+const BarChart = dynamic(() => import("@atoms/BarChart/barChart"), { ssr: false });
+const StackedChartLabels = dynamic(() => import("@molecules/StackedChartLabels/StackedChartLabels"), { ssr: false });
 
 import { ChartComponentProps } from "./types";
 

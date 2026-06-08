@@ -74,10 +74,8 @@ const Solicitations = () => {
           },
           {
             label: "Data",
-            value: filteredData?.createdAt?.seconds
-              ? format(filteredData?.createdAt?.seconds * 1000, "P", {
-                  locale: ptBR
-                })
+            value: filteredData?.createdAt
+              ? format(new Date(filteredData.createdAt), "P", { locale: ptBR })
               : undefined
           }
         ]
@@ -102,10 +100,7 @@ const Solicitations = () => {
       html: `
         <p> Olá, ${currentCity?.name}! Foi solicatada uma nova retirada de lixo na plataforma Coletare. </p>
         <p> Ponto de lixo no endereço <strong>${filteredData?.fullAddress}</strong> foi registrado no dia <strong>
-          ${
-            filteredData?.createdAt &&
-            format(new Date(filteredData?.createdAt), "P")
-          }
+          ${filteredData?.createdAt ? format(new Date(filteredData.createdAt), "P") : ""}
         </strong> </p>
         <p> A retirada do lixo desse ponto é essencial para a sociedade. Acesse nossa plataforma e crie uma nova rota!  </p>
       `
@@ -119,14 +114,14 @@ const Solicitations = () => {
   };
 
   useEffect(() => {
-    if (cities) {
+    if (cities?.length) {
       if (isAdmin) {
         setDropdownValue(cities[0].id);
       } else {
-        setDropdownValue(cities.find((c) => c.id === user?.id)?.id as string);
+        setDropdownValue(cities.find((c) => c.id === user?.cityId)?.id ?? "");
       }
     }
-  }, [cities, isAdmin, user?.id]);
+  }, [cities, isAdmin, user?.cityId]);
 
   useEffect(() => {
     router.push(`/solicitacoes-retirada?city=${dropdownValue}`, {
@@ -197,27 +192,31 @@ const Solicitations = () => {
                 <div className="flex h-[518px] w-[752px] items-center justify-center">
                   {!isViewingImage ? (
                     <>
-                      <GoogleMap
-                        onLoad={onMapLoad}
-                        mapContainerStyle={{ width: "100%", height: "100%" }}
-                        center={{
-                          lat: filteredData.latitude,
-                          lng: filteredData.longitude
-                        }}
-                        zoom={15}
-                      >
-                        <Marker
-                          position={{
+                      {filteredData.latitude != null && filteredData.longitude != null ? (
+                        <GoogleMap
+                          onLoad={onMapLoad}
+                          mapContainerStyle={{ width: "100%", height: "100%" }}
+                          center={{
                             lat: filteredData.latitude,
                             lng: filteredData.longitude
                           }}
-                          label={{
-                            text: String(1),
-                            color: "white",
-                            fontSize: "12px"
-                          }}
-                        />
-                      </GoogleMap>
+                          zoom={15}
+                        >
+                          <Marker
+                            position={{
+                              lat: filteredData.latitude,
+                              lng: filteredData.longitude
+                            }}
+                            label={{
+                              text: String(1),
+                              color: "white",
+                              fontSize: "12px"
+                            }}
+                          />
+                        </GoogleMap>
+                      ) : (
+                        <p className="text-sm text-gray-400">Localização não disponível</p>
+                      )}
                     </>
                   ) : (
                     <Image

@@ -31,17 +31,6 @@ interface BackendSolicitacao {
   updatedAt: string;
 }
 
-// Converte ISO string para objeto Timestamp compatível com { seconds, nanoseconds, toDate }
-function toTimestamp(iso: string | null | undefined) {
-  if (!iso) return { seconds: 0, nanoseconds: 0, toDate: () => new Date(0) };
-  const ms = new Date(iso).getTime();
-  return {
-    seconds: Math.floor(ms / 1000),
-    nanoseconds: (ms % 1000) * 1_000_000,
-    toDate: () => new Date(ms)
-  };
-}
-
 function toEntity(s: BackendSolicitacao): WithdrawalsRequestEntity {
   return {
     id: s.id,
@@ -54,7 +43,7 @@ function toEntity(s: BackendSolicitacao): WithdrawalsRequestEntity {
     type: s.type as "residence" | "inappropriate-location",
     isResolved: s.isResolved,
     image: s.imageUrl ?? null,
-    createdAt: toTimestamp(s.createdAt) as any
+    createdAt: s.createdAt ?? ""
   };
 }
 
