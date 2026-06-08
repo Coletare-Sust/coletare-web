@@ -32,9 +32,7 @@ const FilterBar = ({
   const { data: user } = useProfile(userUid);
   const { data: cities } = useAllCities();
   const [date, setDate] = useState<Date | undefined>();
-  const [cityId, setCityId] = useState<string | undefined>(
-    user && user?.cityId ? user?.cityId : cities ? cities[0].id : undefined
-  );
+  const [cityId, setCityId] = useState<string | undefined>(undefined);
   const { data: cityCollects } = useAllCollectsByCity(cityId as string);
   const cityName = cities?.find((item) => item.id === cityId)?.name as string;
   const { data: routes } = useAllRoutes(cityId as string);

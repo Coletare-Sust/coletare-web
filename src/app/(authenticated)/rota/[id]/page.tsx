@@ -101,7 +101,7 @@ const Rota = () => {
     if (!routeCollects) return;
     const finalJSON: any = [];
     routeCollects.forEach((c) => {
-      const date = new Date(c.createdAt.seconds * 1000);
+      const date = new Date(c.createdAt);
       finalJSON.push({
         Rota: route?.name ?? "N/A",
         Data: format(date, "P", { locale: ptBR }),

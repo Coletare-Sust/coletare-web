@@ -7,7 +7,7 @@ export interface WithdrawalsRequestEntity {
   longitude: number;
   residueType: string;
   createdById: string;
-  createdAt: { seconds: number; nanoseconds: number; toDate: () => Date };
+  createdAt: string;
   isResolved: boolean;
   image: string | null;
 }

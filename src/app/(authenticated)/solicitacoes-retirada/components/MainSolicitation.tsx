@@ -28,9 +28,7 @@ const Solicitations = () => {
   const garbagePointId = searchParams.get("garbagePoint");
   const cityId = searchParams.get("city");
   const { data: cities } = useAllCities();
-  const [dropdownValue, setDropdownValue] = useState(
-    user?.cityId ? user?.cityId : cities ? cities[0].id : ""
-  );
+  const [dropdownValue, setDropdownValue] = useState("");
   const router = useRouter();
   const { data: solicitationsData, isLoading: isLoadingSolicitationsData } =
     useAllWithdrawalsRequest(cityId as string);
@@ -105,8 +103,8 @@ const Solicitations = () => {
         <p> Olá, ${currentCity?.name}! Foi solicatada uma nova retirada de lixo na plataforma Coletare. </p>
         <p> Ponto de lixo no endereço <strong>${filteredData?.fullAddress}</strong> foi registrado no dia <strong>
           ${
-            filteredData?.createdAt.seconds &&
-            format(filteredData?.createdAt.seconds * 1000, "P")
+            filteredData?.createdAt &&
+            format(new Date(filteredData?.createdAt), "P")
           }
         </strong> </p>
         <p> A retirada do lixo desse ponto é essencial para a sociedade. Acesse nossa plataforma e crie uma nova rota!  </p>

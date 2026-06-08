@@ -27,7 +27,7 @@ const AddCollectData = ({ collectData, isAdmin }: AddCollectDataProps) => {
   const calcData = city?.calcData;
   const [loading, setLoading] = useState(false);
 
-  const collectDate = new Date(collectData.createdAt.seconds * 1000);
+  const collectDate = new Date(collectData.createdAt);
   const initialDate = new Date(
     (calcData?.initialDate?.seconds as number) * 1000
   );

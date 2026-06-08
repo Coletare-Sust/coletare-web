@@ -55,7 +55,7 @@ const ChartsSection = () => {
     const orderedCollects = collects?.sort((a, b) => a.id.localeCompare(b.id));
     orderedCollects?.forEach((collect) => {
       const collectRoute = routes?.find((r) => r.id === collect.routeId);
-      const createdAtDate = new Date(collect.createdAt.seconds * 1000);
+      const createdAtDate = new Date(collect.createdAt);
       const auxMinutesW2Algs =
         createdAtDate.getMinutes() <= 9
           ? "0" + createdAtDate.getMinutes().toString()
@@ -82,7 +82,7 @@ const ChartsSection = () => {
       const aux = {
         Rota: collectRoute?.name ?? "[APAGADA]",
         "Tipo de resíduo": collectRoute?.residueType,
-        Data: format(collect.createdAt.seconds * 1000, "P", { locale: ptBR }),
+        Data: format(new Date(collect.createdAt), "P", { locale: ptBR }),
         "Horário de partida": createdAtHour,
         "Km Rodados (km)": collect.kmRun,
         "Duração (horas)": formatTime(collect.duration),

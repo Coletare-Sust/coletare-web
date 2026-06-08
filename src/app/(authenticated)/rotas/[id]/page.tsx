@@ -62,7 +62,7 @@ const DetalhesDaRota = () => {
     const finalJSON: any = [];
 
     routeCollects?.forEach((collect) => {
-      const createdAtDate = new Date(collect.createdAt.seconds * 1000);
+      const createdAtDate = new Date(collect.createdAt);
       const auxMinutesW2Algs =
         createdAtDate.getMinutes() <= 9
           ? "0" + createdAtDate.getMinutes().toString()
@@ -90,7 +90,7 @@ const DetalhesDaRota = () => {
       const aux = {
         Rota: route?.name ?? "[APAGADA]",
         "Tipo de resíduo": route?.residueType,
-        Data: format(collect.createdAt.seconds * 1000, "P", { locale: ptBR }),
+        Data: format(new Date(collect.createdAt), "P", { locale: ptBR }),
         "Horário de partida": createdAtHour,
         "Km Rodados (km)": collect.kmRun,
         "Duração (horas)": formatTime(collect.duration),

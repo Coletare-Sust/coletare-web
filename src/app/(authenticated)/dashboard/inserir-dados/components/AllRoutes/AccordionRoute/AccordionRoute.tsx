@@ -22,7 +22,7 @@ const AccordionRoute = ({ route, isAdmin }: AccordionRouteProps) => {
   if (date)
     filteredRouteCollects = filteredRouteCollects?.filter(
       (route) =>
-        format(new Date(route.createdAt.seconds * 1000), "P", {
+        format(new Date(route.createdAt), "P", {
           locale: ptBR
         }) === date
     );

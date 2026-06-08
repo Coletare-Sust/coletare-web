@@ -17,6 +17,6 @@ export interface CollectEntity {
   duration: number;
   vehicleLatitude: number;
   vehicleLongitude: number;
-  createdAt: { seconds: number; nanoseconds: number; toDate: () => Date };
+  createdAt: string;
   hasEnded: boolean;
 }
