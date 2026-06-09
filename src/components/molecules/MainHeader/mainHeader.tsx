@@ -81,7 +81,7 @@ const MainHeader = ({ isOpen, hideSidebar }: Props) => {
             <LoadingComponent />
           ) : (
             <Image
-              src={isCity ? (user.image as string) : "/sicol-logo.svg"}
+              src={isCity ? (user.image || "/random-img.svg") : "/sicol-logo.svg"}
               alt="logo"
               width={40}
               height={40}

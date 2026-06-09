@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { Bar } from "react-chartjs-2";
-import ChartDataLabels from "chartjs-plugin-datalabels";
+import * as ChartDataLabelsImport from "chartjs-plugin-datalabels";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ChartDataLabels = (ChartDataLabelsImport as any).default ?? ChartDataLabelsImport;
 import "chart.js/auto";
 import { twMerge } from "tailwind-merge";
 import { monthsArray } from "@/common/constants/chartData";

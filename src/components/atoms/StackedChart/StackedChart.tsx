@@ -1,6 +1,8 @@
 import { Bar } from "react-chartjs-2";
 import { twMerge } from "tailwind-merge";
-import ChartDataLabels from "chartjs-plugin-datalabels";
+import * as ChartDataLabelsImport from "chartjs-plugin-datalabels";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ChartDataLabels = (ChartDataLabelsImport as any).default ?? ChartDataLabelsImport;
 import { monthsArray } from "@/common/constants/chartData";
 import { StackedChartProps } from "./types";
 

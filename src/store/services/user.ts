@@ -43,12 +43,24 @@ function toTimestamp(value?: string | null | { seconds: number; nanoseconds: num
   };
 }
 
+const ROLE_MAP: Record<string, UserEntity["role"]> = {
+  platformadmin: "platformAdmin",
+  admin: "admin",
+  vehicle: "vehicle",
+  employee: "employee",
+  citizen: "citizen"
+};
+
+function normalizeRole(raw: string): UserEntity["role"] {
+  return ROLE_MAP[raw.toLowerCase()] ?? "citizen";
+}
+
 function toUserEntity(u: BackendUser): UserEntity {
   const meta = u.metadata || {};
   return {
     id: u.id,
     name: u.displayName || meta.name || "",
-    role: ((u.roles?.[0] || meta.role || "citizen").toLowerCase()) as UserEntity["role"],
+    role: normalizeRole(u.roles?.[0] || meta.role || "citizen"),
     email: u.email ?? null,
     image: meta.image ?? null,
     supportEmail: meta.supportEmail ?? null,
