@@ -143,7 +143,7 @@ const Cadastrar = () => {
         throw new Error(errorUser).props;
       }
 
-      const { error: errorEmail } = await sendEmail({
+      await sendEmail({
         email: data.email,
         subject: `Olá, cidade de ${data.name}! Seu acesso para a plataforma Coletare é:`,
         html: `
@@ -151,11 +151,6 @@ const Cadastrar = () => {
           <p>Senha: ${data.password}</p>
         `
       });
-
-      if (errorEmail) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        throw new Error(errorEmail as any).props;
-      }
     },
     {
       onSuccess: () => {
