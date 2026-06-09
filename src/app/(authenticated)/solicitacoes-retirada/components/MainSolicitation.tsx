@@ -189,33 +189,37 @@ const Solicitations = () => {
                     </Subtitle>
                   </div>
                 ) : null}
-                <div className="flex h-[518px] w-[752px] items-center justify-center">
+                <div className="relative h-[518px] w-[752px]">
                   {!isViewingImage ? (
                     <>
                       {filteredData.latitude != null && filteredData.longitude != null ? (
-                        <GoogleMap
-                          onLoad={onMapLoad}
-                          mapContainerStyle={{ width: "100%", height: "100%" }}
-                          center={{
-                            lat: filteredData.latitude,
-                            lng: filteredData.longitude
-                          }}
-                          zoom={15}
-                        >
-                          <Marker
-                            position={{
+                        <div className="relative h-full w-full">
+                          <GoogleMap
+                            onLoad={onMapLoad}
+                            mapContainerStyle={{ width: "100%", height: "100%" }}
+                            center={{
                               lat: filteredData.latitude,
                               lng: filteredData.longitude
                             }}
-                            label={{
-                              text: String(1),
-                              color: "white",
-                              fontSize: "12px"
-                            }}
-                          />
-                        </GoogleMap>
+                            zoom={15}
+                          >
+                            <Marker
+                              position={{
+                                lat: filteredData.latitude,
+                                lng: filteredData.longitude
+                              }}
+                              label={{
+                                text: String(1),
+                                color: "white",
+                                fontSize: "12px"
+                              }}
+                            />
+                          </GoogleMap>
+                        </div>
                       ) : (
-                        <p className="text-sm text-gray-400">Localização não disponível</p>
+                        <div className="flex h-full w-full items-center justify-center">
+                          <p className="text-sm text-gray-400">Localização não disponível</p>
+                        </div>
                       )}
                     </>
                   ) : (

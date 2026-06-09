@@ -1,3 +1,5 @@
+"use client";
+
 import { wrapper } from "@/common/constants/wrapper";
 
 import MainSolicitation from "./components/MainSolicitation";
