@@ -1,19 +1,17 @@
 "use client";
 
-import { Timestamp } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { v4 } from "uuid";
 import { useState } from "react";
 
 import Button from "@atoms/Button/button";
 import InputField from "@molecules/InputField/inputField";
 import RegisterVehiclesCollaborators from "@organisms/RegisterVehiclesCollaborators/registerVehiclesCollaborators";
 import ImageUploadInput from "@molecules/ImageUploadInput/imageUploadInput";
-import { createUser, updateUserDoc, updateUser } from "@/store/services/user"; // Importado updateUser também
+import { createUser, updateUserDoc } from "@/store/services/user";
 import registerCollaboratorFormSchema from "@/validations/registerCollaborator";
 import { successToast, errorToast } from "@/hooks/useAppToast";
 import useProfile from "@/hooks/queries/useProfile";
@@ -55,50 +53,38 @@ const CadastrarVeiculoPage = () => {
 
   const mutation = useMutation(
     async (formData: registerCollaborator) => {
-      // Se for edição, usamos o id existente, se não, um v4()
-      const currentId = isEdit ? (id as string) : v4();
-
-      const payload: any = {
-        ...formData,
-        id: currentId,
-        role: "employee",
-        cityId: user?.id as string,
-        updatedAt: Timestamp.now()
-      };
-
-      if (!isEdit) {
-        // Campos obrigatórios apenas para novos usuários
-        payload.color = null;
-        payload.createdAt = Timestamp.now();
-        payload.facilitatorName = null;
-        payload.fullAddress = null;
-        payload.latitude = null;
-        payload.longitude = null;
-        payload.emission = null;
-        payload.consume = null;
-        payload.supportEmail = null;
-        payload.email = null;
-        payload.carPlate = null;
-        payload.calcData = {
-          initialDate: Timestamp.now(),
-          landfillDelivery: null,
-          fuel: null
-        };
-      }
-
-      // 1. Se tem imagem nova, usamos o serviço 'createUser' porque ele já faz o
-      // Upload no Storage + vinculação no Banco automaticamente.
-      if (imageFile) {
-        return await createUser(payload, imageFile);
-      }
-
-      // 2. Se não tem imagem nova e é edição, usamos o update comum
       if (isEdit) {
-        return await updateUserDoc(currentId, payload);
+        // Edição: atualiza name e cpf via PUT /user/{id}
+        return await updateUserDoc(id as string, {
+          name: formData.name,
+          cpf: formData.cpf,
+        });
       }
 
-      // 3. Se é novo cadastro sem imagem
-      return await createUser(payload, null as any);
+      // Cadastro novo: cria colaborador via POST /auth/register/employee
+      return await createUser(
+        {
+          name: formData.name,
+          cpf: formData.cpf,
+          role: "employee",
+          cityId: user?.id as string,
+          email: null,
+          image: null,
+          supportEmail: null,
+          facilitatorName: null,
+          color: null,
+          consume: null,
+          emission: null,
+          carPlate: null,
+          fullAddress: null,
+          latitude: null,
+          longitude: null,
+          calcData: { fuel: null, landfillDelivery: null, initialDate: null as any },
+          createdAt: null as any,
+          updatedAt: null as any,
+        },
+        imageFile
+      );
     },
     {
       onSuccess: () => {

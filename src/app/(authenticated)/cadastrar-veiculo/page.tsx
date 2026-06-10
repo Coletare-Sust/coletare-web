@@ -88,6 +88,7 @@ const CadastrarVeiculoPage = () => {
         queryClient.invalidateQueries(["vehicles"]);
         successToast("Veículo cadastrado com sucesso!");
         reset();
+        router.push("/veiculos");
       },
       onError: (err: any) => {
         errorToast("Erro ao cadastrar veículo.");

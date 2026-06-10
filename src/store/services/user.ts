@@ -12,6 +12,20 @@ interface UserResponseDTO {
   tokens: string[] | null;
   image?: string | null;
   color?: string | null;
+  // Vehicle fields
+  carPlate?: string | null;
+  efficiency?: { consume: number; emission: number } | null;
+  // Employee / Citizen fields
+  cpf?: string | null;
+  // City / general fields
+  cityId?: string | null;
+  facilitatorName?: string | null;
+  supportEmail?: string | null;
+  calcData?: {
+    fuel: number | null;
+    landFillDelivery: number | null;
+  } | null;
+  status?: boolean | null;
 }
 
 interface VehicleEfficiencyDTO {
@@ -73,6 +87,10 @@ export interface CreateVehicleInput {
 export interface UpdateUserInput {
   name?: string;
   email?: string;
+  cpf?: string;
+  carPlate?: string;
+  consume?: number;
+  emission?: number;
 }
 
 // normalizeRole usa o mapper centralizado de enums do backend
@@ -88,22 +106,28 @@ function mapUserResponseToEntity(dto: UserResponseDTO): UserEntity {
     email: dto.email ?? null,
     role,
     image: dto.image ?? null,
-    supportEmail: null,
-    // Para admin (City), o próprio id é o cityId
-    cityId: role === "admin" ? dto.id : null,
-    facilitatorName: null,
+    supportEmail: dto.supportEmail ?? null,
+    // Para admin (City), o próprio id é o cityId; para outros, usa cityId do DTO
+    cityId: role === "admin" ? dto.id : (dto.cityId ?? null),
+    facilitatorName: dto.facilitatorName ?? null,
     color: (dto.color as any) ?? null,
-    carPlate: null,
-    cpf: null,
-    consume: null,
-    emission: null,
+    carPlate: dto.carPlate ?? null,
+    cpf: dto.cpf ?? null,
+    consume: dto.efficiency?.consume?.toString() ?? null,
+    emission: dto.efficiency?.emission?.toString() ?? null,
     fullAddress: null,
     latitude: null,
     longitude: null,
     createdAt: null as any,
     updatedAt: null as any,
-    calcData: { fuel: null, landfillDelivery: null, initialDate: null as any },
+    calcData: {
+      fuel: dto.calcData?.fuel ?? null,
+      landfillDelivery: dto.calcData?.landFillDelivery ?? null,
+      initialDate: null as any,
+    },
     tokens: dto.tokens ?? [],
+    // Converte o boolean do backend para string 'Ativo'/'Inativo'
+    status: dto.status === true ? "Ativo" : dto.status === false ? "Inativo" : undefined,
   };
 }
 
@@ -292,9 +316,35 @@ export const createUser = async (
         body: JSON.stringify(data),
       });
     } else if (role === "admin") {
+      // Backend espera multipart/form-data com part 'data' (JSON) e 'image' opcional
+      const formData = new FormData();
+      const cityPayload = {
+        municipalityName: data.name,
+        email: data.email,
+        password: (data as any).password,
+        facilitatorData: {
+          facilitatorName: data.facilitatorName,
+          supportEmail: data.supportEmail,
+        },
+        calcData: {
+          landFillDeliveryCost: data.calcData?.landfillDelivery ?? null,
+          fuelCost: data.calcData?.fuel ?? null,
+        },
+        address: {
+          latitude: data.latitude ?? null,
+          longitude: data.longitude ?? null,
+          localityName: data.fullAddress ?? null,
+        },
+        status: (data as any).status === "Ativo",
+        color: data.color ?? null,
+      };
+      formData.append("data", new Blob([JSON.stringify(cityPayload)], { type: "application/json" }));
+      if (_image) {
+        formData.append("image", _image);
+      }
       await apiFetch("/auth/register/city", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: formData,
       });
     }
 
@@ -316,6 +366,10 @@ export const updateUser = async (
     const input: UpdateUserInput = {
       name: data.name,
       email: data.email ?? undefined,
+      cpf: data.cpf ?? undefined,
+      carPlate: data.carPlate ?? undefined,
+      consume: data.consume ? parseFloat(data.consume) : undefined,
+      emission: data.emission ? parseFloat(data.emission) : undefined,
     };
     await apiFetch(`/user/${id}`, {
       method: "PUT",

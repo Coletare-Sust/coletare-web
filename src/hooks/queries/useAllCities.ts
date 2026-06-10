@@ -22,7 +22,7 @@ export const getAllCitiesQueryFn = () => {
 const useAllCities = <T = UserEntity[]>(select?: (data: DocumentData) => T) => {
   return useQuery(getAllCitiesQueryKey(), getAllCitiesQueryFn(), {
     select,
-    staleTime: FORTY_FIVE_MINUTES_IN_MS,
+    staleTime: 10000,
     cacheTime: ONE_DAY_IN_MS
   });
 };
