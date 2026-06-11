@@ -7,7 +7,7 @@ import {
 } from "@common/constants/generic";
 
 import type { UserEntity } from "@common/entities/user";
-import { getUser } from "@/store/services/user";
+import { getCityById } from "@/store/services/user";
 
 // Get  de uma cidade (que no caso é um user)
 
@@ -16,7 +16,7 @@ export function getCityQueryKey(id: string | null) {
 }
 
 export const getCityQueryFn = (id: string | null) => {
-  return () => getUser(id);
+  return () => getCityById(id);
 };
 
 const useCity = <T = UserEntity>(
