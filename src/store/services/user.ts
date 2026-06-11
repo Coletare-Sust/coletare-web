@@ -26,6 +26,13 @@ interface UserResponseDTO {
     landFillDelivery: number | null;
   } | null;
   status?: boolean | null;
+  address?: {
+    fullAddress: string;
+    location: {
+      latitude: number;
+      longitude: number;
+    } | null;
+  } | null;
 }
 
 interface VehicleEfficiencyDTO {
@@ -55,6 +62,26 @@ interface CalcDataDTO {
   initialDate: string | null;
 }
 
+interface CityResponseDTO {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  image: string | null;
+  calcData: CalcDataDTO | null;
+  facilitatorName: string | null;
+  supportEmail: string | null;
+  address: {
+    fullAddress: string;
+    location: {
+      latitude: number;
+      longitude: number;
+    } | null;
+  } | null;
+  status: boolean;
+  color: string | null;
+}
+
 interface CityOutputDTO {
   id: string;
   name: string;
@@ -62,6 +89,8 @@ interface CityOutputDTO {
   role: string;
   imageUrl: string | null;
   calcData: CalcDataDTO | null;
+  facilitatorName?: string | null;
+  supportEmail?: string | null;
 }
 
 // ---------- Input DTOs ----------
@@ -115,9 +144,9 @@ function mapUserResponseToEntity(dto: UserResponseDTO): UserEntity {
     cpf: dto.cpf ?? null,
     consume: dto.efficiency?.consume?.toString() ?? null,
     emission: dto.efficiency?.emission?.toString() ?? null,
-    fullAddress: null,
-    latitude: null,
-    longitude: null,
+    fullAddress: dto.address?.fullAddress ?? null,
+    latitude: dto.address?.location?.latitude ?? null,
+    longitude: dto.address?.location?.longitude ?? null,
     createdAt: null as any,
     updatedAt: null as any,
     calcData: {
@@ -186,10 +215,10 @@ function mapCityOutputToEntity(dto: CityOutputDTO): UserEntity {
     email: dto.email ?? null,
     role: "admin",
     image: dto.imageUrl ?? null,
-    supportEmail: null,
+    supportEmail: dto.supportEmail ?? null,
     // Para cidade, cityId = id
     cityId: dto.id,
-    facilitatorName: null,
+    facilitatorName: dto.facilitatorName ?? null,
     color: null,
     carPlate: null,
     cpf: null,
@@ -205,6 +234,35 @@ function mapCityOutputToEntity(dto: CityOutputDTO): UserEntity {
       landfillDelivery: dto.calcData?.landFillDelivery ?? null,
       initialDate: null as any,
     },
+  };
+}
+
+function mapCityResponseToEntity(dto: CityResponseDTO): UserEntity {
+  return {
+    id: dto.id,
+    name: dto.name,
+    email: dto.email ?? null,
+    role: "admin",
+    image: dto.image ?? null,
+    supportEmail: dto.supportEmail ?? null,
+    cityId: dto.id,
+    facilitatorName: dto.facilitatorName ?? null,
+    color: (dto.color as any) ?? null,
+    carPlate: null,
+    cpf: null,
+    consume: null,
+    emission: null,
+    fullAddress: dto.address?.fullAddress ?? null,
+    latitude: dto.address?.location?.latitude ?? null,
+    longitude: dto.address?.location?.longitude ?? null,
+    createdAt: null as any,
+    updatedAt: null as any,
+    calcData: {
+      fuel: dto.calcData?.fuel ?? null,
+      landfillDelivery: dto.calcData?.landFillDelivery ?? null,
+      initialDate: null as any,
+    },
+    status: dto.status ? "Ativo" : "Inativo",
   };
 }
 
@@ -230,6 +288,18 @@ export const getUser = async (id: string | null): Promise<UserEntity | null> => 
   try {
     const data = await apiFetch<UserResponseDTO>(`/user/${id}`);
     return mapUserResponseToEntity(data);
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+export const getCityById = async (id: string | null): Promise<UserEntity | null> => {
+  if (!id) return null;
+  try {
+    const data = await apiFetch<CityResponseDTO>(`/user/${id}/city`);
+    console.log(data)
+    return mapCityResponseToEntity(data);
   } catch (error) {
     console.error(error);
     return null;
