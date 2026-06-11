@@ -8,7 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { Timestamp } from "firebase/firestore";
 import EcopontoAddressInput from "@/components/atoms/EcopontoAddressInput/EcopontoAddressInput";
 
 import Title from "@atoms/Title/title";
@@ -18,14 +17,12 @@ import BackgroundWrapper from "@atoms/BackgroudWrapper/backgroundWrapper";
 import InputField from "@molecules/InputField/inputField";
 import AddCitySchema from "@/validations/AddCity";
 import { errorToast, successToast } from "@/hooks/useAppToast";
-import useAuth from "@/hooks/useAuth";
 import useCity from "@/hooks/queries/useCity";
 import { wrapper } from "@/common/constants/wrapper";
 import { createUser, updateUser } from "@/store/services/user";
 import { deleteImage, uploadImage } from "@/store/services/firebaseStorage";
 import { queryClient } from "@/store/providers/queryClient";
 import { ColorsOptions } from "@/common/entities/colors";
-import { sendEmail } from "@/store/services/email";
 
 import { colors, inputsData } from "./constants";
 import Radio from "@/components/atoms/Radio/Radio";
@@ -38,7 +35,6 @@ const Cadastrar = () => {
     { id: "inativo", text: "Inativo", value: "Inativo" }
   ];
   const router = useRouter();
-  const currentDate = new Date();
   const searchParams = useSearchParams();
   const toEditCityId = searchParams.get("id");
 
@@ -76,7 +72,6 @@ const Cadastrar = () => {
   const [longitude, setLongitude] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const downloadInput = useRef<HTMLInputElement | null>(null);
-  const { createUserAuth } = useAuth();
 
   const mutationCreate = useMutation(
     async ({
@@ -94,25 +89,13 @@ const Cadastrar = () => {
       latitude: number | null;
       longitude: number | null;
     }) => {
-      const { uid: authUid, error: errorAuth } = await createUserAuth(
-        data.email,
-        data.password
-      );
-
-      if (errorAuth || !authUid) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        throw new Error(errorAuth as any).props;
-      }
-
       const { error: errorUser } = await createUser(
         {
-          id: authUid,
           name: data.name,
           role: "admin",
           email: data.email,
           image: null,
           supportEmail: data.supportEmail,
-          cityId: authUid,
           facilitatorName: data.facilitatorName,
           color,
           consume: null,
@@ -122,34 +105,20 @@ const Cadastrar = () => {
           fullAddress: fullAddress || null,
           latitude: latitude || null,
           longitude: longitude || null,
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now(),
           calcData: {
-            initialDate: Timestamp.fromDate(currentDate),
+            initialDate: null as any,
             landfillDelivery: parseFloat(data.landfillDelivery),
             fuel: parseFloat(data.fuel)
           },
-          status: data.status
-        },
+          status: data.status,
+          // password é acessado via (data as any).password no createUser
+          ...(data as any)
+        } as any,
         imageFile
       );
 
       if (errorUser) {
-        throw new Error(errorUser).props;
-      }
-
-      const { error: errorEmail } = await sendEmail({
-        email: data.email,
-        subject: `Olá, cidade de ${data.name}! Seu acesso para a plataforma Coletare é:`,
-        html: `
-          <p>Email: ${data.email}</p>
-          <p>Senha: ${data.password}</p>
-        `
-      });
-
-      if (errorEmail) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        throw new Error(errorEmail as any).props;
+        throw new Error(errorUser);
       }
     },
     {
@@ -193,7 +162,7 @@ const Cadastrar = () => {
         latitude: latitude || null,
         longitude: longitude || null,
         calcData: {
-          initialDate: Timestamp.fromDate(currentDate),
+          initialDate: null as any,
           landfillDelivery: parseFloat(data.landfillDelivery),
           fuel: parseFloat(data.fuel)
         },
