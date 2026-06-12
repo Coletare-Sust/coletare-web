@@ -52,16 +52,16 @@ const Cadastrar = () => {
     resolver: zodResolver(AddCitySchema),
     values: city
       ? {
-          name: city?.name ?? "",
-          password: "asdfasdf1" ?? "",
-          facilitatorName: city?.facilitatorName ?? "",
-          email: city?.email ?? "",
-          supportEmail: city?.supportEmail ?? "",
-          landfillDelivery: city?.calcData?.landfillDelivery?.toString() ?? "",
-          fuel: city?.calcData?.fuel?.toString() ?? "",
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          status: city.status!
-        }
+        name: city?.name ?? "",
+        password: "asdfasdf1" ?? "",
+        facilitatorName: city?.facilitatorName ?? "",
+        email: city?.email ?? "",
+        supportEmail: city?.supportEmail ?? "",
+        landfillDelivery: city?.calcData?.landfillDelivery?.toString() ?? "",
+        fuel: city?.calcData?.fuel?.toString() ?? "",
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        status: city.status!
+      }
       : undefined
   });
   const [color, setColor] = useState<ColorsOptions>();
@@ -323,11 +323,10 @@ const Cadastrar = () => {
                     {colors.map((item, key) => (
                       <div
                         key={key}
-                        className={`rounded-md border-2 ${
-                          color === item.name
+                        className={`rounded-md border-2 ${color === item.name
                             ? " border-black/40"
                             : "border-transparent"
-                        }`}
+                          }`}
                       >
                         <div
                           onClick={() => setColor(item.name)}
@@ -342,9 +341,9 @@ const Cadastrar = () => {
               <div className="w-1/2 space-y-8">
                 {(city
                   ? inputsData.filter(
-                      (item) =>
-                        item.name !== "email" && item.name !== "password"
-                    )
+                    (item) =>
+                      item.name !== "email" && item.name !== "password"
+                  )
                   : inputsData
                 ).map((item, index) => {
                   if (item.name === "status") {
