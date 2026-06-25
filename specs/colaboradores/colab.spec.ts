@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Colaboradores Page (E2E)', () => {
 
@@ -36,33 +36,24 @@ test.describe('Colaboradores Page (E2E)', () => {
       page.getByRole('heading', { name: /todos os colaboradores/i })
     ).toBeVisible();
 
-    await expect(
-      page.getByTestId('collaborators-list')
-    ).toBeVisible();
     // ✅ 2. Heading/título da página está visível
     // ✅ 3. Lista/tabela de colaboradores existe
-    // (use o seletor que fizer sentido no seu HTML real)
-    const collaboratorsList =
-      page.getByRole('table')
-        .or(page.getByRole('list'))
-        .or(page.locator('[data-testid="collaborators-list"]'));
-
-    await expect(collaboratorsList.first()).toBeVisible();
-
-    // ✅ 4. Deve haver pelo menos 1 colaborador renderizado
+    // A página não usa <table>/<list>/data-testid - cada colaborador é
+    // renderizado como um InfoCard (src/app/(authenticated)/veiculos-colaboradores/
+    // components/InfoCard/infoCard.tsx), um <div> com essas classes.
     const collaboratorsItems = page.locator(
-      'tr, li, [data-testid="collaborator-item"]'
+      'div.rounded-lg.border.border-greenBlue-600'
     );
 
     await expect(collaboratorsItems.first()).toBeVisible();
 
-    // ✅ 5. Interação básica (exemplo: clicar em um colaborador)
-    await collaboratorsItems.first().click();
+    // ✅ 5. Interação básica: abrir o menu "mais opções" do primeiro card
+    const moreOptionsBtn = collaboratorsItems.first().locator('span[aria-haspopup="menu"]');
+    await moreOptionsBtn.click();
 
-    // Exemplo de comportamento esperado após interação
-    await expect(
-      page.getByRole('dialog').or(page.getByText(/detalhes|informações/i))
-    ).toBeVisible();
+    // O menu deve mostrar as opções de editar/excluir
+    await expect(page.getByText('Editar').first()).toBeVisible();
+    await expect(page.getByText('Excluir').first()).toBeVisible();
   });
 
 });

@@ -1,7 +1,7 @@
 // spec: specs/smoke/smoke.plan.md
 // seed: specs/auth.setup.ts
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Smoke tests', () => {
   const paths = ['/', '/cadastrar-veiculo'];

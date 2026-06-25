@@ -8,6 +8,7 @@ dotenv.config({ path: '.env.local' });
  */
 export default defineConfig({
   globalSetup: require.resolve('./specs/auth.setup'),
+  globalTeardown: require.resolve('./global-teardown'),
   testDir: './specs',
   testMatch: '**/*.spec.ts',
   fullyParallel: true,
@@ -22,7 +23,7 @@ export default defineConfig({
   },
 
   use: {
-    headless: process.env.CI ? true : false,
+    headless: true,
     actionTimeout: 15_000,
     navigationTimeout: 300_000,
     baseURL: 'http://localhost:3000',

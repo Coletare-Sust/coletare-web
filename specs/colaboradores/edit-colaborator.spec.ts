@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Edit Colaborador', () => {
   test.beforeEach(async ({ page }) => {
@@ -20,18 +20,13 @@ test.describe('Edit Colaborador', () => {
   test('Successfully edit an existing collaborator from collaborators list', async ({ page }) => {
     // Navigate directly to the cadastrar-colaborador page in edit mode with actual collaborator ID
     // This is the real URL format for editing João da Silva
-    await page.goto('http://localhost:3000/cadastrar-colaborador?isEdit=true&id=ed05aa00-b0a0-4c77-9833-339dbc9ba1ba');
+    await page.goto('http://localhost:3000/cadastrar-colaborador?isEdit=true&id=5a46c024-3d5e-4aeb-9b71-59558b2cf312');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
     // Check if we're in edit mode - verify form fields are present and populated
-    const nameInput = page.getByPlaceholder('Digite o nome do colaborador')
-      .or(page.locator('input[name="name"]'))
-      .or(page.locator('input').first());
-    
-    const cpfInput = page.getByPlaceholder('Digite o CPF do colaborador')
-      .or(page.locator('input[name="cpf"]'))
-      .or(page.locator('input').nth(1));
+    const nameInput = page.getByPlaceholder('Digite o nome do colaborador');
+    const cpfInput = page.getByPlaceholder('Digite o CPF do colaborador');
 
     // Verify form inputs are visible and populated with existing data
     await expect(nameInput).toBeVisible();
@@ -64,11 +59,9 @@ test.describe('Edit Colaborador', () => {
     // Wait for the update operation and verify success
     await page.waitForTimeout(3000);
     
-    // Look for success message
-    const successMessage = page.getByText('Colaborador atualizado com sucesso!')
-      .or(page.getByText(/atualizado.*sucesso/i))
-      .or(page.getByText(/sucesso/i));
-    
+    // Look for success message (toast shows "Colaborador atualizado!" and redirects to /veiculos-colaboradores)
+    const successMessage = page.getByText(/Colaborador atualizado/i);
+
     await expect(successMessage).toBeVisible({ timeout: 5000 });
     
     console.log('Successfully updated collaborator:', editedName);
@@ -76,14 +69,13 @@ test.describe('Edit Colaborador', () => {
 
   test('Edit collaborator with invalid data shows validation errors', async ({ page }) => {
     // Navigate directly to edit page with actual collaborator ID
-    await page.goto('http://localhost:3000/cadastrar-colaborador?isEdit=true&id=ed05aa00-b0a0-4c77-9833-339dbc9ba1ba');
+    await page.goto('http://localhost:3000/cadastrar-colaborador?isEdit=true&id=5a46c024-3d5e-4aeb-9b71-59558b2cf312');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
     // Clear name field (make it invalid)
-    const nameInput = page.getByPlaceholder('Digite o nome do colaborador')
-      .or(page.locator('input').first());
-    
+    const nameInput = page.getByPlaceholder('Digite o nome do colaborador');
+
     await expect(nameInput).toBeVisible();
     await nameInput.fill(''); // Clear to trigger validation
 
@@ -103,14 +95,13 @@ test.describe('Edit Colaborador', () => {
 
   test('Edit collaborator shows loading state during update', async ({ page }) => {
     // Navigate directly to edit page with actual collaborator ID
-    await page.goto('http://localhost:3000/cadastrar-colaborador?isEdit=true&id=ed05aa00-b0a0-4c77-9833-339dbc9ba1ba');
+    await page.goto('http://localhost:3000/cadastrar-colaborador?isEdit=true&id=5a46c024-3d5e-4aeb-9b71-59558b2cf312');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
     // Update form fields
-    const nameInput = page.getByPlaceholder('Digite o nome do colaborador')
-      .or(page.locator('input').first());
-    
+    const nameInput = page.getByPlaceholder('Digite o nome do colaborador');
+
     await expect(nameInput).toBeVisible();
     
     const currentName = await nameInput.inputValue();
@@ -136,7 +127,7 @@ test.describe('Edit Colaborador', () => {
 
   test('Cancel edit operation returns to collaborators list', async ({ page }) => {
     // Navigate to edit page with actual collaborator ID
-    await page.goto('http://localhost:3000/cadastrar-colaborador?isEdit=true&id=ed05aa00-b0a0-4c77-9833-339dbc9ba1ba');
+    await page.goto('http://localhost:3000/cadastrar-colaborador?isEdit=true&id=5a46c024-3d5e-4aeb-9b71-59558b2cf312');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
@@ -169,15 +160,13 @@ test.describe('Edit Colaborador', () => {
 
   test('Direct edit URL with collaborator ID loads correctly', async ({ page }) => {
     // Navigate directly to edit URL with the actual collaborator ID
-    await page.goto('http://localhost:3000/cadastrar-colaborador?isEdit=true&id=ed05aa00-b0a0-4c77-9833-339dbc9ba1ba');
+    await page.goto('http://localhost:3000/cadastrar-colaborador?isEdit=true&id=5a46c024-3d5e-4aeb-9b71-59558b2cf312');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
     // Verify edit mode is active - form should be populated with existing data
-    const nameInput = page.getByPlaceholder('Digite o nome do colaborador')
-      .or(page.locator('input').first());
-    const cpfInput = page.getByPlaceholder('Digite o CPF do colaborador')
-      .or(page.locator('input').nth(1));
+    const nameInput = page.getByPlaceholder('Digite o nome do colaborador');
+    const cpfInput = page.getByPlaceholder('Digite o CPF do colaborador');
 
     await expect(nameInput).toBeVisible();
     await expect(cpfInput).toBeVisible();

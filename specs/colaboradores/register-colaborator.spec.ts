@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Cadastrar Colaborador Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -52,9 +52,9 @@ test.describe('Cadastrar Colaborador Page', () => {
     // Wait for the page to load
     await page.waitForLoadState('networkidle');
 
-    // Fill in the name field
+    // Fill in the name field (no digits/special chars allowed)
     const nameInput = page.getByPlaceholder('Digite o nome do colaborador');
-    await nameInput.fill('Ricardo Test 2');
+    await nameInput.fill('Ricardo Teste Dois');
 
     // Fill in the CPF field (with mask 999.999.999-99)
     const cpfInput = page.getByPlaceholder('Digite o CPF do colaborador');
@@ -72,12 +72,11 @@ test.describe('Cadastrar Colaborador Page', () => {
     await page.waitForTimeout(2000);
 
     // Verify success toast message appears
-    const successToast = page.getByText(/Colaborador cadastrado com sucesso/i);
+    const successToast = page.getByText(/Colaborador cadastrado/i);
     await expect(successToast).toBeVisible({ timeout: 5000 });
 
-    // Verify form is reset after successful submission
-    const resetNameInput = page.getByPlaceholder('Digite o nome do colaborador');
-    await expect(resetNameInput).toHaveValue('');
+    // On success the form redirects to the collaborators list
+    await page.waitForURL('**/veiculos-colaboradores', { timeout: 5000 });
   });
 
   test('User attempts to register with empty name field', async ({ page }) => {
@@ -139,6 +138,36 @@ test.describe('Cadastrar Colaborador Page', () => {
   //   }
   // });
 
+  test('User attempts to register a collaborator with special characters in the name', async ({ page }) => {
+    // Navigate to the cadastrar-colaborador page
+    await page.goto('http://localhost:3000/cadastrar-colaborador');
+
+    // Wait for the page to load
+    await page.waitForLoadState('networkidle');
+
+    // Fill the name field with special characters (not allowed)
+    const nameInput = page.getByPlaceholder('Digite o nome do colaborador');
+    await nameInput.fill('João #Silva!');
+    await nameInput.blur();
+
+    // Fill a valid CPF so the only invalid field is the name
+    const cpfInput = page.getByPlaceholder('Digite o CPF do colaborador');
+    await cpfInput.fill('222.353.474-56');
+
+    // Verify the validation error for special characters appears
+    const nameError = page.getByText('Não utilize caracteres especiais');
+    await expect(nameError).toBeVisible({ timeout: 5000 });
+
+    // Attempt to submit anyway - the form must not be accepted
+    const submitButton = page.getByRole('button', { name: /Cadastrar/i });
+    await submitButton.click();
+    await page.waitForTimeout(1000);
+
+    // The validation error remains and the page does not navigate away
+    await expect(nameError).toBeVisible();
+    expect(page.url()).toContain('/cadastrar-colaborador');
+  });
+
   test('Submit button shows loading state during submission', async ({ page }) => {
     // Navigate to the cadastrar-colaborador page
     await page.goto('http://localhost:3000/cadastrar-colaborador');
@@ -148,25 +177,32 @@ test.describe('Cadastrar Colaborador Page', () => {
 
     // Fill in valid data
     const nameInput = page.getByPlaceholder('Digite o nome do colaborador');
-    await nameInput.fill('Maria Silva');
+    await nameInput.fill('Maria Silva Loading');
 
     const cpfInput = page.getByPlaceholder('Digite o CPF do colaborador');
     await cpfInput.fill('987.654.321-00');
 
-    // Get the submit button
-    const submitButton = page.getByRole('button', { name: /Cadastrar/i });
+    // Delay the registration request so the loading state can be observed -
+    // locally the backend responds in just a few ms, too fast to catch otherwise
+    await page.route('**/auth/register/employee', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await route.continue();
+    });
+
+    // Locate the submit button by its type, since while loading it renders
+    // a spinner instead of the "Cadastrar" text and loses its accessible name
+    const submitButton = page.locator('form button[type="submit"]');
 
     // Click submit
     await submitButton.click();
 
-    // Verify button shows loading state (disabled or with loading indicator)
-    const isDisabledDuringSubmit = await submitButton.isDisabled().catch(() => false);
+    // Verify button shows a loading spinner and becomes disabled while the request is pending
+    await expect(submitButton.locator('svg.lucide-loader-circle')).toBeVisible();
+    await expect(submitButton).toBeDisabled();
 
-    // Wait for submission to complete
-    await page.waitForTimeout(2000);
-
-    // Verify loading state is gone
-    await expect(submitButton).toBeEnabled();
+    // On success the form redirects to /veiculos-colaboradores and shows a toast
+    await page.waitForURL('**/veiculos-colaboradores', { timeout: 10000 });
+    await expect(page.getByText(/Colaborador cadastrado/i)).toBeVisible({ timeout: 5000 });
   });
 
   test('Edit mode loads existing collaborator data', async ({ page }) => {
@@ -197,20 +233,13 @@ test.describe('Cadastrar Colaborador Page', () => {
     // Get the name input
     const nameInput = page.getByPlaceholder('Digite o nome do colaborador');
 
-    // Focus on the field
-    await nameInput.focus();
-
-    // Blur without entering data
+    // Type a name shorter than the minimum (4 characters) and blur
+    await nameInput.fill('abc');
     await nameInput.blur();
 
-    // Wait a moment for validation
-    await page.waitForTimeout(500);
-
-    // Verify error message appears
-    const submitButton = page.getByRole('button', { name: /Cadastrar/i });
-    const isButtonDisabled = await submitButton.isDisabled();
-
-    expect(isButtonDisabled).toBeTruthy();
+    // Verify the validation error appears in real-time, without submitting
+    const nameError = page.getByText('Deve ter no mínimo 4 caracteres');
+    await expect(nameError).toBeVisible({ timeout: 5000 });
   });
 
   test('CPF field applies mask correctly', async ({ page }) => {

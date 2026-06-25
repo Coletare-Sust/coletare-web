@@ -1,7 +1,7 @@
 // spec: specs/criar-excluir-rota/criar-rota.plan.md
 // seed: specs/seed.spec.ts
 
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 async function login(page: any) {
   await page.goto('http://localhost:3000');
@@ -15,8 +15,14 @@ async function addAddress(page: any, inputSelector: string, address: string) {
   const addressInput = page.locator(inputSelector);
   await addressInput.click();
   await addressInput.fill(address);
-  await expect(page.locator('.pac-item').first()).toBeVisible({ timeout: 10_000 });
-  await page.locator('.pac-item').first().click();
+  // Use :visible since stale, hidden .pac-item elements from earlier
+  // searches/duplicate containers remain in the DOM and would otherwise be
+  // matched first. A duplicate, overlapping .pac-container can also render on
+  // top of the one we want (both show the same suggestions), intercepting the
+  // click - force it through since either copy's first item resolves to the
+  // same address.
+  await expect(page.locator('.pac-item:visible').first()).toBeVisible({ timeout: 10_000 });
+  await page.locator('.pac-item:visible').first().click({ force: true });
 }
 
 test.describe('Route Validation and Error Handling', () => {

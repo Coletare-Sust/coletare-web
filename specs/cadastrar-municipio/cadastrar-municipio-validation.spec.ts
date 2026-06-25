@@ -1,7 +1,7 @@
 // spec: specs/cadastrar-municipio.plan.md
 // seed: specs/seed.spec.ts
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Municipality Registration - Validation', () => {
   test.beforeEach(async ({ page }) => {
@@ -30,15 +30,15 @@ test.describe('Municipality Registration - Validation', () => {
     // First check if we have permission to access this page
     const hasPermissionError = await page.getByText('Você não tem permissão').isVisible().catch(() => false);
     const hasErrorNotification = await page.locator('[role="alert"]').filter({ hasText: 'permissão' }).isVisible().catch(() => false);
-    
+
     test.skip(hasPermissionError || hasErrorNotification, 'User does not have permission to access municipality registration page');
-    
+
     // Wait for either the form to load or an error to appear
     await Promise.race([
       page.getByRole('heading', { name: 'Cadastrar novo município' }).waitFor({ timeout: 10000 }),
       page.getByText('Você não tem permissão').waitFor({ timeout: 10000 }).catch(() => null)
     ]);
-    
+
     // Verify registration form is displayed
     await expect(page.getByRole('heading', { name: 'Cadastrar novo município' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Cadastrar' })).toBeVisible();
@@ -108,12 +108,12 @@ test.describe('Municipality Registration - Validation', () => {
     // Check if we have permission to access this page
     const hasPermissionError = await page.getByText('Você não tem permissão').isVisible().catch(() => false);
     test.skip(hasPermissionError, 'User does not have permission to access municipality registration page');
-    
+
     await Promise.race([
       page.getByRole('heading', { name: 'Cadastrar novo município' }).waitFor({ timeout: 10000 }),
       page.getByText('Você não tem permissão').waitFor({ timeout: 10000 }).catch(() => null)
     ]);
-    
+
     // 1. Enter invalid email format in Email field
     await page.locator('#email').fill('invalid-email');
     await page.locator('#name').click(); // Trigger validation by focusing another field

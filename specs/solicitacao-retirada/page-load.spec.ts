@@ -1,7 +1,7 @@
 // spec: specs/solicitacao-retirada/solicitacoes-retirada.plan.md
 // seed: specs/seed.spec.ts
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Page Load and Initial Display', () => {
   test.beforeEach(async ({ page }) => {
@@ -31,7 +31,11 @@ test.describe('Page Load and Initial Display', () => {
     await expect(page.getByText('Solicitações de retirada de lixo')).toBeVisible();
 
     // 1. Navigate to /solicitacoes-retirada page - The sidebar navigation is visible with 'Solicitação de retirada de lixo' highlighted
-    await expect(page.getByRole('link', { name: 'Ícone do item Solicitação de retirada de lixo 46' })).toBeVisible();
+    // The sidebar is collapsed by default (its text label is hidden via CSS,
+    // so it doesn't contribute to the link's accessible name), and the name
+    // would also include a live pending-requests badge count that changes as
+    // data changes - match on the stable href instead.
+    await expect(page.locator('a[href="/solicitacoes-retirada"]').first()).toBeVisible();
 
     // 2. Verify main components are rendered - A 'Criar nova rota' button with plus icon is visible
     await expect(page.getByRole('button', { name: 'Icon de mais Criar nova rota' })).toBeVisible();

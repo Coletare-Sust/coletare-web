@@ -1,7 +1,7 @@
 // spec: specs/criar-rota/editar-rota.plan.md
 // seed: specs/seed.spec.ts
 
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 test.describe('Editar rota no fluxo de criação', () => {
   test('Editar rota no fluxo de criação', async ({ page }) => {

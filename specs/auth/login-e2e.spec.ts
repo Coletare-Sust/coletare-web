@@ -1,7 +1,7 @@
 // spec: specs/auth.plan.md
 // seed: specs/auth.setup.ts
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Authentication - E2E', () => {
   test('Login → access protected page → logout', async ({ page }) => {

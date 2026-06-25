@@ -1,6 +1,6 @@
 // Login page end-to-end tests
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test('User successfully logs in', async ({ page }) => {
   // Navigate to the login page

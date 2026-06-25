@@ -1,7 +1,7 @@
 // spec: specs/criar-rota.plan.md
 // seed: specs/seed.spec.ts
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Route Creation - Basic Functionality', () => {
   test.beforeEach(async ({ page }) => {
@@ -66,12 +66,17 @@ test.describe('Route Creation - Basic Functionality', () => {
     // Type a valid address for first location
     await page.locator('#address-0').fill('Av. Dantas Barreto, Recife');
 
-    // Wait for address suggestions to appear
-    await page.waitForSelector('.pac-item', { timeout: 10000 });
+    // Wait for address suggestions to appear. Use :visible since stale,
+    // hidden .pac-item elements from earlier searches/duplicate containers
+    // remain in the DOM and would otherwise be matched first.
+    await page.waitForSelector('.pac-item:visible', { timeout: 10000 });
 
-    // Select the first address suggestion
-    const firstSuggestion = page.locator('.pac-item').first();
-    await firstSuggestion.click();
+    // Select the first address suggestion. A duplicate, overlapping
+    // .pac-container can render on top of the one we want (both show the same
+    // suggestions), intercepting the click - force it through since either
+    // copy's first item resolves to the same address.
+    const firstSuggestion = page.locator('.pac-item:visible').first();
+    await firstSuggestion.click({ force: true });
 
     // Wait a bit for address to be populated
     await page.waitForTimeout(1000);
@@ -82,12 +87,12 @@ test.describe('Route Creation - Basic Functionality', () => {
     // Type a different address for second location
     await page.locator('#address-1').fill('Rua da Aurora, Recife');
 
-    // Wait for address suggestions
-    await page.waitForSelector('.pac-item', { timeout: 10000 });
+    // Wait for address suggestions (see :visible note above)
+    await page.waitForSelector('.pac-item:visible', { timeout: 10000 });
 
-    // Select the first address suggestion for second address
-    const secondSuggestion = page.locator('.pac-item').first();
-    await secondSuggestion.click();
+    // Select the first address suggestion for second address (see note above)
+    const secondSuggestion = page.locator('.pac-item:visible').first();
+    await secondSuggestion.click({ force: true });
 
     // Wait for map to render
     await page.waitForTimeout(1500);

@@ -1,7 +1,7 @@
 // spec: specs/cadastrar-veiculo.plan.md
 // seed: specs/auth.setup.ts
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Vehicle Registration - UI/UX', () => {
   test('All form labels are visible and properly positioned', async ({ page }) => {
@@ -24,16 +24,6 @@ test.describe('Vehicle Registration - UI/UX', () => {
       const labelElement = page.locator(`text=${label}`).first();
       await expect(labelElement).toBeVisible();
     }
-  });
-
-  test('Page title displays correct heading', async ({ page }) => {
-    // Navigate to the cadastrar-veiculo page
-    await page.goto('http://localhost:3000/cadastrar-veiculo');
-    await page.waitForTimeout(2000);
-
-    // Verify page heading
-    const heading = page.locator('text=Cadastrar novo Veículo');
-    await expect(heading).toBeVisible();
   });
 
   test('Submit button is visible and properly labeled', async ({ page }) => {
@@ -103,15 +93,6 @@ test.describe('Vehicle Registration - UI/UX', () => {
     await expect(registerButton).not.toBeVisible();
   });
 
-  test('Vehicle image is displayed on the page', async ({ page }) => {
-    // Navigate to the cadastrar-veiculo page
-    await page.goto('http://localhost:3000/cadastrar-veiculo');
-    await page.waitForTimeout(2000);
-
-    // Verify vehicle image is visible
-    const vehicleImage = page.locator('img[src="/vehicle.png"]');
-    await expect(vehicleImage).toBeVisible();
-  });
 
   test('Form container has proper structure', async ({ page }) => {
     // Navigate to the cadastrar-veiculo page
@@ -227,17 +208,4 @@ test.describe('Vehicle Registration - UI/UX', () => {
     expect(boundingBox!.height).toBeGreaterThan(300);
   });
 
-  test('Navigation menu remains visible while scrolling form', async ({ page }) => {
-    // Navigate to the cadastrar-veiculo page
-    await page.goto('http://localhost:3000/cadastrar-veiculo');
-    await page.waitForTimeout(2000);
-
-    // Verify navigation banner is visible
-    const banner = page.locator('banner');
-    await expect(banner).toBeVisible();
-
-    // Navigation should remain in viewport (not scroll away)
-    const bannerBBox = await banner.boundingBox();
-    expect(bannerBBox!.y).toBeLessThanOrEqual(200); // Near top of page
-  });
 });

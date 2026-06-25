@@ -1,5 +1,5 @@
 // specs/seed.spec.ts
-import { test } from '@playwright/test';
+import { test } from './fixtures';
 
 test('authenticate user', async ({ page, context }) => {
   await page.goto('http://localhost:3000');

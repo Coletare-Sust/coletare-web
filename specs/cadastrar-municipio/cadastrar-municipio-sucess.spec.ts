@@ -1,7 +1,7 @@
 // spec: specs/cadastrar-municipio.plan.md
 // seed: specs/seed.spec.ts
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Municipality Registration - Create Mode', () => {
    test.beforeEach(async ({ page }) => {

@@ -1,7 +1,7 @@
 // spec: Dashboard > Inserir Dados de Rotas 
 // seed: specs/seed.spec.ts
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures';
 
 test.describe('Dashboard - Inserir Dados de Rotas', () => {
   test.beforeEach(async ({ page }) => {

@@ -1,7 +1,7 @@
 // spec: specs/cadastrar-veiculo.plan.md
 // seed: specs/auth.setup.ts
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Cadastrar veículo - Server Validation & Error Handling', () => {
   test.beforeEach(async ({ page }) => {
@@ -26,10 +26,19 @@ test.describe('Cadastrar veículo - Server Validation & Error Handling', () => {
     // Navigate to cadastrar-veiculo
     await page.goto('/cadastrar-veiculo');
 
-    // Mock API to return 409 Conflict for duplicate plate
-    await page.route('**/api/**/veiculo', route => {
+    // Mock API to return 409 Conflict for duplicate plate.
+    // The app posts to "${NEXT_PUBLIC_API_URL}/auth/register/vehicle" (no "/api/"
+    // segment), so a pattern containing "/api/" never matches and the mock
+    // silently fails to intercept, letting the real backend call through.
+    await page.route('**/auth/register/vehicle', route => {
       if (route.request().method() === 'POST') {
-        route.abort('blockedbyclient');
+        route.fulfill({
+          status: 409,
+          contentType: 'application/json',
+          body: JSON.stringify({ message: 'Placa já existe' })
+        });
+      } else {
+        route.continue();
       }
     });
 
@@ -57,6 +66,17 @@ test.describe('Cadastrar veículo - Server Validation & Error Handling', () => {
     // Navigate to cadastrar-veiculo
     await page.goto('/cadastrar-veiculo');
 
+    // There's no client-side range validation for emission (see
+    // src/validations/registerVehicle.ts), so the only way to deterministically
+    // trigger a "server rejected the range" scenario is to mock the response.
+    await page.route('**/auth/register/vehicle', route => {
+      route.fulfill({
+        status: 422,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Emissão fora do intervalo válido' })
+      });
+    });
+
     // Fill form with out-of-bounds emission
     await page.getByPlaceholder('Digite o nome do veículo').fill('Veículo Fora do Range');
     await page.getByPlaceholder('Digite a placa').fill('OOR-0001');
@@ -81,8 +101,9 @@ test.describe('Cadastrar veículo - Server Validation & Error Handling', () => {
     // Navigate to cadastrar-veiculo
     await page.goto('/cadastrar-veiculo');
 
-    // Mock API to simulate timeout
-    await page.route('**/api/**', route => {
+    // Mock API to simulate timeout (real endpoint has no "/api/" segment, see
+    // note in the "duplicate plate" test above)
+    await page.route('**/auth/register/vehicle', route => {
       setTimeout(() => {
         route.abort('timedout');
       }, 5000);
@@ -104,17 +125,24 @@ test.describe('Cadastrar veículo - Server Validation & Error Handling', () => {
     await expect(page.locator('[role="alert"]').first()).toContainText(/timeout|tempo|Erro|connection/i, { timeout: 10_000 })
       .catch(() => {});
 
-    // Submit button should be re-enabled for retry
-    await expect(page.getByRole('button', { name: 'Cadastrar' })).toBeEnabled();
+    // Submit button should be re-enabled for retry. While loading=true the
+    // Button component swaps its text for a spinner and loses its
+    // accessible name, so locate it by type instead of by role+name.
+    await expect(page.locator('form button[type="submit"]')).toBeEnabled();
   });
 
   test('server 500 error shows error and form remains fillable', async ({ page }) => {
     // Navigate to cadastrar-veiculo
     await page.goto('/cadastrar-veiculo');
 
-    // Mock API to return 500
-    await page.route('**/api/**', route => {
-      route.abort('failed');
+    // Mock API to return 500 (real endpoint has no "/api/" segment, see note
+    // in the "duplicate plate" test above)
+    await page.route('**/auth/register/vehicle', route => {
+      route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Algo deu errado no servidor' })
+      });
     });
 
     // Fill form with valid data
@@ -136,8 +164,10 @@ test.describe('Cadastrar veículo - Server Validation & Error Handling', () => {
     // Form fields should retain values
     await expect(page.getByPlaceholder('Digite o nome do veículo')).toHaveValue('Veículo 500 Error');
 
-    // Submit button should be enabled for retry
-    await expect(page.getByRole('button', { name: 'Cadastrar' })).toBeEnabled();
+    // Submit button should be enabled for retry. While loading=true the
+    // Button component swaps its text for a spinner and loses its
+    // accessible name, so locate it by type instead of by role+name.
+    await expect(page.locator('form button[type="submit"]')).toBeEnabled();
   });
 
   test('form recovery after correcting error and resubmit', async ({ page }) => {
@@ -164,8 +194,10 @@ test.describe('Cadastrar veículo - Server Validation & Error Handling', () => {
     // Resubmit
     await page.getByRole('button', { name: 'Cadastrar' }).click();
 
-    // Should not show previous error and form may reset or show success
-    // (assuming form now allows submission)
-    await expect(page.getByRole('button', { name: 'Cadastrar' })).toBeEnabled();
+    // The first submit never reached the network (blocked by client-side
+    // validation on the missing email), so once corrected the resubmission
+    // hits the real backend and succeeds, redirecting to /veiculos.
+    await page.waitForURL('**/veiculos', { timeout: 15_000 });
+    expect(page.url()).toContain('/veiculos');
   });
 });

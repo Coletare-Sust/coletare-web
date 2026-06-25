@@ -1,5 +1,5 @@
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Route Exclude - Basic Functionality', () => {
      test.beforeEach(async ({ page }) => {

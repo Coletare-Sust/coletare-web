@@ -1,7 +1,7 @@
 // spec: specs/auth.plan.md
 // seed: specs/auth.setup.ts
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('RBAC / Authorization - E2E', () => {
   const normalEmail = process.env.ADMIN_EMAIL ?? process.env.E2E_EMAIL ?? '';

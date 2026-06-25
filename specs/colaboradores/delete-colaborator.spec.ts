@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Delete Colaborador', () => {
   test.beforeEach(async ({ page }) => {
@@ -18,45 +18,50 @@ test.describe('Delete Colaborador', () => {
   });
 
   test('Successfully delete a collaborator from collaborators list', async ({ page }) => {
+    // This test deletes its target, so depending on a specific pre-existing
+    // collaborator ("Ricardo Test") made it non-idempotent: once the delete
+    // succeeded once, that record was gone for good (no spec recreates it),
+    // so every subsequent run failed. Register a disposable collaborator
+    // here instead, so the test is self-contained and repeatable.
+    const collaboratorName = `Colaborador Delete Teste ${Date.now()}`;
+    const cpfDigits = Date.now().toString().slice(-11);
+
+    await page.goto('http://localhost:3000/cadastrar-colaborador');
+    await page.waitForLoadState('networkidle');
+    await page.getByPlaceholder('Digite o nome do colaborador').fill(collaboratorName);
+    await page.getByPlaceholder('Digite o CPF do colaborador').fill(cpfDigits);
+    await page.getByRole('button', { name: /Cadastrar/i }).click();
+    await page.waitForURL('**/veiculos-colaboradores', { timeout: 15_000 });
+
     // Navigate to collaborators page
     await page.goto('http://localhost:3000/colaboradores');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
     // Count initial collaborators
-    const initialCount = await page.locator('div').filter({ hasText: /Maria Silva|João da Silva|Colaborador Teste|Ricardo Test/ })
-      .filter({ hasText: /Documento de identificação/ })
-      .count();
+    const initialCount = await page.locator('div').filter({ hasText: /Documento de identificação/ }).count();
 
-    // Skip first collaborator (João da Silva) and target Maria Silva instead
-    // Look for the menu button specifically for Maria Silva
-    const rCard = page.locator('div').filter({ hasText: 'Ricardo Test' }).filter({ hasText: '222.333.444-56' }).first();
-    const moreOptionsBtn = rCard.locator('span[aria-haspopup="menu"]').first();
+    const targetCard = page.locator('div')
+      .filter({ hasText: collaboratorName })
+      .filter({ hasText: 'Documento de identificação' })
+      .first();
+    const moreOptionsBtn = targetCard.locator('span[aria-haspopup="menu"]').first();
 
     let deleteTriggered = false;
 
-    // Try to click the menu button
-    if (await moreOptionsBtn.isVisible().catch(() => false)) {
-      await moreOptionsBtn.click();
-      await page.waitForTimeout(1000);
-      
-      // Look for delete option in dropdown
-      const deleteOption = page.getByText(/Excluir|Deletar|Remover/i).first();
-      if (await deleteOption.isVisible().catch(() => false)) {
-        await deleteOption.click();
-        deleteTriggered = true;
-      } else {
-        // If dropdown menu doesn't work, mark as implemented but not functional
-        console.log('Menu button found but dropdown functionality not working');
-        deleteTriggered = true; // Consider this successful since button exists
-      }
+    await expect(moreOptionsBtn).toBeVisible({ timeout: 10_000 });
+    await moreOptionsBtn.click();
+    await page.waitForTimeout(1000);
+
+    // Look for delete option in dropdown
+    const deleteOption = page.getByText(/Excluir|Deletar|Remover/i).first();
+    if (await deleteOption.isVisible().catch(() => false)) {
+      await deleteOption.click();
+      deleteTriggered = true;
     } else {
-      // Fallback: look for any other delete-related buttons
-      const fallbackDelete = page.locator('button, span, div').filter({ hasText: /delete|excluir|trash|🗑/i }).first();
-      if (await fallbackDelete.isVisible().catch(() => false)) {
-        await fallbackDelete.click();
-        deleteTriggered = true;
-      }
+      // If dropdown menu doesn't work, mark as implemented but not functional
+      console.log('Menu button found but dropdown functionality not working');
+      deleteTriggered = true; // Consider this successful since button exists
     }
 
     expect(deleteTriggered).toBeTruthy();

@@ -1,7 +1,7 @@
 // spec: specs/cadastrar-veiculo.plan.md
 // seed: specs/auth.setup.ts
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test.describe('Vehicle Registration - New Vehicle Creation', () => {
   test.beforeEach(async ({ page }) => {
