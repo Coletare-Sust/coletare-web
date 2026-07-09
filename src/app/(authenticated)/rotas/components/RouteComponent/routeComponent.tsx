@@ -3,8 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
+import { GoogleMap } from "@react-google-maps/api";
 import { useState } from "react";
+import RouteMapDisplay from "@molecules/RouteMapDisplay/routeMapDisplay";
 
 import Button from "@atoms/Button/button";
 import { deleteRoute } from "@/store/services/route";
@@ -20,7 +21,6 @@ const RouteComponent = ({
   isAdmin
 }: RouteProps) => {
   const [, setMap] = useState<google.maps.Map>();
-  const [path, setPath] = useState<google.maps.LatLng[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -38,9 +38,6 @@ const RouteComponent = ({
 
   const onMapLoad = (map: google.maps.Map) => {
     setMap(map);
-    const polyline = route.polyline;
-    const decodedPath = google.maps.geometry.encoding.decodePath(polyline);
-    setPath(decodedPath);
   };
 
   const handleDelete = async () => {
@@ -87,32 +84,17 @@ const RouteComponent = ({
             <GoogleMap
               onLoad={onMapLoad}
               mapContainerStyle={{ width: "100%", height: "100%" }}
-              center={path[0]}
+              center={route.waypoints[0]}
               zoom={15}
             >
-              <Polyline
-                path={path}
-                options={{
-                  strokeColor: "#00ADB4",
-                  strokeOpacity: 1,
-                  strokeWeight: 4
-                }}
+              <RouteMapDisplay
+                waypoints={route.waypoints.map((wp) => ({ lat: wp.lat, lng: wp.lng }))}
+                polylinePoints={route.polylinePoints}
+                encodedPolyline={route.polyline}
+                showMarkers={true}
+                strokeColor="#00ADB4"
+                strokeWeight={4}
               />
-              {route.waypoints.map((waypoint, index) => (
-                <Marker
-                  key={index}
-                  position={waypoint}
-                  label={{
-                    text: String(index + 1),
-                    color: "white",
-                    fontSize: "12px"
-                  }}
-                  // icon={{
-                  //   url: "/map-marker.svg",
-                  //   scaledSize: new google.maps.Size(30, 30)
-                  // }}
-                />
-              ))}
             </GoogleMap>
           </>
         </div>
