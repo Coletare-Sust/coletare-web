@@ -21,9 +21,9 @@ export interface CollectOutputDTO {
   metrics: {
     durationSeconds: number;
     kmRun: number;
-    mass: number;
   };
   environmentalData: {
+    mass: number;
     consume: number;
     emission: number;
   };
@@ -46,7 +46,7 @@ export function mapCollectOutputToEntity(dto: CollectOutputDTO): CollectEntity {
     employeeId: dto.driverId || "",
     vehicleName: dto.legacy?.vehicleName || "",
     carPlate: dto.legacy?.carPlate || "",
-    mass: dto.metrics?.mass || 0,
+    mass: dto.environmentalData?.mass || 0,
     consume: dto.environmentalData?.consume || 0,
     emission: dto.environmentalData?.emission || 0,
     cost: {
