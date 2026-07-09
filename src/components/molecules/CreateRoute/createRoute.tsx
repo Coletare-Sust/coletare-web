@@ -267,7 +267,8 @@ const CreateRoute = ({
       name: routeName,
       // Use the merged polyline so routes with 28+ waypoints are saved in full.
       polyline: mergedPolyline || (response?.routes[0].overview_polyline ?? ""),
-      polylinePoints: mergedPolylinePoints.length > 0 ? mergedPolylinePoints : undefined,
+      polylinePoints:
+        mergedPolylinePoints.length > 0 ? mergedPolylinePoints : undefined,
       wasChecked: false,
       cityId: user?.id as string,
       isSpecial,
@@ -294,8 +295,10 @@ const CreateRoute = ({
         period: periodSecondary,
         residueType: residueTypeSecondary,
         name: routeNameSecondary,
-        polyline: mergedPolyline || (response?.routes[0].overview_polyline ?? ""),
-        polylinePoints: mergedPolylinePoints.length > 0 ? mergedPolylinePoints : undefined,
+        polyline:
+          mergedPolyline || (response?.routes[0].overview_polyline ?? ""),
+        polylinePoints:
+          mergedPolylinePoints.length > 0 ? mergedPolylinePoints : undefined,
         wasChecked: false,
         cityId: user?.id as string,
         isSpecial,
@@ -503,9 +506,7 @@ const CreateRoute = ({
                 Adicionar mais um endereço{" "}
               </p>
               {/* Keyboard shortcut tooltip */}
-              <span
-                className="pointer-events-none absolute -top-8 left-0 z-50 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-[11px] font-medium text-white opacity-0 shadow transition-opacity duration-150 group-hover:opacity-100"
-              >
+              <span className="text-white pointer-events-none absolute -top-8 left-0 z-50 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-[11px] font-medium opacity-0 shadow transition-opacity duration-150 group-hover:opacity-100">
                 Ctrl + Alt + =
               </span>
             </div>
