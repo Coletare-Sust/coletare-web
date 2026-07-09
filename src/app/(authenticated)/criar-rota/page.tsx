@@ -192,10 +192,7 @@ const CriarRota = () => {
    * Merged polyline string for persistence.
    * Passed down so CreateRoute can save the full multi-chunk route.
    */
-  const mergedPolyline = useMemo(
-    () => mergePolylines(responses),
-    [responses]
-  );
+  const mergedPolyline = useMemo(() => mergePolylines(responses), [responses]);
 
   /**
    * Decoded merged path — saved in Firebase so display screens can render
