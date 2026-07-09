@@ -13,6 +13,7 @@ export interface CreateRouteProps {
   setAdresses: Dispatch<SetStateAction<{ adress: string; index: number }[]>>;
   handleDeleteWaypoint: (index: number) => void;
   response: google.maps.DirectionsResult | null;
+  mergedPolyline: string;
   isEdit: boolean;
   routeId: string | null;
   isSpecial: boolean;

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 "use client";
 
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   GoogleMap,
   Marker,
@@ -13,6 +13,11 @@ import CreateRoute from "@/components/molecules/CreateRoute/createRoute";
 import { useSearchParams } from "next/navigation";
 import { WithdrawalsRequestEntity } from "@/common/entities/WithdrawalsRequest";
 import { errorToast } from "@/hooks/useAppToast";
+import {
+  getWaypointLabel,
+  mergePolylines,
+  splitWaypointsIntoChunks
+} from "@/utils/routeChunks";
 
 const position = {
   lat: -8.05224,
@@ -30,50 +35,64 @@ const CriarRota = () => {
   const [activeSuggestions, setActiveSuggestions] = useState<
     WithdrawalsRequestEntity[]
   >([]);
-  const [response, setResponse] = useState<google.maps.DirectionsResult | null>(
-    null
-  );
+
+  // Multiple responses — one per chunk when waypoints exceed the API limit.
+  const [responses, setResponses] = useState<
+    (google.maps.DirectionsResult | null)[]
+  >([]);
 
   const isEdit = useSearchParams().get("isEdit");
   const routeId = useSearchParams().get("routeId");
-
   const isSpecial = useSearchParams().get("especial") === "true";
 
-  const onMapLoad = (map: google.maps.Map) => {
-    setMap(map);
+  const onMapLoad = (mapInstance: google.maps.Map) => {
+    setMap(mapInstance);
   };
 
-  const directionsServiceOptions =
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    useMemo<google.maps.DirectionsRequest>(() => {
-      return {
-        origin: waypoints[0],
-        destination: waypoints[waypoints.length - 1],
-        waypoints: waypoints.slice(1, waypoints.length - 1).map((waypoint) => {
-          return {
-            location: waypoint,
-            stopover: true
-          };
-        }),
-        travelMode: "DRIVING"
-      };
-    }, [waypoints]);
+  /** Chunks derived from the current waypoints list. */
+  const waypointChunks = useMemo(
+    () => splitWaypointsIntoChunks(waypoints),
+    [waypoints]
+  );
 
-  const directionsCallback = useCallback((res: any) => {
-    if (res !== null && res.status === "OK") {
-      setResponse(res);
-    } else {
-      console.error(res);
-    }
-  }, []);
+  /**
+   * One DirectionsRequest per chunk. Each entry is only created when the chunk
+   * has at least 2 points (origin + destination).
+   */
+  const directionsServiceOptionsList = useMemo<
+    google.maps.DirectionsRequest[]
+  >(() => {
+    return waypointChunks
+      .filter((chunk) => chunk.length >= 2)
+      .map((chunk) => ({
+        origin: chunk[0],
+        destination: chunk[chunk.length - 1],
+        waypoints: chunk.slice(1, chunk.length - 1).map((wp) => ({
+          location: wp,
+          stopover: true
+        })),
+        travelMode: "DRIVING" as google.maps.TravelMode
+      }));
+  }, [waypointChunks]);
 
-  const directionsRendererOptions: google.maps.DirectionsRendererOptions =
-    React.useMemo(() => {
-      return {
-        directions: response
-      };
-    }, [response]);
+  /**
+   * Returns a callback for a specific chunk index.
+   * Each callback updates only its own slot in the responses array.
+   */
+  const makeDirectionsCallback = useCallback(
+    (chunkIndex: number) => (res: google.maps.DirectionsResult | null) => {
+      if (res !== null && res.status === "OK") {
+        setResponses((prev) => {
+          const next = [...prev];
+          next[chunkIndex] = res;
+          return next;
+        });
+      } else {
+        console.error(`Directions chunk ${chunkIndex} failed:`, res);
+      }
+    },
+    []
+  );
 
   const getAddressFromCoordinates = (latLng: google.maps.LatLng) => {
     const geocoder = new google.maps.Geocoder();
@@ -145,9 +164,37 @@ const CriarRota = () => {
     setCount((prev) => prev - 1);
 
     if (newWaypointsArray.length <= 1) {
-      setResponse(null);
+      setResponses([]);
     }
   };
+
+  /** Keyboard shortcut: Ctrl + Alt + = (or +) → add new waypoint input */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // key "=" is the unshifted "+" on most keyboards; also handle "+"
+      if (e.ctrlKey && e.altKey && (e.key === "=" || e.key === "+")) {
+        e.preventDefault();
+        setCount((prev) => prev + 1);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  /** True only when ALL chunks have a successful response. */
+  const allResponsesReady =
+    responses.length === directionsServiceOptionsList.length &&
+    directionsServiceOptionsList.length > 0 &&
+    responses.every(Boolean);
+
+  /**
+   * Merged polyline string for persistence.
+   * Passed down so CreateRoute can save the full multi-chunk route.
+   */
+  const mergedPolyline = useMemo(
+    () => mergePolylines(responses),
+    [responses]
+  );
 
   return (
     <div className="h-[calc(100vh-76px)] w-full">
@@ -170,7 +217,8 @@ const CriarRota = () => {
               setCount={setCount}
               adresses={adresses}
               handleDeleteWaypoint={handleDeleteWaypoint}
-              response={response}
+              response={responses[0] ?? null}
+              mergedPolyline={mergedPolyline}
               isEdit={isEdit === "true"}
               routeId={routeId}
               setAdresses={setAdresses}
@@ -178,19 +226,51 @@ const CriarRota = () => {
               activeSuggestions={activeSuggestions}
               setActiveSuggestions={setActiveSuggestions}
             />
-            {!response &&
-              waypoints.length > 0 &&
-              waypoints.map((waypoint, index) => (
-                <Marker key={index} position={waypoint} />
-              ))}
-            {waypoints.length > 1 && (
-              <DirectionsService
-                options={directionsServiceOptions}
-                callback={directionsCallback}
+
+            {/* Custom sequential markers — shown while route is calculating or always visible */}
+            {waypoints.map((waypoint, index) => (
+              <Marker
+                key={index}
+                position={waypoint}
+                // Hide default pin during rendering to avoid duplicate pins with DirectionsRenderer
+                // We always keep our custom labeled markers visible for a consistent UX
+                label={{
+                  text: getWaypointLabel(index),
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "11px"
+                }}
+                // Render above the DirectionsRenderer route line
+                zIndex={10 + index}
               />
-            )}
-            {response && directionsRendererOptions && waypoints.length > 1 && (
-              <DirectionsRenderer options={directionsRendererOptions} />
+            ))}
+
+            {/* One DirectionsService per chunk — each calls its own callback */}
+            {waypoints.length > 1 &&
+              directionsServiceOptionsList.map((opts, i) => (
+                <DirectionsService
+                  key={`ds-${i}-${opts.origin?.toString()}`}
+                  options={opts}
+                  callback={makeDirectionsCallback(i)}
+                />
+              ))}
+
+            {/* One DirectionsRenderer per chunk — route line only, no default markers */}
+            {responses.map(
+              (res, i) =>
+                res &&
+                waypoints.length > 1 && (
+                  <DirectionsRenderer
+                    key={`dr-${i}`}
+                    options={{
+                      directions: res,
+                      // Prevent each renderer from auto-fitting/panning the map
+                      preserveViewport: true,
+                      // Hide the default A/B/C markers — we draw our own above
+                      suppressMarkers: true
+                    }}
+                  />
+                )
             )}
           </GoogleMap>
         </>

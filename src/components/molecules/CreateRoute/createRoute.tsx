@@ -38,6 +38,7 @@ const CreateRoute = ({
   adresses,
   handleDeleteWaypoint,
   response,
+  mergedPolyline,
   isEdit,
   routeId,
   setAdresses,
@@ -263,7 +264,8 @@ const CreateRoute = ({
       period,
       residueType,
       name: routeName,
-      polyline: response?.routes[0].overview_polyline as string,
+      // Use the merged polyline so routes with 28+ waypoints are saved in full.
+      polyline: mergedPolyline || (response?.routes[0].overview_polyline ?? ""),
       wasChecked: false,
       cityId: user?.id as string,
       isSpecial,
@@ -290,7 +292,7 @@ const CreateRoute = ({
         period: periodSecondary,
         residueType: residueTypeSecondary,
         name: routeNameSecondary,
-        polyline: response?.routes[0].overview_polyline as string,
+        polyline: mergedPolyline || (response?.routes[0].overview_polyline ?? ""),
         wasChecked: false,
         cityId: user?.id as string,
         isSpecial,
@@ -485,7 +487,8 @@ const CreateRoute = ({
             })}
             <div
               onClick={() => setCount((prev) => prev + 1)}
-              className="flex cursor-pointer items-center gap-2"
+              className="group relative flex cursor-pointer items-center gap-2"
+              title="Adicionar endereço (Ctrl+Alt+= )"
             >
               <Image
                 src="/icon-plus.svg"
@@ -496,6 +499,12 @@ const CreateRoute = ({
               <p className="font-light italic text-greenDark-400">
                 Adicionar mais um endereço{" "}
               </p>
+              {/* Keyboard shortcut tooltip */}
+              <span
+                className="pointer-events-none absolute -top-8 left-0 z-50 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-[11px] font-medium text-white opacity-0 shadow transition-opacity duration-150 group-hover:opacity-100"
+              >
+                Ctrl + Alt + =
+              </span>
             </div>
           </div>
           <FormErrorLabel className="mt-2">{routeError}</FormErrorLabel>
