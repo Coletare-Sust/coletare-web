@@ -51,8 +51,6 @@ const Rota = () => {
   const { data: dashboardData, isLoading: loadingDash } =
     useAllDashboardByRoutes(route?.cityId as string, route?.id as string);
 
-
-
   // Estados dos Gráficos
   const [costsChartData, setCostsChartData] = useState<any>(null);
   const [massChartData, setMassChartData] = useState<any>(null);
@@ -136,14 +134,20 @@ const Rota = () => {
                 mapContainerStyle={{ width: "100%", height: "100%" }}
                 center={
                   route?.waypoints?.[0]
-                    ? { lat: route.waypoints[0].lat, lng: route.waypoints[0].lng }
+                    ? {
+                        lat: route.waypoints[0].lat,
+                        lng: route.waypoints[0].lng
+                      }
                     : { lat: -8.047, lng: -34.945 }
                 }
                 zoom={15}
               >
                 {route?.waypoints && route.waypoints.length >= 2 && (
                   <RouteMapDisplay
-                    waypoints={route.waypoints.map((w: any) => ({ lat: w.lat, lng: w.lng }))}
+                    waypoints={route.waypoints.map((w: any) => ({
+                      lat: w.lat,
+                      lng: w.lng
+                    }))}
                     polylinePoints={route.polylinePoints}
                     encodedPolyline={route.polyline}
                     showMarkers={true}

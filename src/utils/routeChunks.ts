@@ -63,25 +63,23 @@ export function mergeDecodedPolylines(
 ): { lat: number; lng: number }[] {
   const merged: { lat: number; lng: number }[] = [];
 
-  responses
-    .filter(Boolean)
-    .forEach((res, chunkIndex) => {
-      const encoded = res!.routes[0]?.overview_polyline ?? "";
-      if (!encoded) return;
+  responses.filter(Boolean).forEach((res, chunkIndex) => {
+    const encoded = res!.routes[0]?.overview_polyline ?? "";
+    if (!encoded) return;
 
-      // Decode using the Google Maps JS SDK (available in-browser at save time)
-      const points = google.maps.geometry.encoding
-        .decodePath(encoded)
-        .map((p) => ({ lat: p.lat(), lng: p.lng() }));
+    // Decode using the Google Maps JS SDK (available in-browser at save time)
+    const points = google.maps.geometry.encoding
+      .decodePath(encoded)
+      .map((p) => ({ lat: p.lat(), lng: p.lng() }));
 
-      if (chunkIndex === 0) {
-        merged.push(...points);
-      } else {
-        // Skip the first point of each subsequent chunk — it is identical to
-        // the last point of the previous chunk (the shared junction waypoint).
-        merged.push(...points.slice(1));
-      }
-    });
+    if (chunkIndex === 0) {
+      merged.push(...points);
+    } else {
+      // Skip the first point of each subsequent chunk — it is identical to
+      // the last point of the previous chunk (the shared junction waypoint).
+      merged.push(...points.slice(1));
+    }
+  });
 
   return merged;
 }
