@@ -13,6 +13,9 @@ export interface CreateRouteProps {
   setAdresses: Dispatch<SetStateAction<{ adress: string; index: number }[]>>;
   handleDeleteWaypoint: (index: number) => void;
   response: google.maps.DirectionsResult | null;
+  mergedPolyline: string;
+  /** Decoded lat/lng points from all direction chunks merged — saved to Firebase. */
+  mergedPolylinePoints: { lat: number; lng: number }[];
   isEdit: boolean;
   routeId: string | null;
   isSpecial: boolean;

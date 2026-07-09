@@ -3,7 +3,6 @@
 import {
   GoogleMap,
   Marker,
-  Polyline,
   OverlayView,
   OverlayViewF
 } from "@react-google-maps/api";
@@ -17,8 +16,7 @@ import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import useCity from "@/hooks/queries/useCity";
 import useRoutes from "@hooks/queries/useAllRoutes";
-
-import { decodePolyline } from "@utils/decodePolyline";
+import RouteMapDisplay from "@/components/molecules/RouteMapDisplay/routeMapDisplay";
 
 interface LiveTruck {
   id: string;
@@ -151,21 +149,17 @@ const RotasAndamento = () => {
                 {trucks.map((truck) => {
                   const currentRoute = routesMap[truck.routeId];
 
-                  const path = currentRoute
-                    ? decodePolyline(currentRoute.polyline)
-                    : [];
-
                   return (
                     <div key={truck.id}>
-                      {/* 1. Desenha a Linha da Rota (Polyline) */}
-                      {currentRoute && (
-                        <Polyline
-                          path={path}
-                          options={{
-                            strokeColor: "#00ADB4",
-                            strokeOpacity: 0.8,
-                            strokeWeight: 5
-                          }}
+                      {/* 1. Desenha a Linha da Rota (polyline por chunks) */}
+                      {currentRoute && currentRoute.waypoints?.length >= 2 && (
+                        <RouteMapDisplay
+                          waypoints={currentRoute.waypoints.map((wp: any) => ({ lat: wp.lat, lng: wp.lng }))}
+                          polylinePoints={currentRoute.polylinePoints}
+                          encodedPolyline={currentRoute.polyline}
+                          showMarkers={false}
+                          strokeColor="#00ADB4"
+                          strokeWeight={5}
                         />
                       )}
 
