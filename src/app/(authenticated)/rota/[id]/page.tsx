@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
+import { GoogleMap } from "@react-google-maps/api";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -35,6 +35,7 @@ import {
 import useAllDashboardByRoutes from "@/hooks/queries/useAllDashboardDataByRoute";
 import useAllCollectsByRoute from "@/hooks/queries/useAllCollectsByRoute";
 import { formatTime } from "@/utils/formatTime";
+import RouteMapDisplay from "@/components/molecules/RouteMapDisplay/routeMapDisplay";
 
 const Rota = () => {
   const router = useRouter();
@@ -50,7 +51,7 @@ const Rota = () => {
   const { data: dashboardData, isLoading: loadingDash } =
     useAllDashboardByRoutes(route?.cityId as string, route?.id as string);
 
-  const [path, setPath] = useState<google.maps.LatLng[]>([]);
+
 
   // Estados dos Gráficos
   const [costsChartData, setCostsChartData] = useState<any>(null);
@@ -88,13 +89,9 @@ const Rota = () => {
   const lastSemester = getSemester();
   const lastYear = getYear();
 
-  const onMapLoad = (map: google.maps.Map) => {
-    if (route?.polyline) {
-      const decodedPath = google.maps.geometry.encoding.decodePath(
-        route.polyline
-      );
-      setPath(decodedPath);
-    }
+  const onMapLoad = (_map: google.maps.Map) => {
+    // RouteMapDisplay handles rendering via DirectionsService chunks.
+    // No manual polyline decoding needed here.
   };
 
   const handleExport = () => {
@@ -137,22 +134,23 @@ const Rota = () => {
               <GoogleMap
                 onLoad={onMapLoad}
                 mapContainerStyle={{ width: "100%", height: "100%" }}
-                center={path[0] || { lat: -8.047, lng: -34.945 }}
+                center={
+                  route?.waypoints?.[0]
+                    ? { lat: route.waypoints[0].lat, lng: route.waypoints[0].lng }
+                    : { lat: -8.047, lng: -34.945 }
+                }
                 zoom={15}
               >
-                {path.length > 0 && (
-                  <Polyline
-                    path={path}
-                    options={{ strokeColor: "#00ADB4", strokeWeight: 4 }}
+                {route?.waypoints && route.waypoints.length >= 2 && (
+                  <RouteMapDisplay
+                    waypoints={route.waypoints.map((w: any) => ({ lat: w.lat, lng: w.lng }))}
+                    polylinePoints={route.polylinePoints}
+                    encodedPolyline={route.polyline}
+                    showMarkers={true}
+                    strokeColor="#00ADB4"
+                    strokeWeight={4}
                   />
                 )}
-                {route?.waypoints?.map((w: any, i: number) => (
-                  <Marker
-                    key={i}
-                    position={w}
-                    label={{ text: String(i + 1), color: "white" }}
-                  />
-                ))}
               </GoogleMap>
             </>
           </div>
