@@ -16,6 +16,7 @@ import { errorToast } from "@/hooks/useAppToast";
 import {
   getWaypointLabel,
   mergePolylines,
+  mergeDecodedPolylines,
   splitWaypointsIntoChunks
 } from "@/utils/routeChunks";
 
@@ -81,7 +82,7 @@ const CriarRota = () => {
    */
   const makeDirectionsCallback = useCallback(
     (chunkIndex: number) => (res: google.maps.DirectionsResult | null) => {
-      if (res !== null && res.status === "OK") {
+      if (res !== null && (res as any).status === "OK") {
         setResponses((prev) => {
           const next = [...prev];
           next[chunkIndex] = res;
@@ -196,6 +197,16 @@ const CriarRota = () => {
     [responses]
   );
 
+  /**
+   * Decoded merged path — saved in Firebase so display screens can render
+   * the full multi-chunk route as a plain <Polyline> with zero API cost.
+   */
+  const mergedPolylinePoints = useMemo(
+    () => (allResponsesReady ? mergeDecodedPolylines(responses) : []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [allResponsesReady, responses]
+  );
+
   return (
     <div className="h-[calc(100vh-76px)] w-full">
       <div className="h-full w-full">
@@ -219,6 +230,7 @@ const CriarRota = () => {
               handleDeleteWaypoint={handleDeleteWaypoint}
               response={responses[0] ?? null}
               mergedPolyline={mergedPolyline}
+              mergedPolylinePoints={mergedPolylinePoints}
               isEdit={isEdit === "true"}
               routeId={routeId}
               setAdresses={setAdresses}

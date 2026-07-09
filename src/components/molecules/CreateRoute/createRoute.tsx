@@ -39,6 +39,7 @@ const CreateRoute = ({
   handleDeleteWaypoint,
   response,
   mergedPolyline,
+  mergedPolylinePoints,
   isEdit,
   routeId,
   setAdresses,
@@ -266,6 +267,7 @@ const CreateRoute = ({
       name: routeName,
       // Use the merged polyline so routes with 28+ waypoints are saved in full.
       polyline: mergedPolyline || (response?.routes[0].overview_polyline ?? ""),
+      polylinePoints: mergedPolylinePoints.length > 0 ? mergedPolylinePoints : undefined,
       wasChecked: false,
       cityId: user?.id as string,
       isSpecial,
@@ -293,6 +295,7 @@ const CreateRoute = ({
         residueType: residueTypeSecondary,
         name: routeNameSecondary,
         polyline: mergedPolyline || (response?.routes[0].overview_polyline ?? ""),
+        polylinePoints: mergedPolylinePoints.length > 0 ? mergedPolylinePoints : undefined,
         wasChecked: false,
         cityId: user?.id as string,
         isSpecial,

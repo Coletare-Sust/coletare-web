@@ -49,3 +49,39 @@ export function mergePolylines(
     .map((res) => res!.routes[0]?.overview_polyline ?? "")
     .join("");
 }
+
+/**
+ * Decodes each chunk's overview_polyline into lat/lng arrays and merges them
+ * into a single continuous path, removing the duplicate junction point between
+ * consecutive chunks.
+ *
+ * This is the correct way to produce a display-ready path from multiple
+ * Directions API responses — no extra API calls needed at render time.
+ */
+export function mergeDecodedPolylines(
+  responses: (google.maps.DirectionsResult | null)[]
+): { lat: number; lng: number }[] {
+  const merged: { lat: number; lng: number }[] = [];
+
+  responses
+    .filter(Boolean)
+    .forEach((res, chunkIndex) => {
+      const encoded = res!.routes[0]?.overview_polyline ?? "";
+      if (!encoded) return;
+
+      // Decode using the Google Maps JS SDK (available in-browser at save time)
+      const points = google.maps.geometry.encoding
+        .decodePath(encoded)
+        .map((p) => ({ lat: p.lat(), lng: p.lng() }));
+
+      if (chunkIndex === 0) {
+        merged.push(...points);
+      } else {
+        // Skip the first point of each subsequent chunk — it is identical to
+        // the last point of the previous chunk (the shared junction waypoint).
+        merged.push(...points.slice(1));
+      }
+    });
+
+  return merged;
+}
