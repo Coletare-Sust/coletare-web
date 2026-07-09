@@ -154,7 +154,10 @@ const RotasAndamento = () => {
                       {/* 1. Desenha a Linha da Rota (polyline por chunks) */}
                       {currentRoute && currentRoute.waypoints?.length >= 2 && (
                         <RouteMapDisplay
-                          waypoints={currentRoute.waypoints.map((wp: any) => ({ lat: wp.lat, lng: wp.lng }))}
+                          waypoints={currentRoute.waypoints.map((wp: any) => ({
+                            lat: wp.lat,
+                            lng: wp.lng
+                          }))}
                           polylinePoints={currentRoute.polylinePoints}
                           encodedPolyline={currentRoute.polyline}
                           showMarkers={false}

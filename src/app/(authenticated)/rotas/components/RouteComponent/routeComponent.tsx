@@ -88,7 +88,10 @@ const RouteComponent = ({
               zoom={15}
             >
               <RouteMapDisplay
-                waypoints={route.waypoints.map((wp) => ({ lat: wp.lat, lng: wp.lng }))}
+                waypoints={route.waypoints.map((wp) => ({
+                  lat: wp.lat,
+                  lng: wp.lng
+                }))}
                 polylinePoints={route.polylinePoints}
                 encodedPolyline={route.polyline}
                 showMarkers={true}
