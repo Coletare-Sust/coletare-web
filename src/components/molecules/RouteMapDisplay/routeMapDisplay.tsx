@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DirectionsRenderer, DirectionsService, Marker, Polyline } from "@react-google-maps/api";
+import {
+  DirectionsRenderer,
+  DirectionsService,
+  Marker,
+  Polyline
+} from "@react-google-maps/api";
 import { splitWaypointsIntoChunks } from "@/utils/routeChunks";
 import { decodePolyline } from "@/utils/decodePolyline";
 
@@ -105,16 +110,15 @@ const DirectionsFallback = ({
   }, [waypointChunks]);
 
   const makeCallback = useCallback(
-    (index: number) =>
-      (res: google.maps.DirectionsResult | null) => {
-        if (res && (res as any).status === "OK") {
-          setResponses((prev) => {
-            const next = [...prev];
-            next[index] = res;
-            return next;
-          });
-        }
-      },
+    (index: number) => (res: google.maps.DirectionsResult | null) => {
+      if (res && (res as any).status === "OK") {
+        setResponses((prev) => {
+          const next = [...prev];
+          next[index] = res;
+          return next;
+        });
+      }
+    },
     []
   );
 
