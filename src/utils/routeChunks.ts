@@ -1,5 +1,7 @@
 // Google Directions API allows at most 25 intermediate waypoints per request,
 // meaning 27 total points (origin + 25 waypoints + destination).
+import { decodePolyline } from "./decodePolyline";
+
 const MAX_WAYPOINTS_PER_CHUNK = 27;
 
 /**
@@ -67,10 +69,9 @@ export function mergeDecodedPolylines(
     const encoded = res!.routes[0]?.overview_polyline ?? "";
     if (!encoded) return;
 
-    // Decode using the Google Maps JS SDK (available in-browser at save time)
-    const points = google.maps.geometry.encoding
-      .decodePath(encoded)
-      .map((p) => ({ lat: p.lat(), lng: p.lng() }));
+    // Use the pure-JS decoder (no Google SDK dependency) so this works
+    // reliably at route-save time regardless of SDK library load order.
+    const points = decodePolyline(encoded);
 
     if (chunkIndex === 0) {
       merged.push(...points);

@@ -152,6 +152,9 @@ const DirectionsFallback = ({
 
 // ─── Public component ─────────────────────────────────────────────────────────
 
+// Google Directions API limit: 25 intermediate waypoints = 27 total per request.
+const MAX_WAYPOINTS_PER_CHUNK = 27;
+
 const RouteMapDisplay = ({
   waypoints,
   polylinePoints,
@@ -175,9 +178,16 @@ const RouteMapDisplay = ({
     );
   }
 
-  // 2. Legacy routes (≤27 waypoints): the encoded polyline string is valid.
-  //    Decode it locally (pure JS, zero cost) and render as Polyline.
-  if (encodedPolyline) {
+  // 2. Legacy routes with ≤27 waypoints: the stored encoded polyline was
+  //    produced by a SINGLE Directions API call → the string is valid.
+  //    Decode it locally (pure JS, zero API cost) and render directly.
+  //
+  //    Routes with 28+ waypoints had their polyline produced by CONCATENATING
+  //    multiple encoded strings. Concatenation breaks the delta-encoding format,
+  //    so the result is always corrupted — skip to the paid fallback immediately.
+  //    (Geographic-range checks are NOT reliable here because corrupted delta
+  //     sums can still land within ±90/±180.)
+  if (encodedPolyline && waypoints.length <= MAX_WAYPOINTS_PER_CHUNK) {
     const decoded = decodePolyline(encodedPolyline);
     if (decoded.length > 0) {
       return (
@@ -192,8 +202,9 @@ const RouteMapDisplay = ({
     }
   }
 
-  // 3. Last resort: legacy routes with 28+ waypoints whose stored polyline is
-  //    corrupted. Re-fetch from the Directions API (paid, but unavoidable).
+  // 3. Fallback: either a legacy route with 28+ waypoints (corrupted polyline
+  //    and no polylinePoints yet), or a route with no stored polyline at all.
+  //    Re-chunk the waypoints and call the Directions API to render correctly.
   return (
     <DirectionsFallback
       waypoints={waypoints}
