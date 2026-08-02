@@ -37,16 +37,19 @@ const CreateRoute = ({
   setCount,
   adresses,
   handleDeleteWaypoint,
-  response,
+  polylineEncoded,
+  polylinePoints,
+  isCalculatingPolyline,
+  polylineError,
   isEdit,
   routeId,
   setAdresses,
   isSpecial,
   activeSuggestions,
-  setActiveSuggestions
+  setActiveSuggestions,
 }: CreateRouteProps) => {
   const { data: route, isLoading: isLoadingRoute } = useRoute(
-    routeId as string
+    routeId as string,
   );
   const { userUid } = useAuth();
   const { data: user } = useProfile(userUid);
@@ -57,7 +60,7 @@ const CreateRoute = ({
   const [routeNameSecondary, setRouteNameSecondary] = useState("");
   const [days, setDays] = useState(initialDays);
   const [period, setPeriod] = useState<"morning" | "afternoon" | "night">(
-    "morning"
+    "morning",
   );
   const [residueType, setResidueType] = useState("Resíduo Comum");
   const [hasSecondaryCollection, setHasSecondaryCollection] = useState(false);
@@ -118,7 +121,7 @@ const CreateRoute = ({
                 if (results) {
                   resolve({
                     adress: results[0].formatted_address,
-                    index
+                    index,
                   });
                 } else {
                   console.warn("No results found");
@@ -129,7 +132,7 @@ const CreateRoute = ({
                 reject(new Error("Geocoder failed due to: " + status));
               }
             });
-          })
+          }),
       );
 
       Promise.all(geocodePromises).then((adressesArray) => {
@@ -142,13 +145,13 @@ const CreateRoute = ({
   const dropdownOptions = residuesTypes.map((residueType) => ({
     id: residueType,
     label: residueType,
-    onClick: () => setResidueType(residueType)
+    onClick: () => setResidueType(residueType),
   }));
 
   const dropdownOptionsSecondary = residuesTypes.map((residueType) => ({
     id: residueType,
     label: residueType,
-    onClick: () => setResidueTypeSecondary(residueType)
+    onClick: () => setResidueTypeSecondary(residueType),
   }));
 
   const mutation = useMutation(
@@ -163,8 +166,8 @@ const CreateRoute = ({
       },
       onError: () => {
         errorToast("Erro ao criar rota");
-      }
-    }
+      },
+    },
   );
 
   const mutationUpdate = useMutation(
@@ -177,11 +180,9 @@ const CreateRoute = ({
         queryClient.invalidateQueries(["routes"]);
         queryClient.invalidateQueries(["route", routeId]);
         router.replace("/rotas");
-      }
-    }
+      },
+    },
   );
-
-  console.log(activeSuggestions.map((item) => item.id));
 
   const handleSuggestionClick =
     (solicitation: WithdrawalsRequestEntity) => () => {
@@ -189,7 +190,7 @@ const CreateRoute = ({
 
       const location = {
         lat: solicitation.latitude,
-        lng: solicitation.longitude
+        lng: solicitation.longitude,
       };
 
       const newWaypoints = [...waypoints];
@@ -204,14 +205,14 @@ const CreateRoute = ({
 
         newArray[count - 1] = {
           adress: solicitation.fullAddress,
-          index: count - 1
+          index: count - 1,
         };
         setAdresses(newArray);
       } else {
         setCount((prev) => prev + 1);
         newArray[count] = {
           adress: solicitation.fullAddress,
-          index: count
+          index: count,
         };
         setAdresses(newArray);
       }
@@ -250,24 +251,37 @@ const CreateRoute = ({
       return;
     }
 
+    if (isCalculatingPolyline) {
+      errorToast("Aguarde o calculo da rota terminar.");
+      setRouteError("Aguarde o calculo da rota terminar.");
+      return;
+    }
+
+    if (!polylineEncoded || polylinePoints.length <= 1 || polylineError) {
+      errorToast("Nao foi possivel calcular o caminho da rota.");
+      setRouteError("Nao foi possivel calcular o caminho da rota.");
+      return;
+    }
+
     const route: RouteEntity = {
       id: isEdit ? (routeId as string) : uuidv4(),
       waypoints: waypoints.map((waypoint) => {
         return {
           lat: waypoint.lat,
           lng: waypoint.lng,
-          wasChecked: false
+          wasChecked: false,
         };
       }),
       days,
       period,
       residueType,
       name: routeName,
-      polyline: response?.routes[0].overview_polyline as string,
+      polyline: polylineEncoded ?? "",
+      polylinePoints: polylinePoints.length > 0 ? polylinePoints : null,
       wasChecked: false,
       cityId: user?.id as string,
       isSpecial,
-      withdrawalRequestsIds: activeSuggestions.map((item) => item.id) ?? []
+      withdrawalRequestsIds: activeSuggestions.map((item) => item.id) ?? [],
     };
 
     if (isEdit && routeId) {
@@ -283,18 +297,19 @@ const CreateRoute = ({
           return {
             lat: waypoint.lat,
             lng: waypoint.lng,
-            wasChecked: false
+            wasChecked: false,
           };
         }),
         days: daysSecondary,
         period: periodSecondary,
         residueType: residueTypeSecondary,
         name: routeNameSecondary,
-        polyline: response?.routes[0].overview_polyline as string,
+        polyline: polylineEncoded ?? "",
+        polylinePoints: polylinePoints.length > 0 ? polylinePoints : null,
         wasChecked: false,
         cityId: user?.id as string,
         isSpecial,
-        withdrawalRequestsIds: activeSuggestions.map((item) => item.id) ?? []
+        withdrawalRequestsIds: activeSuggestions.map((item) => item.id) ?? [],
       };
 
       mutation.mutateAsync({ route: secondaryRoute });
@@ -312,7 +327,7 @@ const CreateRoute = ({
     <div
       className={twMerge(
         "h-[85%] w-full max-w-[480px] overflow-y-auto rounded-lg bg-white-1000 p-8 font-medium",
-        className
+        className,
       )}
       ref={scrollContainerRef}
     >
@@ -367,7 +382,7 @@ const CreateRoute = ({
             options={[
               { id: "1", text: "Manhã", value: "morning" },
               { id: "2", text: "Tarde", value: "afternoon" },
-              { id: "3", text: "Noite", value: "night" }
+              { id: "3", text: "Noite", value: "night" },
             ]}
           />
         </div>
@@ -444,7 +459,7 @@ const CreateRoute = ({
                     options={[
                       { id: "1", text: "Manhã", value: "morning" },
                       { id: "2", text: "Tarde", value: "afternoon" },
-                      { id: "3", text: "Noite", value: "night" }
+                      { id: "3", text: "Noite", value: "night" },
                     ]}
                   />
                 </div>
