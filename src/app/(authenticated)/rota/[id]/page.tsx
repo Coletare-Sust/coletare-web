@@ -25,12 +25,12 @@ import LoadingComponent from "@/components/atoms/Loading/loading";
 import {
   costsRelation,
   collectedMass,
-  emissionsData
+  emissionsData,
 } from "@/components/organisms/ChartsSection/constants";
 import {
   getDays,
   getYear,
-  getSemester
+  getSemester,
 } from "@/components/organisms/ChartsSection/functions";
 import useAllDashboardByRoutes from "@/hooks/queries/useAllDashboardDataByRoute";
 import useAllCollectsByRoute from "@/hooks/queries/useAllCollectsByRoute";
@@ -50,7 +50,7 @@ const Rota = () => {
   const { data: dashboardData, isLoading: loadingDash } =
     useAllDashboardByRoutes(route?.cityId as string, route?.id as string);
 
-  const [path, setPath] = useState<google.maps.LatLng[]>([]);
+  const [path, setPath] = useState<google.maps.LatLngLiteral[]>([]);
 
   // Estados dos Gráficos
   const [costsChartData, setCostsChartData] = useState<any>(null);
@@ -64,10 +64,34 @@ const Rota = () => {
       setMassChartData(collectedMass(dashboardData.mass.year));
       setEmissionsChartData(emissionsData(dashboardData.emission.year));
       setCostsChartData(
-        costsRelation(dashboardData.landfill.year, dashboardData.fuel.year)
+        costsRelation(dashboardData.landfill.year, dashboardData.fuel.year),
       );
     }
   }, [dashboardData]);
+
+  useEffect(() => {
+    if (!route) return;
+
+    if (route.polylinePoints && route.polylinePoints.length > 0) {
+      setPath(route.polylinePoints);
+      return;
+    }
+
+    if (
+      route.polyline &&
+      (route.waypoints?.length ?? 0) <= 27 &&
+      typeof google !== "undefined" &&
+      google.maps?.geometry?.encoding
+    ) {
+      const decodedPath = google.maps.geometry.encoding.decodePath(
+        route.polyline,
+      );
+      setPath(decodedPath.map((p) => ({ lat: p.lat(), lng: p.lng() })));
+      return;
+    }
+
+    setPath([]);
+  }, [route]);
 
   if (loadingCollect || !collect) {
     return (
@@ -88,15 +112,6 @@ const Rota = () => {
   const lastSemester = getSemester();
   const lastYear = getYear();
 
-  const onMapLoad = (map: google.maps.Map) => {
-    if (route?.polyline) {
-      const decodedPath = google.maps.geometry.encoding.decodePath(
-        route.polyline
-      );
-      setPath(decodedPath);
-    }
-  };
-
   const handleExport = () => {
     if (!routeCollects) return;
     const finalJSON: any = [];
@@ -110,7 +125,7 @@ const Rota = () => {
         "Custo (R$)":
           c.consume && c.kmRun && c.cost?.fuel
             ? (c.consume * c.kmRun * c.cost.fuel).toFixed(2)
-            : "0"
+            : "0",
       });
     });
     exportExcel(finalJSON, `Relatório - ${route?.name}`);
@@ -135,7 +150,6 @@ const Rota = () => {
           <div className="col-span-3 h-96 w-full">
             <>
               <GoogleMap
-                onLoad={onMapLoad}
                 mapContainerStyle={{ width: "100%", height: "100%" }}
                 center={path[0] || { lat: -8.047, lng: -34.945 }}
                 zoom={15}
@@ -165,21 +179,21 @@ const Rota = () => {
                 {
                   label: "Colaborador",
                   value:
-                    employee?.name || collect?.employeeId || "Não encontrado"
+                    employee?.name || collect?.employeeId || "Não encontrado",
                 },
                 {
                   label: "Veículo",
-                  value: collect?.vehicleName || "Não encontrado"
+                  value: collect?.vehicleName || "Não encontrado",
                 },
                 {
                   label: "Placa",
-                  value: collect?.carPlate || "Não encontrado"
+                  value: collect?.carPlate || "Não encontrado",
                 },
                 {
                   label: "km rodados",
-                  value: `${collect?.kmRun?.toFixed(2)} km`
+                  value: `${collect?.kmRun?.toFixed(2)} km`,
                 },
-                { label: "Tempo de rota", value: collectTime }
+                { label: "Tempo de rota", value: collectTime },
               ]}
             />
           </div>
@@ -196,16 +210,16 @@ const Rota = () => {
               { title: "Massa coletada (ton)", data: collect?.mass || 0 },
               {
                 title: "Consumo específico (L/km)",
-                data: collect?.consume || 0
+                data: collect?.consume || 0,
               },
               {
                 title: "Emissão específica (kgCO2eq/L)",
-                data: collect?.emission || 0
+                data: collect?.emission || 0,
               },
               {
                 title: "Custo de entrega no aterro (R$)",
-                data: collect?.cost?.landfillDelivery || 0
-              }
+                data: collect?.cost?.landfillDelivery || 0,
+              },
             ]}
           />
         </div>
@@ -233,10 +247,10 @@ const Rota = () => {
                     setCostsChartData({
                       ...costsRelation(
                         dashboardData.landfill.year,
-                        dashboardData.fuel.year
+                        dashboardData.fuel.year,
                       ),
-                      labelsX: lastYear
-                    })
+                      labelsX: lastYear,
+                    }),
                 },
                 {
                   label: "Análise Semestral",
@@ -244,10 +258,10 @@ const Rota = () => {
                     setCostsChartData({
                       ...costsRelation(
                         dashboardData.landfill.semester,
-                        dashboardData.fuel.semester
+                        dashboardData.fuel.semester,
                       ),
-                      labelsX: lastSemester
-                    })
+                      labelsX: lastSemester,
+                    }),
                 },
                 {
                   label: "Análise Mensal",
@@ -255,16 +269,16 @@ const Rota = () => {
                     setCostsChartData({
                       ...costsRelation(
                         dashboardData.landfill.month,
-                        dashboardData.fuel.month
+                        dashboardData.fuel.month,
                       ),
-                      labelsX: days
-                    })
-                }
+                      labelsX: days,
+                    }),
+                },
               ]}
               stackedChartData={{
                 ...costsChartData,
                 className: "pl-16",
-                barThickness: 30
+                barThickness: 30,
               }}
             />
 
@@ -276,31 +290,31 @@ const Rota = () => {
                   onClick: () =>
                     setMassChartData({
                       ...collectedMass(dashboardData.mass.year),
-                      labelsX: lastYear
-                    })
+                      labelsX: lastYear,
+                    }),
                 },
                 {
                   label: "Análise Semestral",
                   onClick: () =>
                     setMassChartData({
                       ...collectedMass(dashboardData.mass.semester),
-                      labelsX: lastSemester
-                    })
+                      labelsX: lastSemester,
+                    }),
                 },
                 {
                   label: "Análise Mensal",
                   onClick: () =>
                     setMassChartData({
                       ...collectedMass(dashboardData.mass.month),
-                      labelsX: days
-                    })
-                }
+                      labelsX: days,
+                    }),
+                },
               ]}
               barChartData={{
                 barLabel: "Massa coletada",
                 ...massChartData,
                 className: "w-[70%] m-auto",
-                barThickness: 30
+                barThickness: 30,
               }}
             />
 
@@ -312,31 +326,31 @@ const Rota = () => {
                   onClick: () =>
                     setEmissionsChartData({
                       ...emissionsData(dashboardData.emission.year),
-                      labelsX: lastYear
-                    })
+                      labelsX: lastYear,
+                    }),
                 },
                 {
                   label: "Análise Semestral",
                   onClick: () =>
                     setEmissionsChartData({
                       ...emissionsData(dashboardData.emission.semester),
-                      labelsX: lastSemester
-                    })
+                      labelsX: lastSemester,
+                    }),
                 },
                 {
                   label: "Análise Mensal",
                   onClick: () =>
                     setEmissionsChartData({
                       ...emissionsData(dashboardData.emission.month),
-                      labelsX: days
-                    })
-                }
+                      labelsX: days,
+                    }),
+                },
               ]}
               barChartData={{
                 barLabel: "Emissões",
                 ...emissionsChartData,
                 className: "w-[70%] m-auto",
-                barThickness: 30
+                barThickness: 30,
               }}
             />
           </div>

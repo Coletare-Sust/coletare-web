@@ -1,6 +1,9 @@
 import { apiFetch } from "@/utils/apiFetch";
 import { RouteEntity } from "@/common/entities/route";
-import { RESIDUE_TYPE_LABELS, getResidueTypeLabel } from "@/common/mappers/backendEnums";
+import {
+  RESIDUE_TYPE_LABELS,
+  getResidueTypeLabel,
+} from "@/common/mappers/backendEnums";
 
 // Backend Types
 interface WaypointDTO {
@@ -13,17 +16,28 @@ interface RouteOutputDTO {
   name: string;
   cityId: string;
   period: string;
-  days: string[]; 
+  days: string[];
   isSpecial: boolean;
   residueType: string;
   polyline: string;
+  polylinePoints?: { lat: number; lng: number }[] | null;
   waypoints: WaypointDTO[];
 }
 
-const DEFAULT_DAYS = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+const DEFAULT_DAYS = [
+  "SUNDAY",
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY",
+];
 
 export function mapRouteOutputToEntity(dto: RouteOutputDTO): RouteEntity {
-  const daysEntity = DEFAULT_DAYS.map(day => dto.days?.includes(day) || false);
+  const daysEntity = DEFAULT_DAYS.map(
+    (day) => dto.days?.includes(day) || false,
+  );
   return {
     id: dto.id,
     name: dto.name,
@@ -33,9 +47,10 @@ export function mapRouteOutputToEntity(dto: RouteOutputDTO): RouteEntity {
     isSpecial: dto.isSpecial,
     residueType: getResidueTypeLabel(dto.residueType),
     polyline: dto.polyline || "",
-    wasChecked: false, 
-    withdrawalRequestsIds: [], 
-    waypoints: (dto.waypoints || []).map(wp => ({
+    polylinePoints: dto.polylinePoints ?? null,
+    wasChecked: false,
+    withdrawalRequestsIds: [],
+    waypoints: (dto.waypoints || []).map((wp) => ({
       lat: wp.location.latitude,
       lng: wp.location.longitude,
       wasChecked: wp.checked,
@@ -56,12 +71,16 @@ export function mapEntityToRouteInput(entity: Partial<RouteEntity>) {
     period: entity.period?.toUpperCase(),
     days: entity.days ? daysSet : undefined,
     isSpecial: entity.isSpecial,
-    residueType: Object.entries(RESIDUE_TYPE_LABELS).find(([key, val]) => val === entity.residueType)?.[0] || entity.residueType,
+    residueType:
+      Object.entries(RESIDUE_TYPE_LABELS).find(
+        ([key, val]) => val === entity.residueType,
+      )?.[0] || entity.residueType,
     polyline: entity.polyline,
-    waypoints: entity.waypoints?.map(wp => ({
+    polylinePoints: entity.polylinePoints ?? null,
+    waypoints: entity.waypoints?.map((wp) => ({
       checked: wp.wasChecked,
-      location: { latitude: wp.lat, longitude: wp.lng }
-    }))
+      location: { latitude: wp.lat, longitude: wp.lng },
+    })),
   };
 }
 
@@ -113,7 +132,7 @@ export const getRoute = async (routeId: string) => {
 
 export const updateRouteDoc = async (
   uid: string,
-  data: Partial<RouteEntity>
+  data: Partial<RouteEntity>,
 ) => {
   try {
     const input = mapEntityToRouteInput(data);

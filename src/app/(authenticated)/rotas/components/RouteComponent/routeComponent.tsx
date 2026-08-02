@@ -17,10 +17,11 @@ const RouteComponent = ({
   closeItem,
   route,
   routeDays,
-  isAdmin
+  isAdmin,
 }: RouteProps) => {
+  const fallbackCenter = route.waypoints[0] ?? { lat: -8.047, lng: -34.945 };
   const [, setMap] = useState<google.maps.Map>();
-  const [path, setPath] = useState<google.maps.LatLng[]>([]);
+  const [path, setPath] = useState<google.maps.LatLngLiteral[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -32,15 +33,23 @@ const RouteComponent = ({
       onSuccess: () => {
         queryClient.invalidateQueries(["routes"]);
         closeItem();
-      }
-    }
+      },
+    },
   );
 
   const onMapLoad = (map: google.maps.Map) => {
     setMap(map);
-    const polyline = route.polyline;
-    const decodedPath = google.maps.geometry.encoding.decodePath(polyline);
-    setPath(decodedPath);
+    if (route.polylinePoints && route.polylinePoints.length > 0) {
+      setPath(route.polylinePoints);
+      return;
+    }
+
+    if (route.polyline && route.waypoints.length <= 27) {
+      const decodedPath = google.maps.geometry.encoding.decodePath(
+        route.polyline,
+      );
+      setPath(decodedPath.map((p) => ({ lat: p.lat(), lng: p.lng() })));
+    }
   };
 
   const handleDelete = async () => {
@@ -87,17 +96,19 @@ const RouteComponent = ({
             <GoogleMap
               onLoad={onMapLoad}
               mapContainerStyle={{ width: "100%", height: "100%" }}
-              center={path[0]}
+              center={path[0] ?? fallbackCenter}
               zoom={15}
             >
-              <Polyline
-                path={path}
-                options={{
-                  strokeColor: "#00ADB4",
-                  strokeOpacity: 1,
-                  strokeWeight: 4
-                }}
-              />
+              {path.length > 1 && (
+                <Polyline
+                  path={path}
+                  options={{
+                    strokeColor: "#00ADB4",
+                    strokeOpacity: 1,
+                    strokeWeight: 4,
+                  }}
+                />
+              )}
               {route.waypoints.map((waypoint, index) => (
                 <Marker
                   key={index}
@@ -105,7 +116,7 @@ const RouteComponent = ({
                   label={{
                     text: String(index + 1),
                     color: "white",
-                    fontSize: "12px"
+                    fontSize: "12px",
                   }}
                   // icon={{
                   //   url: "/map-marker.svg",

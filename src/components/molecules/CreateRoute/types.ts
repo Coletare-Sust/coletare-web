@@ -12,7 +12,11 @@ export interface CreateRouteProps {
   adresses: { adress: string; index: number }[];
   setAdresses: Dispatch<SetStateAction<{ adress: string; index: number }[]>>;
   handleDeleteWaypoint: (index: number) => void;
-  response: google.maps.DirectionsResult | null;
+  /** Encoded polyline retornada pelo backend — substitui DirectionsResult */
+  polylineEncoded: string | null;
+  polylinePoints: google.maps.LatLngLiteral[];
+  isCalculatingPolyline: boolean;
+  polylineError: string | null;
   isEdit: boolean;
   routeId: string | null;
   isSpecial: boolean;
