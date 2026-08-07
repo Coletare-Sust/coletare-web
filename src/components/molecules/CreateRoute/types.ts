@@ -17,6 +17,7 @@ export interface CreateRouteProps {
   polylinePoints: google.maps.LatLngLiteral[];
   isCalculatingPolyline: boolean;
   polylineError: string | null;
+  onCalculatePolyline: () => void;
   isEdit: boolean;
   routeId: string | null;
   isSpecial: boolean;

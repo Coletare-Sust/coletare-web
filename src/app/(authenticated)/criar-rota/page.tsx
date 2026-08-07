@@ -2,19 +2,24 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  Marker,
+  OverlayView,
+  OverlayViewF,
+  Polyline
+} from "@react-google-maps/api";
 
 import CreateRoute from "@/components/molecules/CreateRoute/createRoute";
 import { apiFetch } from "@/utils/apiFetch";
 import { useSearchParams } from "next/navigation";
 import { WithdrawalsRequestEntity } from "@/common/entities/WithdrawalsRequest";
 import { errorToast } from "@/hooks/useAppToast";
-
-const DEBOUNCE_MS = 1500;
+import useRoute from "@/hooks/queries/useRoute";
 
 const position = {
   lat: -8.05224,
-  lng: -34.928612,
+  lng: -34.928612
 };
 
 const CriarRota = () => {
@@ -23,39 +28,34 @@ const CriarRota = () => {
   const [initialCenter, setInitialCenter] = useState(position);
   const [waypoints, setWaypoints] = useState<google.maps.LatLngLiteral[]>([]);
   const [adresses, setAdresses] = useState<{ adress: string; index: number }[]>(
-    [],
+    []
   );
   const [activeSuggestions, setActiveSuggestions] = useState<
     WithdrawalsRequestEntity[]
   >([]);
 
-  // Substitui response: DirectionsResult — agora vem do backend
   const [polylineEncoded, setPolylineEncoded] = useState<string | null>(null);
   const [decodedPath, setDecodedPath] = useState<google.maps.LatLngLiteral[]>(
-    [],
+    []
   );
   const [isCalculatingPolyline, setIsCalculatingPolyline] = useState(false);
   const [polylineError, setPolylineError] = useState<string | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hydratedRouteIdRef = useRef<string | null>(null);
 
   const isEdit = useSearchParams().get("isEdit");
   const routeId = useSearchParams().get("routeId");
   const isSpecial = useSearchParams().get("especial") === "true";
+  const { data: routeToEdit } = useRoute(routeId ?? "");
+  const isRouteCalculated = decodedPath.length > 1;
 
   const onMapLoad = (map: google.maps.Map) => {
     setMap(map);
   };
 
-  /**
-   * Chama o backend para calcular a polyline.
-   * Usa AbortController para cancelar a chamada anterior se os waypoints mudarem.
-   * Nunca chama o Google Maps diretamente — a chave fica no servidor.
-   */
   const fetchPolyline = useCallback(
     async (wps: google.maps.LatLngLiteral[]) => {
-      // Cancela a requisição anterior se ainda estiver pendente
       abortControllerRef.current?.abort();
       const controller = new AbortController();
       abortControllerRef.current = controller;
@@ -69,25 +69,22 @@ const CriarRota = () => {
         }>("/route/calculate-polyline", {
           method: "POST",
           body: JSON.stringify({ waypoints: wps }),
-          signal: controller.signal,
+          signal: controller.signal
         });
-        const encoded: string = data.polyline;
 
-        setPolylineEncoded(encoded);
-
-        // Decodifica para renderizar o <Polyline> — operação local, sem custo
+        const encoded = data.polyline;
         const path =
           data.polylinePoints && data.polylinePoints.length > 0
             ? data.polylinePoints
             : google.maps.geometry.encoding
                 .decodePath(encoded)
                 .map((p) => ({ lat: p.lat(), lng: p.lng() }));
+
+        setPolylineEncoded(encoded);
         setDecodedPath(path);
       } catch (err: unknown) {
-        if (err instanceof Error && err.name === "AbortError") {
-          // Cancelado intencionalmente — não é erro
-          return;
-        }
+        if (err instanceof Error && err.name === "AbortError") return;
+
         setPolylineEncoded(null);
         setDecodedPath([]);
         setPolylineError("Nao foi possivel calcular o caminho da rota.");
@@ -102,41 +99,94 @@ const CriarRota = () => {
         }
       }
     },
-    [],
+    []
   );
 
-  /**
-   * Debounce: só dispara a chamada ao backend após 1.5s de inatividade nos waypoints.
-   * Isso evita chamadas durante interação rápida (digitação, múltiplos cliques).
-   */
   useEffect(() => {
-    if (waypoints.length < 2) {
-      setDecodedPath([]);
-      setPolylineEncoded(null);
-      setPolylineError(null);
-      setIsCalculatingPolyline(false);
-      abortControllerRef.current?.abort();
-      return;
-    }
-
     setDecodedPath([]);
     setPolylineEncoded(null);
     setPolylineError(null);
+    setIsCalculatingPolyline(false);
+    abortControllerRef.current?.abort();
+  }, [waypoints]);
 
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
+  useEffect(() => {
+    if (
+      isEdit !== "true" ||
+      !routeId ||
+      !routeToEdit ||
+      hydratedRouteIdRef.current === routeId ||
+      waypoints.length !== routeToEdit.waypoints.length
+    ) {
+      return;
     }
 
-    debounceTimerRef.current = setTimeout(() => {
-      fetchPolyline(waypoints);
-    }, DEBOUNCE_MS);
+    const savedPath =
+      routeToEdit.polylinePoints && routeToEdit.polylinePoints.length > 0
+        ? routeToEdit.polylinePoints
+        : routeToEdit.polyline &&
+          typeof google !== "undefined" &&
+          google.maps?.geometry?.encoding
+        ? google.maps.geometry.encoding
+            .decodePath(routeToEdit.polyline)
+            .map((p) => ({ lat: p.lat(), lng: p.lng() }))
+        : [];
 
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
+    if (savedPath.length <= 1) return;
+
+    setPolylineEncoded(routeToEdit.polyline);
+    setDecodedPath(savedPath);
+    setPolylineError(null);
+    hydratedRouteIdRef.current = routeId;
+  }, [isEdit, routeId, routeToEdit, waypoints.length]);
+
+  const handleCalculatePolyline = useCallback(() => {
+    if (waypoints.length <= 1) {
+      errorToast("Adicione ao menos 2 enderecos para calcular a rota.");
+      setPolylineError("Adicione ao menos 2 enderecos para calcular a rota.");
+      return;
+    }
+
+    fetchPolyline(waypoints);
+  }, [fetchPolyline, waypoints]);
+
+  const getCalculatedWaypointIcon = (
+    index: number
+  ): google.maps.Symbol | undefined => {
+    if (typeof google === "undefined") return undefined;
+
+    const isEndpoint = index === 0 || index === waypoints.length - 1;
+
+    return {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: isEndpoint ? 7 : 6,
+      fillColor: isEndpoint ? "#004A55" : "#00ADB4",
+      fillOpacity: 1,
+      strokeColor: "white",
+      strokeWeight: isEndpoint ? 3 : 2
     };
-  }, [waypoints, fetchPolyline]);
+  };
+
+  const renderEndpointLabel = (
+    position: google.maps.LatLngLiteral,
+    label: string
+  ) => (
+    <OverlayViewF
+      position={position}
+      mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+      getPixelPositionOffset={(width, height) => ({
+        x: -(width / 2),
+        y: -height - 20
+      })}
+    >
+      <div className="pointer-events-none flex flex-col items-center">
+        <div className="relative rounded-md bg-greenBlue-1000 px-3 py-2 text-xs font-bold text-white-1000 shadow-lg">
+          {label}
+          <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-greenBlue-1000" />
+        </div>
+      </div>
+    </OverlayViewF>
+  );
 
   const getAddressFromCoordinates = (latLng: google.maps.LatLng) => {
     const geocoder = new google.maps.Geocoder();
@@ -146,7 +196,7 @@ const CriarRota = () => {
           const newArray = [...adresses];
           newArray[count - 1] = {
             adress: results[0].formatted_address,
-            index: count - 1,
+            index: count - 1
           };
           setAdresses(newArray);
         } else {
@@ -161,7 +211,7 @@ const CriarRota = () => {
   const handleMapClick = useCallback(
     (event: google.maps.MapMouseEvent) => {
       if (count === 0 || count === waypoints.length) {
-        errorToast("Adicione um endereço antes selecionar uma localização.");
+        errorToast("Adicione um endereco antes selecionar uma localizacao.");
         return;
       }
 
@@ -169,7 +219,7 @@ const CriarRota = () => {
 
       const location = {
         lat: event.latLng!.lat(),
-        lng: event.latLng!.lng(),
+        lng: event.latLng!.lng()
       };
 
       getAddressFromCoordinates(event.latLng!);
@@ -179,7 +229,7 @@ const CriarRota = () => {
       setWaypoints(newArray);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [count, waypoints],
+    [count, waypoints]
   );
 
   const handleDeleteWaypoint = (index: number) => {
@@ -188,14 +238,14 @@ const CriarRota = () => {
     const isSuggestion = activeSuggestions.some(
       (suggestion) =>
         suggestion.latitude === toRemoveWaypoint.lat &&
-        suggestion.longitude === toRemoveWaypoint.lng,
+        suggestion.longitude === toRemoveWaypoint.lng
     );
 
     if (isSuggestion) {
       const newActiveSuggestions = activeSuggestions.filter(
         (suggestion) =>
           suggestion.latitude !== toRemoveWaypoint.lat &&
-          suggestion.longitude !== toRemoveWaypoint.lng,
+          suggestion.longitude !== toRemoveWaypoint.lng
       );
       setActiveSuggestions(newActiveSuggestions);
     }
@@ -238,6 +288,7 @@ const CriarRota = () => {
               polylinePoints={decodedPath}
               isCalculatingPolyline={isCalculatingPolyline}
               polylineError={polylineError}
+              onCalculatePolyline={handleCalculatePolyline}
               isEdit={isEdit === "true"}
               routeId={routeId}
               setAdresses={setAdresses}
@@ -246,24 +297,42 @@ const CriarRota = () => {
               setActiveSuggestions={setActiveSuggestions}
             />
 
-            {/* Markers enquanto a polyline ainda não foi calculada */}
-            {decodedPath.length === 0 &&
-              waypoints.length > 0 &&
+            {isRouteCalculated && (
+              <Polyline
+                key={polylineEncoded ?? "calculated-route"}
+                path={decodedPath}
+                options={{
+                  strokeColor: "#00ADB4",
+                  strokeWeight: 4,
+                  strokeOpacity: 1
+                }}
+              />
+            )}
+
+            {!isRouteCalculated &&
               waypoints.map((waypoint, index) => (
                 <Marker key={index} position={waypoint} />
               ))}
 
-            {/* Polyline renderizada localmente — zero custo com Google */}
-            {decodedPath.length > 1 && (
-              <Polyline
-                path={decodedPath}
-                options={{
-                  strokeColor: "#16a34a",
-                  strokeWeight: 4,
-                  strokeOpacity: 0.85,
-                }}
-              />
-            )}
+            {isRouteCalculated &&
+              waypoints.map((waypoint, index) => (
+                <Marker
+                  key={`${waypoint.lat}-${waypoint.lng}-${index}`}
+                  position={waypoint}
+                  icon={getCalculatedWaypointIcon(index)}
+                  zIndex={
+                    index === 0 || index === waypoints.length - 1 ? 11 : 10
+                  }
+                />
+              ))}
+
+            {isRouteCalculated &&
+              waypoints[0] &&
+              renderEndpointLabel(waypoints[0], "Inicio")}
+
+            {isRouteCalculated &&
+              waypoints[waypoints.length - 1] &&
+              renderEndpointLabel(waypoints[waypoints.length - 1], "Fim")}
           </GoogleMap>
         </>
       </div>
