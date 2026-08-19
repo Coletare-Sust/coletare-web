@@ -33,10 +33,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { data: user } = useProfile(userUid);
 
   const isCity = user?.role === "admin";
-  const baseLinks = [...linksCity, ...linksAdmin].filter(
-    (link, index, links) =>
-      links.findIndex((item) => item.url === link.url) === index,
-  );
+  const baseLinks = [...linksCity, ...linksAdmin];
 
   const { data: openedSolicitationsCount = 0 } = useWithdrawalRequestCount(
     user?.id as string,
@@ -44,6 +41,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const linksComNotificacao = baseLinks
     .filter((link) => canAccessAll(user, link.permissions))
+    .filter(
+      (link, index, links) =>
+        links.findIndex((item) => item.url === link.url) === index,
+    )
     .filter((link) => !link.hiddenInSidebar)
     .map((link) => {
       if (
@@ -70,7 +71,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     "/municipios",
     "/permissoes",
   ];
-  const deveMostrarSidebar = rotasComSidebar.includes(pathname);
+  const deveMostrarSidebar = rotasComSidebar.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
   const routeAccessRule = getRouteAccessRule(pathname);
   const canAccessCurrentRoute =
     !routeAccessRule || canAccessAll(user, routeAccessRule.permissions);
