@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import Error from "next/error";
 
 import Button from "@atoms/Button/button";
 import Title from "@atoms/Title/title";
@@ -14,14 +13,17 @@ import { wrapper } from "@/common/constants/wrapper";
 import useAllCities from "@/hooks/queries/useAllCities";
 import { errorToast, successToast } from "@/hooks/useAppToast";
 import useAuth from "@/hooks/useAuth";
+import useProfile from "@/hooks/queries/useProfile";
 import { UserEntity } from "@/common/entities/user";
 import { deleteUser } from "@/store/services/user";
 import { queryClient } from "@/store/providers/queryClient";
 import { deleteImage } from "@/store/services/firebaseStorage";
+import { hasPermission } from "@/common/accessControl/permissions";
 
 const Municipios = () => {
   const router = useRouter();
-  const { deleteUserAuth } = useAuth();
+  const { deleteUserAuth, userUid } = useAuth();
+  const { data: user } = useProfile(userUid);
   const { data: cities } = useAllCities();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,7 +37,7 @@ const Municipios = () => {
       }
       const { error: errorAuth } = await deleteUserAuth(data.id);
       if (errorAuth) {
-        throw new Error(errorUser);
+        throw new Error(errorAuth);
       }
       const { error: errorDeleteImage } = await deleteImage(data.image);
       if (errorDeleteImage) {
@@ -53,8 +55,8 @@ const Municipios = () => {
       },
       onSettled: () => {
         setLoading(false);
-      }
-    }
+      },
+    },
   );
 
   const handleDelete = async (data: UserEntity | undefined) => {
@@ -64,21 +66,27 @@ const Municipios = () => {
     await mutationDelete.mutateAsync(data);
   };
 
+  const canCreateCity = hasPermission(user, "CITY_CREATE");
+  const canUpdateCity = hasPermission(user, "CITY_UPDATE");
+  const canDeleteCity = hasPermission(user, "USER_DELETE");
+
   return (
     <section style={wrapper} className="space-y-[64px] pb-16">
       <div className="flex items-center justify-between">
         <Title>Municípios</Title>
-        <Button onClick={() => router.push("/municipios/cadastrar")}>
-          <div className="flex items-center gap-2">
-            <Image
-              src="/icon-plus-white.svg"
-              width={22}
-              height={22}
-              alt="Icone de Adicionar"
-            />
-            <span>Cadastrar Novo</span>
-          </div>
-        </Button>
+        {canCreateCity && (
+          <Button onClick={() => router.push("/municipios/cadastrar")}>
+            <div className="flex items-center gap-2">
+              <Image
+                src="/icon-plus-white.svg"
+                width={22}
+                height={22}
+                alt="Icone de Adicionar"
+              />
+              <span>Cadastrar Novo</span>
+            </div>
+          </Button>
+        )}
       </div>
       {loading ? (
         <div className="flex h-[200px] items-center">
@@ -133,23 +141,35 @@ const Municipios = () => {
                   </span>
                 </div>
               </div>
-              <MoreDropdown
-                options={[
-                  {
-                    label: "Editar",
-                    onClick: () => {
-                      router.push(`/municipios/cadastrar?id=${city.id}`);
-                    }
-                  },
-                  {
-                    label: "Excluir",
-                    onClick: () => {
-                      setOpenDeleteModal(true);
-                      setClickedCity(city);
-                    }
-                  }
-                ]}
-              />
+              {(canUpdateCity || canDeleteCity) && (
+                <MoreDropdown
+                  options={[
+                    ...(canUpdateCity
+                      ? [
+                          {
+                            label: "Editar",
+                            onClick: () => {
+                              router.push(
+                                `/municipios/cadastrar?id=${city.id}`,
+                              );
+                            },
+                          },
+                        ]
+                      : []),
+                    ...(canDeleteCity
+                      ? [
+                          {
+                            label: "Excluir",
+                            onClick: () => {
+                              setOpenDeleteModal(true);
+                              setClickedCity(city);
+                            },
+                          },
+                        ]
+                      : []),
+                  ]}
+                />
+              )}
             </div>
           </div>
         ))
