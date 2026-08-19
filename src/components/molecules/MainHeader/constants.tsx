@@ -6,19 +6,30 @@ import BellIcon from "@atoms/Icons/BellIcon";
 import { renderToString } from "react-dom/server";
 import { KeyRound, RecycleIcon } from "lucide-react";
 import ColaboratorIcon from "@/components/atoms/Icons/ColaboratorIcon";
+import type { PermissionRule } from "@/common/accessControl/permissions";
 
-export const linksCity = [
+export type NavigationLink = {
+  label: string;
+  url: string;
+  icon: (color?: string) => string;
+  alertNumber: number;
+  hiddenInSidebar: boolean;
+  permissions: PermissionRule[];
+};
+
+export const linksCity: NavigationLink[] = [
   {
     label: "Dashboard",
     url: "/dashboard",
     icon: (color?: string) => {
       const svgString = renderToString(<DashboardIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: false
+    hiddenInSidebar: false,
+    permissions: ["METRICS_DASHBOARD_READ"],
   },
   {
     label: "Rotas em tempo real",
@@ -26,11 +37,12 @@ export const linksCity = [
     icon: (color?: string) => {
       const svgString = renderToString(<TruckIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: false
+    hiddenInSidebar: false,
+    permissions: ["COLLECT_LOCATION_SEND"],
   },
   {
     label: "Visualizar rota",
@@ -38,11 +50,12 @@ export const linksCity = [
     icon: (color?: string) => {
       const svgString = renderToString(<MapIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: false
+    hiddenInSidebar: false,
+    permissions: ["ROUTE_READ"],
   },
   {
     label: "Cadastrar rota",
@@ -50,11 +63,12 @@ export const linksCity = [
     icon: (color?: string) => {
       const svgString = renderToString(<MapIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: true
+    hiddenInSidebar: true,
+    permissions: ["ROUTE_CREATE"],
   },
   {
     label: "Cadastrar ecopontos",
@@ -62,11 +76,12 @@ export const linksCity = [
     icon: (color?: string) => {
       const svgString = renderToString(<RecycleIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: false
+    hiddenInSidebar: false,
+    permissions: ["ECOPOINT_READ"],
   },
   {
     label: "Solicitação de retirada de lixo ",
@@ -74,11 +89,12 @@ export const linksCity = [
     icon: (color?: string) => {
       const svgString = renderToString(<TrashIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: false
+    hiddenInSidebar: false,
+    permissions: ["WITHDRAWAL_REQUEST_READ"],
   },
   {
     label: "Colaboradores e veículos",
@@ -86,11 +102,12 @@ export const linksCity = [
     icon: (color?: string) => {
       const svgString = renderToString(<ColaboratorIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: false
+    hiddenInSidebar: false,
+    permissions: [["VEHICLE_READ", "EMPLOYEE_READ"]],
   },
   {
     label: "Cadastrar novo veículo",
@@ -98,11 +115,12 @@ export const linksCity = [
     icon: (color?: string) => {
       const svgString = renderToString(<ColaboratorIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: true
+    hiddenInSidebar: true,
+    permissions: ["VEHICLE_CREATE"],
   },
   {
     label: "Cadastrar novo colaborador",
@@ -110,11 +128,12 @@ export const linksCity = [
     icon: (color?: string) => {
       const svgString = renderToString(<ColaboratorIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: true
+    hiddenInSidebar: true,
+    permissions: ["EMPLOYEE_CREATE"],
   },
   {
     label: "Avisos",
@@ -122,26 +141,28 @@ export const linksCity = [
     icon: (color?: string) => {
       const svgString = renderToString(<BellIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: false
-  }
+    hiddenInSidebar: false,
+    permissions: ["WARNING_READ"],
+  },
 ];
 
-export const linksAdmin = [
+export const linksAdmin: NavigationLink[] = [
   {
     label: "Dashboard",
     url: "/dashboard",
     icon: (color?: string) => {
       const svgString = renderToString(<DashboardIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: false
+    hiddenInSidebar: false,
+    permissions: ["METRICS_DASHBOARD_READ"],
   },
   {
     label: "Todas as rotas",
@@ -149,11 +170,12 @@ export const linksAdmin = [
     icon: (color?: string) => {
       const svgString = renderToString(<MapIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: false
+    hiddenInSidebar: false,
+    permissions: ["ROUTE_READ"],
   },
 
   {
@@ -162,11 +184,12 @@ export const linksAdmin = [
     icon: (color?: string) => {
       const svgString = renderToString(<TrashIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: false
+    hiddenInSidebar: false,
+    permissions: ["WITHDRAWAL_REQUEST_READ"],
   },
   {
     label: "Municípios",
@@ -174,11 +197,12 @@ export const linksAdmin = [
     icon: (color?: string) => {
       const svgString = renderToString(<TruckIcon color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: false
+    hiddenInSidebar: false,
+    permissions: ["CITY_READ"],
   },
   {
     label: "Permissoes",
@@ -186,17 +210,22 @@ export const linksAdmin = [
     icon: (color?: string) => {
       const svgString = renderToString(<KeyRound color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
-        "base64"
+        "base64",
       )}`;
     },
     alertNumber: -1,
-    hiddenInSidebar: false
-  }
+    hiddenInSidebar: false,
+    permissions: [
+      "RBAC_PERMISSION_READ",
+      "RBAC_USER_PERMISSION_READ",
+      "RBAC_USER_PERMISSION_UPDATE",
+    ],
+  },
 ];
 
 export const colors = [
   { name: "red", hex: "#AD0000" },
   { name: "green", hex: "#008000" },
   { name: "blue", hex: "#0000FF" },
-  { name: "orange", hex: "#FF6B00" }
+  { name: "orange", hex: "#FF6B00" },
 ];
