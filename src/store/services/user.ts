@@ -1,6 +1,7 @@
 import { apiFetch } from "@/utils/apiFetch";
 import { UserEntity } from "@common/entities/user";
 import { normalizeUserRole } from "@/common/mappers/backendEnums";
+import { normalizePermission } from "@/common/accessControl/permissions";
 
 // ---------- Backend Output DTOs ----------
 
@@ -27,6 +28,7 @@ interface UserResponseDTO {
   } | null;
   status?: boolean | null;
   permissions?: string[] | null;
+  scope?: string | null;
   address?: {
     fullAddress: string;
     location: {
@@ -126,6 +128,16 @@ export interface UpdateUserInput {
 // normalizeRole usa o mapper centralizado de enums do backend
 const normalizeRole = normalizeUserRole;
 
+function extractPermissions(dto: UserResponseDTO) {
+  const rawPermissions = dto.permissions?.length
+    ? dto.permissions
+    : dto.scope?.split(" ") ?? [];
+
+  return rawPermissions
+    .map(normalizePermission)
+    .filter((permission) => permission.length > 0);
+}
+
 // ---------- Mappers ----------
 
 function mapUserResponseToEntity(dto: UserResponseDTO): UserEntity {
@@ -138,7 +150,7 @@ function mapUserResponseToEntity(dto: UserResponseDTO): UserEntity {
     image: dto.image ?? null,
     supportEmail: dto.supportEmail ?? null,
     // Para admin (City), o próprio id é o cityId; para outros, usa cityId do DTO
-    cityId: role === "admin" ? dto.id : (dto.cityId ?? null),
+    cityId: role === "admin" ? dto.id : dto.cityId ?? null,
     facilitatorName: dto.facilitatorName ?? null,
     color: (dto.color as any) ?? null,
     carPlate: dto.carPlate ?? null,
@@ -157,8 +169,13 @@ function mapUserResponseToEntity(dto: UserResponseDTO): UserEntity {
     },
     tokens: dto.tokens ?? [],
     // Converte o boolean do backend para string 'Ativo'/'Inativo'
-    status: dto.status === true ? "Ativo" : dto.status === false ? "Inativo" : undefined,
-    permissions: dto.permissions ?? [],
+    status:
+      dto.status === true
+        ? "Ativo"
+        : dto.status === false
+        ? "Inativo"
+        : undefined,
+    permissions: extractPermissions(dto),
   };
 }
 
@@ -285,7 +302,9 @@ export const getMe = async (): Promise<UserEntity | null> => {
   }
 };
 
-export const getUser = async (id: string | null): Promise<UserEntity | null> => {
+export const getUser = async (
+  id: string | null,
+): Promise<UserEntity | null> => {
   if (!id) return null;
   try {
     const data = await apiFetch<UserResponseDTO>(`/user/${id}`);
@@ -296,11 +315,13 @@ export const getUser = async (id: string | null): Promise<UserEntity | null> => 
   }
 };
 
-export const getCityById = async (id: string | null): Promise<UserEntity | null> => {
+export const getCityById = async (
+  id: string | null,
+): Promise<UserEntity | null> => {
   if (!id) return null;
   try {
     const data = await apiFetch<CityResponseDTO>(`/user/${id}/city`);
-    console.log(data)
+    console.log(data);
     return mapCityResponseToEntity(data);
   } catch (error) {
     console.error(error);
@@ -320,7 +341,9 @@ export const getUsers = async (): Promise<UserEntity[]> => {
 
 export const getAllVehicles = async (cityId: string): Promise<UserEntity[]> => {
   try {
-    const data = await apiFetch<VehicleOutputDTO[]>(`/user/${cityId}/city/vehicles`);
+    const data = await apiFetch<VehicleOutputDTO[]>(
+      `/user/${cityId}/city/vehicles`,
+    );
     return data.map(mapVehicleOutputToEntity);
   } catch (error: any) {
     console.error(error);
@@ -328,9 +351,13 @@ export const getAllVehicles = async (cityId: string): Promise<UserEntity[]> => {
   }
 };
 
-export const getAllCollaborators = async (cityId: string): Promise<UserEntity[]> => {
+export const getAllCollaborators = async (
+  cityId: string,
+): Promise<UserEntity[]> => {
   try {
-    const data = await apiFetch<EmployeeOutputDTO[]>(`/user/${cityId}/city/employees`);
+    const data = await apiFetch<EmployeeOutputDTO[]>(
+      `/user/${cityId}/city/employees`,
+    );
     return data.map(mapEmployeeOutputToEntity);
   } catch (error: any) {
     console.error(error);
@@ -348,9 +375,13 @@ export const getAllCities = async (): Promise<UserEntity[]> => {
   }
 };
 
-export const getAllCitizens = async (_cityId: string): Promise<UserEntity[]> => {
+export const getAllCitizens = async (
+  _cityId: string,
+): Promise<UserEntity[]> => {
   try {
-    const data = await apiFetch<UserResponseDTO[]>(`/user/${_cityId}/city/citizens`);
+    const data = await apiFetch<UserResponseDTO[]>(
+      `/user/${_cityId}/city/citizens`,
+    );
     return data.map(mapUserResponseToEntity);
   } catch (error) {
     console.error(error);
@@ -361,7 +392,7 @@ export const getAllCitizens = async (_cityId: string): Promise<UserEntity[]> => 
 /** Cria colaborador, veículo, cidadão ou cidade via endpoint correto */
 export const createUser = async (
   data: Partial<UserEntity>,
-  _image?: File | null
+  _image?: File | null,
 ): Promise<{ error: string | null }> => {
   try {
     const role = data.role;
@@ -369,7 +400,11 @@ export const createUser = async (
     if (role === "employee") {
       await apiFetch("/auth/register/employee", {
         method: "POST",
-        body: JSON.stringify({ name: data.name, cpf: data.cpf, cityId: data.cityId }),
+        body: JSON.stringify({
+          name: data.name,
+          cpf: data.cpf,
+          cityId: data.cityId,
+        }),
       });
     } else if (role === "vehicle") {
       await apiFetch("/auth/register/vehicle", {
@@ -410,7 +445,10 @@ export const createUser = async (
         status: (data as any).status === "Ativo",
         color: data.color ?? null,
       };
-      formData.append("data", new Blob([JSON.stringify(cityPayload)], { type: "application/json" }));
+      formData.append(
+        "data",
+        new Blob([JSON.stringify(cityPayload)], { type: "application/json" }),
+      );
       if (_image) {
         formData.append("image", _image);
       }
@@ -432,7 +470,7 @@ export const createUserDoc = createUser;
 
 export const updateUser = async (
   id: string,
-  data: Partial<UserEntity>
+  data: Partial<UserEntity>,
 ): Promise<{ error: string | null }> => {
   try {
     const input: UpdateUserInput = {
@@ -457,7 +495,9 @@ export const updateUser = async (
 /** Alias mantido para compatibilidade com telas existentes */
 export const updateUserDoc = updateUser;
 
-export const deleteUser = async (id: string): Promise<{ error: string | null }> => {
+export const deleteUser = async (
+  id: string,
+): Promise<{ error: string | null }> => {
   try {
     await apiFetch(`/user/${id}`, { method: "DELETE" });
     return { error: null };
