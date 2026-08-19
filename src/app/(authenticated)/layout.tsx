@@ -12,6 +12,8 @@ import Sidebar from "@molecules/Sidebar/sidebar";
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import useWithdrawalRequestCount from "@/hooks/queries/useWithdrawalRequestCount";
+import { canAccessAll } from "@/common/accessControl/permissions";
+import { getRouteAccessRule } from "@/common/accessControl/routes";
 
 import { colors, linksAdmin, linksCity } from "@molecules/MainHeader/constants";
 
@@ -24,20 +26,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
-    libraries
+    libraries,
   });
 
   const { userUid } = useAuth();
   const { data: user } = useProfile(userUid);
 
   const isCity = user?.role === "admin";
-  const baseLinks = isCity ? linksCity : linksAdmin;
+  const baseLinks = [...linksCity, ...linksAdmin].filter(
+    (link, index, links) =>
+      links.findIndex((item) => item.url === link.url) === index,
+  );
 
   const { data: openedSolicitationsCount = 0 } = useWithdrawalRequestCount(
-    user?.id as string
+    user?.id as string,
   );
 
   const linksComNotificacao = baseLinks
+    .filter((link) => canAccessAll(user, link.permissions))
     .filter((link) => !link.hiddenInSidebar)
     .map((link) => {
       if (
@@ -62,9 +68,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     "/avisos",
     "/rotas-andamento",
     "/municipios",
-    "/permissoes"
+    "/permissoes",
   ];
   const deveMostrarSidebar = rotasComSidebar.includes(pathname);
+  const routeAccessRule = getRouteAccessRule(pathname);
+  const canAccessCurrentRoute =
+    !routeAccessRule || canAccessAll(user, routeAccessRule.permissions);
 
   const renderContent = () => {
     // Maps não bloqueia o render da página — componentes que usam Maps
@@ -73,6 +82,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (loadError) {
       console.warn("Google Maps não pôde ser carregado:", loadError);
     }
+    if (user && !canAccessCurrentRoute) {
+      return (
+        <section className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-center">
+          <h1 className="text-2xl font-semibold text-gray-800">
+            Acesso restrito
+          </h1>
+          <p className="max-w-md text-sm text-gray-500">
+            Seu usuario nao possui permissao para acessar esta tela.
+          </p>
+        </section>
+      );
+    }
+
     return children;
   };
 
