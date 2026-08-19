@@ -58,6 +58,10 @@ export type PermissionKey =
 
 export type PermissionRule = PermissionKey | PermissionKey[];
 
+export function normalizePermission(permission: string) {
+  return permission.trim().toUpperCase();
+}
+
 export function hasPermission(
   user: UserEntity | null | undefined,
   permission: PermissionRule,
@@ -65,12 +69,16 @@ export function hasPermission(
   if (!user) return false;
   if (user.role === "platformAdmin") return true;
 
-  const userPermissions = new Set(user.permissions ?? []);
+  const userPermissions = new Set(
+    (user.permissions ?? []).map(normalizePermission),
+  );
   const requiredPermissions = Array.isArray(permission)
     ? permission
     : [permission];
 
-  return requiredPermissions.some((item) => userPermissions.has(item));
+  return requiredPermissions.some((item) =>
+    userPermissions.has(normalizePermission(item)),
+  );
 }
 
 export function canAccessAll(
