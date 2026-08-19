@@ -14,6 +14,7 @@ import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import { wrapper } from "@/common/constants/wrapper";
 import { getResidueTypeLabel } from "@/common/mappers/backendEnums";
+import { hasPermission } from "@/common/accessControl/permissions";
 
 import RouteComponent from "./components/RouteComponent/routeComponent";
 
@@ -25,9 +26,10 @@ const Rotas = () => {
   const cityId = searchParams.get("city");
   const routeId = searchParams.get("value");
   const { data: routes, isLoading } = useAllRoutes(
-    cityId ?? (user?.id as string)
+    cityId ?? (user?.id as string),
   );
   const [openItem, setOpenItem] = useState("");
+  const canCreateRoute = hasPermission(user, "ROUTE_CREATE");
 
   const closeItem = () => {
     setOpenItem("");
@@ -37,7 +39,7 @@ const Rotas = () => {
     <div style={wrapper} className="py-14">
       <div className="mb-14 flex items-center justify-between">
         <Title>Todas as rotas</Title>
-        {user?.role !== "platformAdmin" && (
+        {canCreateRoute && (
           <Button
             classNameText="flex items-center gap-2"
             onClick={() => router.push("/criar-rota")}
@@ -102,7 +104,10 @@ const Rotas = () => {
                     properties: [
                       { prop: "Funcionamento", answer: period },
                       { prop: "Dias", answer: routeDays },
-                      { prop: "Tipo de residuo", answer: getResidueTypeLabel(route.residueType) }
+                      {
+                        prop: "Tipo de residuo",
+                        answer: getResidueTypeLabel(route.residueType),
+                      },
                     ],
                     children: (
                       <RouteComponent
@@ -111,7 +116,7 @@ const Rotas = () => {
                         routeDays={routeDays}
                         isAdmin={user?.role === "platformAdmin"}
                       />
-                    )
+                    ),
                   };
                 }) ?? []
               }
