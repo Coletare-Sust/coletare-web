@@ -51,17 +51,21 @@ export function mapCollectOutputToEntity(dto: CollectOutputDTO): CollectEntity {
     emission: dto.environmentalData?.emission || 0,
     cost: {
       landfillDelivery: dto.cost?.landfillDelivery || 0,
-      fuel: dto.cost?.fuel || 0,
+      fuel: dto.cost?.fuel || 0
     },
     kmRun: dto.metrics?.kmRun || 0,
     withdrawalRequestsIds: [],
     duration: dto.metrics?.durationSeconds || 0,
     vehicleLatitude: lastPosition.latitude,
     vehicleLongitude: lastPosition.longitude,
+    realTimePosition: dto.realTimePosition ?? [],
     createdAt: dto.createdAt
-      ? ({ seconds: Math.floor(new Date(dto.createdAt).getTime() / 1000), nanoseconds: 0 } as any)
+      ? ({
+          seconds: Math.floor(new Date(dto.createdAt).getTime() / 1000),
+          nanoseconds: 0
+        } as any)
       : ({ seconds: Math.floor(Date.now() / 1000), nanoseconds: 0 } as any),
-    hasEnded: dto.hasEnded,
+    hasEnded: dto.hasEnded
   };
 }
 
@@ -76,7 +80,7 @@ export const getCollect = async (collectId: string) => {
 };
 
 export const getAllCollects = async () => {
-  // O Backend atual não tem um endpoint genérico getAll (sem cityId) 
+  // O Backend atual não tem um endpoint genérico getAll (sem cityId)
   // Retornando array vazio para não quebrar a aplicação.
   return [];
 };
