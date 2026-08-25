@@ -26,7 +26,7 @@ const Rotas = () => {
   const cityId = searchParams.get("city");
   const routeId = searchParams.get("value");
   const { data: routes, isLoading } = useAllRoutes(
-    cityId ?? (user?.id as string),
+    cityId ?? (user?.id as string)
   );
   const [openItem, setOpenItem] = useState("");
   const canCreateRoute = hasPermission(user, "ROUTE_CREATE");
@@ -106,8 +106,8 @@ const Rotas = () => {
                       { prop: "Dias", answer: routeDays },
                       {
                         prop: "Tipo de residuo",
-                        answer: getResidueTypeLabel(route.residueType),
-                      },
+                        answer: getResidueTypeLabel(route.residueType)
+                      }
                     ],
                     children: (
                       <RouteComponent
@@ -116,7 +116,7 @@ const Rotas = () => {
                         routeDays={routeDays}
                         isAdmin={user?.role === "platformAdmin"}
                       />
-                    ),
+                    )
                   };
                 }) ?? []
               }

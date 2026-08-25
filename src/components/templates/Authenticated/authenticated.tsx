@@ -23,7 +23,7 @@ function AuthenticatedOnlyFeature({ children }: Props): JSX.Element {
 }
 
 export default function AuthenticatedOnlyFeatureWrapper({
-  children,
+  children
 }: Props): JSX.Element {
   return (
     <FetchAuthState>

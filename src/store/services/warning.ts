@@ -36,7 +36,7 @@ function mapWarningOutputToEntity(dto: WarningOutputDTO): WarningEntity {
     description: dto.description,
     image: dto.image ?? null,
     createdAt: dto.createdAt ?? "",
-    updatedAt: "",
+    updatedAt: ""
   };
 }
 
@@ -69,7 +69,7 @@ export const createWarningService = async (
     method: "POST",
     body: formData,
     // Sem Content-Type: o browser define automaticamente o boundary do multipart
-    headers: {},
+    headers: {}
   });
   return mapWarningOutputToEntity(data);
 };
@@ -81,11 +81,11 @@ export const updateWarningService = async (
   const body = {
     title: data.title,
     description: data.description,
-    image: typeof data.image === "string" ? data.image : null,
+    image: typeof data.image === "string" ? data.image : null
   };
   const result = await apiFetch<WarningOutputDTO>(`/warning/${warningId}`, {
     method: "PUT",
-    body: JSON.stringify(body),
+    body: JSON.stringify(body)
   });
   return mapWarningOutputToEntity(result);
 };

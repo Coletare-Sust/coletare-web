@@ -5,7 +5,9 @@ import { DashboardEntity } from "@/common/entities/dashboard";
 
 export const getAllCollectsByRoute = async (routeId: string) => {
   try {
-    const data = await apiFetch<CollectOutputDTO[]>(`/collect/route/${routeId}`);
+    const data = await apiFetch<CollectOutputDTO[]>(
+      `/collect/route/${routeId}`
+    );
     return data.map(mapCollectOutputToEntity);
   } catch (error: any) {
     console.error(error);
@@ -44,12 +46,12 @@ export const updateCollect = async (
       consume: data.consume,
       emission: data.emission,
       fuelCost: data.cost?.fuel,
-      landfillDeliveryCost: data.cost?.landfillDelivery,
+      landfillDeliveryCost: data.cost?.landfillDelivery
     };
 
     const response = await apiFetch(`/collect/${id}`, {
       method: "PUT",
-      body: JSON.stringify(input),
+      body: JSON.stringify(input)
     });
     console.log(response);
     return { error: null };
@@ -75,28 +77,30 @@ interface DashboardDataOutputDTO {
   mass: DashboardMetricDataDTO;
 }
 
-function mapDashboardOutputToEntity(dto: DashboardDataOutputDTO): DashboardEntity {
+function mapDashboardOutputToEntity(
+  dto: DashboardDataOutputDTO
+): DashboardEntity {
   return {
     landfill: {
       year: dto.landfill?.year ?? [],
       semester: dto.landfill?.semester ?? [],
-      month: dto.landfill?.month ?? [],
+      month: dto.landfill?.month ?? []
     },
     fuel: {
       year: dto.fuel?.year ?? [],
       semester: dto.fuel?.semester ?? [],
-      month: dto.fuel?.month ?? [],
+      month: dto.fuel?.month ?? []
     },
     emission: {
       year: dto.emission?.year ?? [],
       semester: dto.emission?.semester ?? [],
-      month: dto.emission?.month ?? [],
+      month: dto.emission?.month ?? []
     },
     mass: {
       year: dto.mass?.year ?? [],
       semester: dto.mass?.semester ?? [],
-      month: dto.mass?.month ?? [],
-    },
+      month: dto.mass?.month ?? []
+    }
   };
 }
 

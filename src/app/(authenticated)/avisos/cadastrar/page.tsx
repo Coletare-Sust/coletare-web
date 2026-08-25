@@ -37,7 +37,7 @@ export default function PostPage() {
       await createWarningService(user.id, {
         title,
         description,
-        image: image instanceof File ? image : null,
+        image: image instanceof File ? image : null
       });
       successToast("Postagem criada!");
       router.push("/avisos");

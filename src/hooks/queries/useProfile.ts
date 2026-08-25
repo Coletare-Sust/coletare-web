@@ -25,12 +25,16 @@ const useProfile = <T = UserEntity>(
   const { userUid } = useAuth();
   const isSelf = !!uid && uid === userUid;
 
-  return useQuery(getProfileQueryKey(uid), isSelf ? getMe : () => getUser(uid), {
-    select,
-    staleTime: FORTY_FIVE_MINUTES_IN_MS,
-    cacheTime: ONE_DAY_IN_MS,
-    enabled: !!uid
-  });
+  return useQuery(
+    getProfileQueryKey(uid),
+    isSelf ? getMe : () => getUser(uid),
+    {
+      select,
+      staleTime: FORTY_FIVE_MINUTES_IN_MS,
+      cacheTime: ONE_DAY_IN_MS,
+      enabled: !!uid
+    }
+  );
 };
 
 export default useProfile;

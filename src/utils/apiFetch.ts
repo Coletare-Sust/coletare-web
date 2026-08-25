@@ -1,15 +1,18 @@
-export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+export async function apiFetch<T>(
+  path: string,
+  options?: RequestInit
+): Promise<T> {
   const isFormData = options?.body instanceof FormData;
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
     ...options,
-    credentials: 'include',
+    credentials: "include",
     headers: isFormData
       ? { ...options?.headers } // Deixa o browser setar o Content-Type (multipart boundary)
       : {
-          'Content-Type': 'application/json',
-          ...options?.headers,
-        },
+          "Content-Type": "application/json",
+          ...options?.headers
+        }
   });
 
   if (!res.ok) {
@@ -22,7 +25,7 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
   if (!text) {
     return {} as T;
   }
-  
+
   try {
     return JSON.parse(text);
   } catch (err) {

@@ -26,7 +26,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
-    libraries,
+    libraries
   });
 
   const { userUid } = useAuth();
@@ -36,14 +36,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const baseLinks = [...linksCity, ...linksAdmin];
 
   const { data: openedSolicitationsCount = 0 } = useWithdrawalRequestCount(
-    user?.id as string,
+    user?.id as string
   );
 
   const linksComNotificacao = baseLinks
     .filter((link) => canAccessAll(user, link.permissions))
     .filter(
       (link, index, links) =>
-        links.findIndex((item) => item.url === link.url) === index,
+        links.findIndex((item) => item.url === link.url) === index
     )
     .filter((link) => !link.hiddenInSidebar)
     .map((link) => {
@@ -69,10 +69,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     "/avisos",
     "/rotas-andamento",
     "/municipios",
-    "/permissoes",
+    "/permissoes"
   ];
   const deveMostrarSidebar = rotasComSidebar.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`),
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
   const routeAccessRule = getRouteAccessRule(pathname);
   const canAccessCurrentRoute =

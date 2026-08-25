@@ -63,15 +63,19 @@ function mapEcopointOutputToEntity(dto: EcopointOutputDTO): Ecoponto {
     lng: dto.address?.location?.longitude ?? 0,
     isActive: dto.isActive,
     createdAt: "",
-    updatedAt: "",
+    updatedAt: ""
   };
 }
 
 // ---------- Services ----------
 
-export const getEcopontosByCity = async (cityId: string): Promise<Ecoponto[]> => {
+export const getEcopontosByCity = async (
+  cityId: string
+): Promise<Ecoponto[]> => {
   try {
-    const data = await apiFetch<EcopointOutputDTO[]>(`/ecopoint/${cityId}/city`);
+    const data = await apiFetch<EcopointOutputDTO[]>(
+      `/ecopoint/${cityId}/city`
+    );
     return data.map(mapEcopointOutputToEntity);
   } catch (error) {
     console.error(error);
@@ -89,12 +93,14 @@ export const getEcopontoById = async (id: string): Promise<Ecoponto | null> => {
   }
 };
 
-export const createEcoponto = async (data: CreateEcopontoDTO): Promise<Ecoponto> => {
+export const createEcoponto = async (
+  data: CreateEcopontoDTO
+): Promise<Ecoponto> => {
   console.log("Enviando dados para criação:", data);
   const { cityId, ...input } = data;
   const result = await apiFetch<EcopointOutputDTO>(`/ecopoint/${cityId}/city`, {
     method: "POST",
-    body: JSON.stringify(input),
+    body: JSON.stringify(input)
   });
   return mapEcopointOutputToEntity(result);
 };
@@ -106,7 +112,7 @@ export const updateEcoponto = async (
   const { cityId, ...input } = data;
   const result = await apiFetch<EcopointOutputDTO>(`/ecopoint/${id}`, {
     method: "PUT",
-    body: JSON.stringify(input),
+    body: JSON.stringify(input)
   });
   return mapEcopointOutputToEntity(result);
 };

@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     cityId
   )) as WithdrawalsRequestEntity[];
 
-  if ('error' in routeResponse && routeResponse.error) {
+  if ("error" in routeResponse && routeResponse.error) {
     return NextResponse.json(
       {},
       {

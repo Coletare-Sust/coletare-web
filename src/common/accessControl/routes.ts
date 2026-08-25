@@ -17,7 +17,7 @@ export const routeAccessRules: RouteAccessRule[] = [
   { path: "/solicitacoes-retirada", permissions: ["WITHDRAWAL_REQUEST_READ"] },
   {
     path: "/veiculos-colaboradores",
-    permissions: [["VEHICLE_READ", "EMPLOYEE_READ"]],
+    permissions: [["VEHICLE_READ", "EMPLOYEE_READ"]]
   },
   { path: "/cadastrar-veiculo", permissions: ["VEHICLE_CREATE"] },
   { path: "/cadastrar-colaborador", permissions: ["EMPLOYEE_CREATE"] },
@@ -30,13 +30,13 @@ export const routeAccessRules: RouteAccessRule[] = [
     permissions: [
       "RBAC_PERMISSION_READ",
       "RBAC_USER_PERMISSION_READ",
-      "RBAC_USER_PERMISSION_UPDATE",
-    ],
-  },
+      "RBAC_USER_PERMISSION_UPDATE"
+    ]
+  }
 ];
 
 export function getRouteAccessRule(pathname: string) {
   return routeAccessRules.find(
-    (rule) => pathname === rule.path || pathname.startsWith(`${rule.path}/`),
+    (rule) => pathname === rule.path || pathname.startsWith(`${rule.path}/`)
   );
 }

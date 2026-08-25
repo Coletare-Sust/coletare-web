@@ -55,8 +55,8 @@ const Municipios = () => {
       },
       onSettled: () => {
         setLoading(false);
-      },
-    },
+      }
+    }
   );
 
   const handleDelete = async (data: UserEntity | undefined) => {
@@ -150,10 +150,10 @@ const Municipios = () => {
                             label: "Editar",
                             onClick: () => {
                               router.push(
-                                `/municipios/cadastrar?id=${city.id}`,
+                                `/municipios/cadastrar?id=${city.id}`
                               );
-                            },
-                          },
+                            }
+                          }
                         ]
                       : []),
                     ...(canDeleteCity
@@ -163,10 +163,10 @@ const Municipios = () => {
                             onClick: () => {
                               setOpenDeleteModal(true);
                               setClickedCity(city);
-                            },
-                          },
+                            }
+                          }
                         ]
-                      : []),
+                      : [])
                   ]}
                 />
               )}
