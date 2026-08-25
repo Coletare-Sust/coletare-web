@@ -4,7 +4,9 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const isFormData = options?.body instanceof FormData;
 
-  const urlApi = "https://api.coletapp.com";
+  const urlApi = (
+    process.env.NEXT_PUBLIC_API_URL ?? "https://api.coletapp.com"
+  ).replace(/\/$/, "");
 
   const res = await fetch(`${urlApi}${path}`, {
     ...options,

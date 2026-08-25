@@ -47,7 +47,6 @@ export const signInWithEmailAndPasswordLocal = async (
   password: string
 ) => {
   try {
-    console.log(`${process.env.NEXT_PUBLIC_API_URL}`);
     const payload = await apiFetch<any>("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password, authType: "LOCAL" })
