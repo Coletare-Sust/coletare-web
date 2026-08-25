@@ -8,7 +8,7 @@ export const waitForUser = async (onUser: (user: any | null) => void) => {
       onUser({
         uid: user.id,
         emailVerified: true,
-        ...user,
+        ...user
       });
     } else {
       onUser(null);
