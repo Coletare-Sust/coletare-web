@@ -1,15 +1,20 @@
 import { apiFetch } from "@/utils/apiFetch";
 
-export const waitForUser = async (callback: (user: any | null) => void) => {
+export const waitForUser = async (onUser: (user: any | null) => void) => {
   try {
     const user = await apiFetch<any>("/auth/me");
+
     if (user && user.id) {
-      callback({ uid: user.id, emailVerified: true, ...user });
+      onUser({
+        uid: user.id,
+        emailVerified: true,
+        ...user,
+      });
     } else {
-      callback(null);
+      onUser(null);
     }
-  } catch (err) {
-    callback(null);
+  } catch {
+    onUser(null);
   }
 };
 
