@@ -3,7 +3,6 @@ import { ChevronLeft } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import Error from "next/error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -32,7 +31,7 @@ type AddCityForm = z.infer<typeof AddCitySchema>;
 const Cadastrar = () => {
   const statusOptions = [
     { id: "ativo", text: "Ativo", value: "Ativo" },
-    { id: "inativo", text: "Inativo", value: "Inativo" }
+    { id: "inativo", text: "Inativo", value: "Inativo" },
   ];
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -45,24 +44,24 @@ const Cadastrar = () => {
     formState: { errors },
     reset,
     watch,
-    setValue
+    setValue,
   } = useForm<AddCityForm>({
     mode: "all",
     criteriaMode: "all",
     resolver: zodResolver(AddCitySchema),
     values: city
       ? {
-        name: city?.name ?? "",
-        password: "asdfasdf1" ?? "",
-        facilitatorName: city?.facilitatorName ?? "",
-        email: city?.email ?? "",
-        supportEmail: city?.supportEmail ?? "",
-        landfillDelivery: city?.calcData?.landfillDelivery?.toString() ?? "",
-        fuel: city?.calcData?.fuel?.toString() ?? "",
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        status: city.status!
-      }
-      : undefined
+          name: city?.name ?? "",
+          password: "asdfasdf1" ?? "",
+          facilitatorName: city?.facilitatorName ?? "",
+          email: city?.email ?? "",
+          supportEmail: city?.supportEmail ?? "",
+          landfillDelivery: city?.calcData?.landfillDelivery?.toString() ?? "",
+          fuel: city?.calcData?.fuel?.toString() ?? "",
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          status: city.status!,
+        }
+      : undefined,
   });
   const [color, setColor] = useState<ColorsOptions>();
   const [image, setImage] = useState<string>();
@@ -80,7 +79,7 @@ const Cadastrar = () => {
       imageFile,
       fullAddress,
       latitude,
-      longitude
+      longitude,
     }: {
       data: AddCityForm;
       color: ColorsOptions;
@@ -108,13 +107,13 @@ const Cadastrar = () => {
           calcData: {
             initialDate: null as any,
             landfillDelivery: parseFloat(data.landfillDelivery),
-            fuel: parseFloat(data.fuel)
+            fuel: parseFloat(data.fuel),
           },
           status: data.status,
           // password é acessado via (data as any).password no createUser
-          ...(data as any)
+          ...(data as any),
         } as any,
-        imageFile
+        imageFile,
       );
 
       if (errorUser) {
@@ -133,8 +132,8 @@ const Cadastrar = () => {
       },
       onSettled: () => {
         setLoading(false);
-      }
-    }
+      },
+    },
   );
 
   const mutationUpdate = useMutation(
@@ -144,7 +143,7 @@ const Cadastrar = () => {
       imageFile,
       fullAddress,
       latitude,
-      longitude
+      longitude,
     }: {
       data: AddCityForm;
       color: ColorsOptions;
@@ -164,41 +163,41 @@ const Cadastrar = () => {
         calcData: {
           initialDate: null as any,
           landfillDelivery: parseFloat(data.landfillDelivery),
-          fuel: parseFloat(data.fuel)
+          fuel: parseFloat(data.fuel),
         },
-        status: data.status
+        status: data.status,
       };
 
       if (imageFile) {
         const { error: errorDelete } = await deleteImage(city?.image);
         if (errorDelete) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          throw new Error(errorDelete as any).props;
+          throw new Error(errorDelete as any);
         }
 
         const { image: imageUrl, error: errorUpload } =
           await uploadImage(imageFile);
         if (errorUpload) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          throw new Error(errorUpload as any).props;
+          throw new Error(errorUpload as any);
         }
 
         const { error: errorUpdate } = await updateUser(
           toEditCityId as string,
-          { ...objToUpdate, image: imageUrl }
+          { ...objToUpdate, image: imageUrl },
         );
         if (errorUpdate) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          throw new Error(errorUpdate as any).props;
+          throw new Error(errorUpdate as any);
         }
       } else {
         const { error: errorUpdate } = await updateUser(
           toEditCityId as string,
-          objToUpdate
+          objToUpdate,
         );
         if (errorUpdate) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          throw new Error(errorUpdate as any).props;
+          throw new Error(errorUpdate as any);
         }
       }
     },
@@ -215,8 +214,8 @@ const Cadastrar = () => {
       },
       onSettled: () => {
         setLoading(false);
-      }
-    }
+      },
+    },
   );
 
   const handleForm = async (data: AddCityForm, type: "create" | "edit") => {
@@ -238,7 +237,7 @@ const Cadastrar = () => {
         imageFile,
         fullAddress,
         latitude,
-        longitude
+        longitude,
       });
     }
     if (type === "edit") {
@@ -248,7 +247,7 @@ const Cadastrar = () => {
         imageFile,
         fullAddress,
         latitude,
-        longitude
+        longitude,
       });
     }
   };
@@ -282,7 +281,7 @@ const Cadastrar = () => {
         ) : (
           <form
             onSubmit={handleSubmit((data) =>
-              handleForm(data, city ? "edit" : "create")
+              handleForm(data, city ? "edit" : "create"),
             )}
             className="flex flex-col items-center justify-center gap-8"
           >
@@ -323,10 +322,11 @@ const Cadastrar = () => {
                     {colors.map((item, key) => (
                       <div
                         key={key}
-                        className={`rounded-md border-2 ${color === item.name
+                        className={`rounded-md border-2 ${
+                          color === item.name
                             ? " border-black/40"
                             : "border-transparent"
-                          }`}
+                        }`}
                       >
                         <div
                           onClick={() => setColor(item.name)}
@@ -341,9 +341,9 @@ const Cadastrar = () => {
               <div className="w-1/2 space-y-8">
                 {(city
                   ? inputsData.filter(
-                    (item) =>
-                      item.name !== "email" && item.name !== "password"
-                  )
+                      (item) =>
+                        item.name !== "email" && item.name !== "password",
+                    )
                   : inputsData
                 ).map((item, index) => {
                   if (item.name === "status") {
