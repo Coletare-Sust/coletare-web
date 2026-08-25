@@ -91,6 +91,7 @@ const CadastrarVeiculoPage = () => {
         router.push("/veiculos");
       },
       onError: (err: any) => {
+        console.error("Erro ao cadastrar veículo:", err);
         errorToast("Erro ao cadastrar veículo.");
       }
     }
