@@ -153,9 +153,10 @@ const RotasAndamento = () => {
   useEffect(() => {
     if (!user?.cityId) return;
 
-    const socketUrl = `${
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
-    }/ws`;
+    const apiUrl = (
+      process.env.NEXT_PUBLIC_API_URL || "https://api.coletapp.com"
+    ).replace(/\/$/, "");
+    const socketUrl = `${apiUrl}/ws`;
     const socket = new SockJS(socketUrl);
 
     const stompClient = new Client({

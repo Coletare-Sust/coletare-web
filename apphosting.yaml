@@ -29,6 +29,8 @@ env:
     value: "AIzaSyA7UCWZlQbKbjtL5QeiqM2wyojo7eqOjHQ"
   - variable: NEXT_PUBLIC_LOGIN_URL
     value: "https://www.coletarepgs.com/"
+  - variable: NEXT_PUBLIC_API_URL
+    value: "https://api.coletapp.com"
   - variable: NEXT_PUBLIC_NODEMAILER_USER
     value: "coletarepegasusambiental@gmail.com"
   - variable: NEXT_PUBLIC_NODEMAILER_PASS
