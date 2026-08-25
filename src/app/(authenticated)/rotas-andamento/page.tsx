@@ -17,9 +17,17 @@ import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import useCity from "@/hooks/queries/useCity";
 import useRoutes from "@hooks/queries/useAllRoutes";
+import useAllCollectsByCity from "@/hooks/queries/useAllCollectsByCity";
 import { successToast } from "@/hooks/useAppToast";
 
 import { decodePolyline } from "@utils/decodePolyline";
+import { CollectEntity } from "@/common/entities/Collect";
+import { RouteEntity } from "@/common/entities/route";
+
+interface RoutePoint {
+  lat: number;
+  lng: number;
+}
 
 interface LiveTruck {
   id: string;
@@ -28,6 +36,22 @@ interface LiveTruck {
   carPlate: string;
   vehicleName: string;
   routeId: string;
+  routePath: RoutePoint[];
+}
+
+interface LiveLocationPayload {
+  collectId: string;
+  vehicleId: string;
+  vehicleName: string;
+  carPlate: string;
+  routeId: string;
+  latitude: number;
+  longitude: number;
+  routePath?: {
+    latitude: number;
+    longitude: number;
+  }[];
+  hasEnded: boolean;
 }
 
 const defaultMapCenter = {
@@ -49,7 +73,14 @@ const RotasAndamento = () => {
   const locationStatus = useRef<"pending" | "success" | "error">("pending");
 
   const cityId = user?.cityId;
-  const { data: allRoutes } = useRoutes(cityId!);
+  const { data: allRoutes } = useRoutes(cityId ?? "");
+  const { data: collects } = useAllCollectsByCity<CollectEntity[]>(
+    cityId ?? "",
+    (data) =>
+      (data as CollectEntity[] | undefined)?.filter(
+        (collect) => !collect.hasEnded
+      ) ?? []
+  );
 
   const onMapLoad = (map: google.maps.Map) => {
     setMap(map);
@@ -58,11 +89,36 @@ const RotasAndamento = () => {
   const routesMap = useMemo(() => {
     if (!allRoutes) return {};
 
-    return allRoutes.reduce((acc: any, route: any) => {
+    return allRoutes.reduce<Record<string, RouteEntity>>((acc, route) => {
       acc[route.id] = route;
       return acc;
     }, {});
   }, [allRoutes]);
+
+  useEffect(() => {
+    if (!collects) return;
+
+    setTrucks(
+      collects
+        .filter(
+          (collect) =>
+            collect.vehicleLatitude !== 0 && collect.vehicleLongitude !== 0
+        )
+        .map((collect) => ({
+          id: collect.id,
+          lat: collect.vehicleLatitude,
+          lng: collect.vehicleLongitude,
+          carPlate: collect.carPlate,
+          vehicleName: collect.vehicleName,
+          routeId: collect.routeId,
+          routePath:
+            collect.realTimePosition?.map((position) => ({
+              lat: position.latitude,
+              lng: position.longitude
+            })) ?? []
+        }))
+    );
+  }, [collects]);
 
   useEffect(() => {
     if (navigator.geolocation && locationStatus.current === "pending") {
@@ -97,27 +153,41 @@ const RotasAndamento = () => {
   useEffect(() => {
     if (!user?.cityId) return;
 
-    const socketUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/ws`;
+    const socketUrl = `${
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
+    }/ws`;
     const socket = new SockJS(socketUrl);
-    
+
     const stompClient = new Client({
       webSocketFactory: () => socket as any,
-      debug: (str) => {
-        // console.log(str);
+      debug: () => {
+        // console.log("STOMP debug");
       },
       onConnect: () => {
-        console.log(`STOMP conectado, inscrevendo-se em: /topic/locations/${user.cityId}`);
+        console.log(
+          `STOMP conectado, inscrevendo-se em: /topic/locations/${user.cityId}`
+        );
         stompClient.subscribe(`/topic/locations/${user.cityId}`, (message) => {
           if (message.body) {
-            const payload = JSON.parse(message.body);
-            
+            const payload = JSON.parse(message.body) as LiveLocationPayload;
+
             if (payload.hasEnded) {
-              successToast(`A coleta do veículo ${payload.vehicleName} foi finalizada!`);
-              setTrucks((prevTrucks) => prevTrucks.filter((t) => t.id !== payload.collectId));
+              successToast(
+                `A coleta do veículo ${payload.vehicleName} foi finalizada!`
+              );
+              setTrucks((prevTrucks) =>
+                prevTrucks.filter((t) => t.id !== payload.collectId)
+              );
               return;
             }
-            
+
             setTrucks((prevTrucks) => {
+              const routePath =
+                payload.routePath?.map((position) => ({
+                  lat: position.latitude,
+                  lng: position.longitude
+                })) ?? [];
+
               const newTruck: LiveTruck = {
                 id: payload.collectId,
                 lat: payload.latitude,
@@ -125,23 +195,46 @@ const RotasAndamento = () => {
                 carPlate: payload.carPlate,
                 vehicleName: payload.vehicleName,
                 routeId: payload.routeId,
+                routePath
               };
-              
-              const existingIndex = prevTrucks.findIndex(t => t.id === newTruck.id);
+
+              const existingIndex = prevTrucks.findIndex(
+                (t) => t.id === newTruck.id
+              );
               if (existingIndex >= 0) {
                 const newTrucks = [...prevTrucks];
-                newTrucks[existingIndex] = newTruck;
+                const previousRoutePath =
+                  newTrucks[existingIndex].routePath ?? [];
+                newTrucks[existingIndex] = {
+                  ...newTruck,
+                  routePath:
+                    routePath.length > 0
+                      ? routePath
+                      : [
+                          ...previousRoutePath,
+                          { lat: payload.latitude, lng: payload.longitude }
+                        ]
+                };
                 return newTrucks;
               } else {
-                return [...prevTrucks, newTruck];
+                return [
+                  ...prevTrucks,
+                  {
+                    ...newTruck,
+                    routePath:
+                      routePath.length > 0
+                        ? routePath
+                        : [{ lat: payload.latitude, lng: payload.longitude }]
+                  }
+                ];
               }
             });
           }
         });
       },
       onStompError: (frame) => {
-        console.error('STOMP Error:', frame.headers['message']);
-      },
+        console.error("STOMP Error:", frame.headers.message);
+      }
     });
 
     stompClient.activate();
@@ -196,6 +289,18 @@ const RotasAndamento = () => {
                             strokeColor: "#00ADB4",
                             strokeOpacity: 0.8,
                             strokeWeight: 5
+                          }}
+                        />
+                      )}
+
+                      {truck.routePath.length > 1 && (
+                        <Polyline
+                          path={truck.routePath}
+                          options={{
+                            strokeColor: "#1D4ED8",
+                            strokeOpacity: 0.95,
+                            strokeWeight: 6,
+                            zIndex: 2
                           }}
                         />
                       )}

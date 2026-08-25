@@ -4,7 +4,7 @@ import TrashIcon from "@atoms/Icons/TrashIcon";
 import TruckIcon from "@atoms/Icons/TruckIcon";
 import BellIcon from "@atoms/Icons/BellIcon";
 import { renderToString } from "react-dom/server";
-import { RecycleIcon } from "lucide-react";
+import { KeyRound, RecycleIcon } from "lucide-react";
 import ColaboratorIcon from "@/components/atoms/Icons/ColaboratorIcon";
 
 export const linksCity = [
@@ -173,6 +173,18 @@ export const linksAdmin = [
     url: "/municipios",
     icon: (color?: string) => {
       const svgString = renderToString(<TruckIcon color={color} />);
+      return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
+        "base64"
+      )}`;
+    },
+    alertNumber: -1,
+    hiddenInSidebar: false
+  },
+  {
+    label: "Permissoes",
+    url: "/permissoes",
+    icon: (color?: string) => {
+      const svgString = renderToString(<KeyRound color={color} />);
       return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
         "base64"
       )}`;

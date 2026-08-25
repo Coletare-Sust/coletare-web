@@ -26,6 +26,7 @@ interface UserResponseDTO {
     landFillDelivery: number | null;
   } | null;
   status?: boolean | null;
+  permissions?: string[] | null;
   address?: {
     fullAddress: string;
     location: {
@@ -157,6 +158,7 @@ function mapUserResponseToEntity(dto: UserResponseDTO): UserEntity {
     tokens: dto.tokens ?? [],
     // Converte o boolean do backend para string 'Ativo'/'Inativo'
     status: dto.status === true ? "Ativo" : dto.status === false ? "Inativo" : undefined,
+    permissions: dto.permissions ?? [],
   };
 }
 
