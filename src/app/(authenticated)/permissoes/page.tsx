@@ -8,11 +8,12 @@ import LoadingComponent from "@/components/atoms/Loading/loading";
 import Title from "@/components/atoms/Title/title";
 import Button from "@/components/atoms/Button/button";
 import { wrapper } from "@/common/constants/wrapper";
+import { normalizePermission } from "@/common/accessControl/permissions";
 import { UserEntity } from "@/common/entities/user";
 import useAllCities from "@/hooks/queries/useAllCities";
 import usePermissions from "@/hooks/queries/usePermissions";
 import useUserPermissions, {
-  getUserPermissionsQueryKey
+  getUserPermissionsQueryKey,
 } from "@/hooks/queries/useUserPermissions";
 import { errorToast, successToast } from "@/hooks/useAppToast";
 import { queryClient } from "@/store/providers/queryClient";
@@ -26,15 +27,15 @@ const PermissionManagementPage = () => {
   const [search, setSearch] = useState("");
   const [selectedCityId, setSelectedCityId] = useState<string | null>(null);
   const [extraPermissions, setExtraPermissions] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
   const [revokedPermissions, setRevokedPermissions] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const selectedCity = useMemo(
     () => cities.find((city) => city.id === selectedCityId) ?? null,
-    [cities, selectedCityId]
+    [cities, selectedCityId],
   );
 
   const { data: userPermissions, isLoading: isLoadingUserPermissions } =
@@ -47,8 +48,36 @@ const PermissionManagementPage = () => {
   }, [cities, selectedCityId]);
 
   useEffect(() => {
-    setExtraPermissions(new Set(userPermissions?.extraPermissions ?? []));
-    setRevokedPermissions(new Set(userPermissions?.revokedPermissions ?? []));
+    setExtraPermissions(
+      new Set(
+        (userPermissions?.extraPermissions ?? []).map(normalizePermission),
+      ),
+    );
+    setRevokedPermissions(
+      new Set(
+        (userPermissions?.revokedPermissions ?? []).map(normalizePermission),
+      ),
+    );
+  }, [userPermissions]);
+
+  const baseProfilePermissions = useMemo(() => {
+    const effective = new Set(
+      (userPermissions?.effectivePermissions ?? []).map(normalizePermission),
+    );
+    const originalExtraPermissions = new Set(
+      (userPermissions?.extraPermissions ?? []).map(normalizePermission),
+    );
+    const originalRevokedPermissions = new Set(
+      (userPermissions?.revokedPermissions ?? []).map(normalizePermission),
+    );
+
+    originalExtraPermissions.forEach((permission) =>
+      effective.delete(permission),
+    );
+    originalRevokedPermissions.forEach((permission) =>
+      effective.add(permission),
+    );
+    return effective;
   }, [userPermissions]);
 
   const filteredCities = useMemo(() => {
@@ -70,7 +99,7 @@ const PermissionManagementPage = () => {
         groups[moduleName] = [...(groups[moduleName] ?? []), permission];
         return groups;
       },
-      {}
+      {},
     );
   }, [permissions]);
 
@@ -79,42 +108,41 @@ const PermissionManagementPage = () => {
       if (!selectedCityId) return null;
       return updateUserPermissions(selectedCityId, {
         extraPermissions: Array.from(extraPermissions),
-        revokedPermissions: Array.from(revokedPermissions)
+        revokedPermissions: Array.from(revokedPermissions),
       });
     },
     {
       onSuccess: () => {
         successToast("Permissoes do municipio atualizadas.");
         queryClient.invalidateQueries(
-          getUserPermissionsQueryKey(selectedCityId)
+          getUserPermissionsQueryKey(selectedCityId),
         );
       },
       onError: () => {
         errorToast("Nao foi possivel atualizar as permissoes.");
-      }
-    }
+      },
+    },
   );
 
   const hasPermission = (permissionKey: string) => {
-    if (revokedPermissions.has(permissionKey)) return false;
-    if (extraPermissions.has(permissionKey)) return true;
-    return (
-      userPermissions?.effectivePermissions?.includes(permissionKey) ?? false
-    );
+    const normalizedPermission = normalizePermission(permissionKey);
+
+    if (revokedPermissions.has(normalizedPermission)) return false;
+    if (extraPermissions.has(normalizedPermission)) return true;
+    return baseProfilePermissions.has(normalizedPermission);
   };
 
   const togglePermission = (permissionKey: string) => {
-    const isEnabled = hasPermission(permissionKey);
-    const inherited =
-      userPermissions?.effectivePermissions?.includes(permissionKey) &&
-      !userPermissions?.extraPermissions?.includes(permissionKey);
+    const normalizedPermission = normalizePermission(permissionKey);
+    const isEnabled = hasPermission(normalizedPermission);
+    const inherited = baseProfilePermissions.has(normalizedPermission);
 
     setExtraPermissions((current) => {
       const next = new Set(current);
       if (isEnabled) {
-        next.delete(permissionKey);
-      } else {
-        next.add(permissionKey);
+        next.delete(normalizedPermission);
+      } else if (!inherited) {
+        next.add(normalizedPermission);
       }
       return next;
     });
@@ -122,16 +150,16 @@ const PermissionManagementPage = () => {
     setRevokedPermissions((current) => {
       const next = new Set(current);
       if (isEnabled && inherited) {
-        next.add(permissionKey);
+        next.add(normalizedPermission);
       } else {
-        next.delete(permissionKey);
+        next.delete(normalizedPermission);
       }
       return next;
     });
   };
 
   const enabledCount = permissions.filter((permission) =>
-    hasPermission(permission.key)
+    hasPermission(permission.key),
   ).length;
 
   const isLoading =
@@ -278,7 +306,7 @@ const PermissionManagementPage = () => {
                         })}
                       </div>
                     </section>
-                  )
+                  ),
                 )}
               </div>
             </div>

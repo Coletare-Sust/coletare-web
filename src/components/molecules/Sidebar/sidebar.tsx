@@ -4,12 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
+import type { NavigationLink } from "@molecules/MainHeader/constants";
 
 type Props = {
   isOpen: boolean;
   toggleSidebar: () => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  links: any[];
+  links: NavigationLink[];
   headerColor: string;
 };
 
@@ -17,7 +17,7 @@ export default function Sidebar({
   isOpen,
   toggleSidebar,
   links,
-  headerColor
+  headerColor,
 }: Props) {
   const pathname = usePathname();
 
