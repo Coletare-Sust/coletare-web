@@ -64,26 +64,26 @@ export function normalizePermission(permission: string) {
 
 export function hasPermission(
   user: UserEntity | null | undefined,
-  permission: PermissionRule,
+  permission: PermissionRule
 ) {
   if (!user) return false;
   if (user.role === "platformAdmin") return true;
 
   const userPermissions = new Set(
-    (user.permissions ?? []).map(normalizePermission),
+    (user.permissions ?? []).map(normalizePermission)
   );
   const requiredPermissions = Array.isArray(permission)
     ? permission
     : [permission];
 
   return requiredPermissions.some((item) =>
-    userPermissions.has(normalizePermission(item)),
+    userPermissions.has(normalizePermission(item))
   );
 }
 
 export function canAccessAll(
   user: UserEntity | null | undefined,
-  permissions: PermissionRule[],
+  permissions: PermissionRule[]
 ) {
   return permissions.every((permission) => hasPermission(user, permission));
 }

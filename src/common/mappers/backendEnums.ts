@@ -10,7 +10,7 @@
 
 export const WITHDRAWAL_REQUEST_TYPE_LABELS: Record<string, string> = {
   RESIDENCE: "Residencial",
-  INAPPROPRIATE_LOCATION: "Localização Inapropriada",
+  INAPPROPRIATE_LOCATION: "Localização Inapropriada"
 };
 
 export function getWithdrawalRequestTypeLabel(backendValue: string): string {
@@ -34,7 +34,7 @@ export const RESIDUE_TYPE_LABELS: Record<string, string> = {
   CONSTRUCTION: "Resíduos de Construção",
   NORMAL: "Resíduo Comum",
   PRUNING: "Resíduos de Podas",
-  HIGH_VOLUMES: "Grandes Volumes",
+  HIGH_VOLUMES: "Grandes Volumes"
 };
 
 export function getResidueTypeLabel(backendValue: string): string {
@@ -46,7 +46,10 @@ export function getResidueTypeLabel(backendValue: string): string {
 export function normalizeUserRole(
   backendRole: string
 ): "admin" | "platformAdmin" | "vehicle" | "employee" | "citizen" {
-  const map: Record<string, "admin" | "platformAdmin" | "vehicle" | "employee" | "citizen"> = {
+  const map: Record<
+    string,
+    "admin" | "platformAdmin" | "vehicle" | "employee" | "citizen"
+  > = {
     ADMIN: "admin",
     PLATFORM_ADMIN: "platformAdmin",
     VEHICLE: "vehicle",
@@ -57,7 +60,7 @@ export function normalizeUserRole(
     platformAdmin: "platformAdmin",
     vehicle: "vehicle",
     employee: "employee",
-    citizen: "citizen",
+    citizen: "citizen"
   };
   return map[backendRole] ?? "citizen";
 }

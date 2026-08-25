@@ -31,7 +31,7 @@ type AddCityForm = z.infer<typeof AddCitySchema>;
 const Cadastrar = () => {
   const statusOptions = [
     { id: "ativo", text: "Ativo", value: "Ativo" },
-    { id: "inativo", text: "Inativo", value: "Inativo" },
+    { id: "inativo", text: "Inativo", value: "Inativo" }
   ];
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -44,7 +44,7 @@ const Cadastrar = () => {
     formState: { errors },
     reset,
     watch,
-    setValue,
+    setValue
   } = useForm<AddCityForm>({
     mode: "all",
     criteriaMode: "all",
@@ -59,9 +59,9 @@ const Cadastrar = () => {
           landfillDelivery: city?.calcData?.landfillDelivery?.toString() ?? "",
           fuel: city?.calcData?.fuel?.toString() ?? "",
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          status: city.status!,
+          status: city.status!
         }
-      : undefined,
+      : undefined
   });
   const [color, setColor] = useState<ColorsOptions>();
   const [image, setImage] = useState<string>();
@@ -79,7 +79,7 @@ const Cadastrar = () => {
       imageFile,
       fullAddress,
       latitude,
-      longitude,
+      longitude
     }: {
       data: AddCityForm;
       color: ColorsOptions;
@@ -107,13 +107,13 @@ const Cadastrar = () => {
           calcData: {
             initialDate: null as any,
             landfillDelivery: parseFloat(data.landfillDelivery),
-            fuel: parseFloat(data.fuel),
+            fuel: parseFloat(data.fuel)
           },
           status: data.status,
           // password é acessado via (data as any).password no createUser
-          ...(data as any),
+          ...(data as any)
         } as any,
-        imageFile,
+        imageFile
       );
 
       if (errorUser) {
@@ -132,8 +132,8 @@ const Cadastrar = () => {
       },
       onSettled: () => {
         setLoading(false);
-      },
-    },
+      }
+    }
   );
 
   const mutationUpdate = useMutation(
@@ -143,7 +143,7 @@ const Cadastrar = () => {
       imageFile,
       fullAddress,
       latitude,
-      longitude,
+      longitude
     }: {
       data: AddCityForm;
       color: ColorsOptions;
@@ -163,9 +163,9 @@ const Cadastrar = () => {
         calcData: {
           initialDate: null as any,
           landfillDelivery: parseFloat(data.landfillDelivery),
-          fuel: parseFloat(data.fuel),
+          fuel: parseFloat(data.fuel)
         },
-        status: data.status,
+        status: data.status
       };
 
       if (imageFile) {
@@ -184,7 +184,7 @@ const Cadastrar = () => {
 
         const { error: errorUpdate } = await updateUser(
           toEditCityId as string,
-          { ...objToUpdate, image: imageUrl },
+          { ...objToUpdate, image: imageUrl }
         );
         if (errorUpdate) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -193,7 +193,7 @@ const Cadastrar = () => {
       } else {
         const { error: errorUpdate } = await updateUser(
           toEditCityId as string,
-          objToUpdate,
+          objToUpdate
         );
         if (errorUpdate) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -214,8 +214,8 @@ const Cadastrar = () => {
       },
       onSettled: () => {
         setLoading(false);
-      },
-    },
+      }
+    }
   );
 
   const handleForm = async (data: AddCityForm, type: "create" | "edit") => {
@@ -237,7 +237,7 @@ const Cadastrar = () => {
         imageFile,
         fullAddress,
         latitude,
-        longitude,
+        longitude
       });
     }
     if (type === "edit") {
@@ -247,7 +247,7 @@ const Cadastrar = () => {
         imageFile,
         fullAddress,
         latitude,
-        longitude,
+        longitude
       });
     }
   };
@@ -281,7 +281,7 @@ const Cadastrar = () => {
         ) : (
           <form
             onSubmit={handleSubmit((data) =>
-              handleForm(data, city ? "edit" : "create"),
+              handleForm(data, city ? "edit" : "create")
             )}
             className="flex flex-col items-center justify-center gap-8"
           >
@@ -342,7 +342,7 @@ const Cadastrar = () => {
                 {(city
                   ? inputsData.filter(
                       (item) =>
-                        item.name !== "email" && item.name !== "password",
+                        item.name !== "email" && item.name !== "password"
                     )
                   : inputsData
                 ).map((item, index) => {

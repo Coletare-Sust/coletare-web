@@ -61,4 +61,3 @@ const useAllDashboard = <T = DashboardEntity | null>(
 };
 
 export default useAllDashboard;
-

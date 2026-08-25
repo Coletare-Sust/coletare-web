@@ -79,7 +79,7 @@ const CadastrarVeiculoPage = () => {
         cityId: user?.id as string,
         carPlate: formData.carPlate,
         consume: parseFloat(formData.consume),
-        emission: parseFloat(formData.emission),
+        emission: parseFloat(formData.emission)
       };
       return await registerVehicle(payload);
     },

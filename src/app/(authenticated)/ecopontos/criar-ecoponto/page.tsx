@@ -20,7 +20,10 @@ import useCreateEcoponto from "@/hooks/queries/ecoponto/useCreateEcoponto";
 import useUpdateEcoponto from "@/hooks/queries/ecoponto/useUpdateEcoponto";
 import useGetEcopontoById from "@/hooks/queries/ecoponto/useGetEcopontoById";
 import EcopontoAddressInput from "@/components/atoms/EcopontoAddressInput/EcopontoAddressInput";
-import { RESIDUE_TYPE_LABELS, getResidueTypeLabel } from "@/common/mappers/backendEnums";
+import {
+  RESIDUE_TYPE_LABELS,
+  getResidueTypeLabel
+} from "@/common/mappers/backendEnums";
 
 const initialCenter = {
   lat: -8.05224,
@@ -111,11 +114,13 @@ const CriarEcopontoPage = () => {
     setMap(map);
   }, []);
 
-  const dropdownOptions = Object.entries(RESIDUE_TYPE_LABELS).map(([key, label]) => ({
-    id: key,
-    label: label,
-    onClick: () => setResidueType([key])
-  }));
+  const dropdownOptions = Object.entries(RESIDUE_TYPE_LABELS).map(
+    ([key, label]) => ({
+      id: key,
+      label,
+      onClick: () => setResidueType([key])
+    })
+  );
 
   async function handleSubmit() {
     setError("");
@@ -290,7 +295,9 @@ const CriarEcopontoPage = () => {
                   <Dropdown
                     options={dropdownOptions}
                     className="w-full border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
-                    value={getResidueTypeLabel(residueType[0]) || residueType[0]}
+                    value={
+                      getResidueTypeLabel(residueType[0]) || residueType[0]
+                    }
                   />
                 </div>
 

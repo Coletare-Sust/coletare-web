@@ -13,7 +13,7 @@ import { UserEntity } from "@/common/entities/user";
 import useAllCities from "@/hooks/queries/useAllCities";
 import usePermissions from "@/hooks/queries/usePermissions";
 import useUserPermissions, {
-  getUserPermissionsQueryKey,
+  getUserPermissionsQueryKey
 } from "@/hooks/queries/useUserPermissions";
 import { errorToast, successToast } from "@/hooks/useAppToast";
 import { queryClient } from "@/store/providers/queryClient";
@@ -27,15 +27,15 @@ const PermissionManagementPage = () => {
   const [search, setSearch] = useState("");
   const [selectedCityId, setSelectedCityId] = useState<string | null>(null);
   const [extraPermissions, setExtraPermissions] = useState<Set<string>>(
-    new Set(),
+    new Set()
   );
   const [revokedPermissions, setRevokedPermissions] = useState<Set<string>>(
-    new Set(),
+    new Set()
   );
 
   const selectedCity = useMemo(
     () => cities.find((city) => city.id === selectedCityId) ?? null,
-    [cities, selectedCityId],
+    [cities, selectedCityId]
   );
 
   const { data: userPermissions, isLoading: isLoadingUserPermissions } =
@@ -50,32 +50,32 @@ const PermissionManagementPage = () => {
   useEffect(() => {
     setExtraPermissions(
       new Set(
-        (userPermissions?.extraPermissions ?? []).map(normalizePermission),
-      ),
+        (userPermissions?.extraPermissions ?? []).map(normalizePermission)
+      )
     );
     setRevokedPermissions(
       new Set(
-        (userPermissions?.revokedPermissions ?? []).map(normalizePermission),
-      ),
+        (userPermissions?.revokedPermissions ?? []).map(normalizePermission)
+      )
     );
   }, [userPermissions]);
 
   const baseProfilePermissions = useMemo(() => {
     const effective = new Set(
-      (userPermissions?.effectivePermissions ?? []).map(normalizePermission),
+      (userPermissions?.effectivePermissions ?? []).map(normalizePermission)
     );
     const originalExtraPermissions = new Set(
-      (userPermissions?.extraPermissions ?? []).map(normalizePermission),
+      (userPermissions?.extraPermissions ?? []).map(normalizePermission)
     );
     const originalRevokedPermissions = new Set(
-      (userPermissions?.revokedPermissions ?? []).map(normalizePermission),
+      (userPermissions?.revokedPermissions ?? []).map(normalizePermission)
     );
 
     originalExtraPermissions.forEach((permission) =>
-      effective.delete(permission),
+      effective.delete(permission)
     );
     originalRevokedPermissions.forEach((permission) =>
-      effective.add(permission),
+      effective.add(permission)
     );
     return effective;
   }, [userPermissions]);
@@ -99,7 +99,7 @@ const PermissionManagementPage = () => {
         groups[moduleName] = [...(groups[moduleName] ?? []), permission];
         return groups;
       },
-      {},
+      {}
     );
   }, [permissions]);
 
@@ -108,20 +108,20 @@ const PermissionManagementPage = () => {
       if (!selectedCityId) return null;
       return updateUserPermissions(selectedCityId, {
         extraPermissions: Array.from(extraPermissions),
-        revokedPermissions: Array.from(revokedPermissions),
+        revokedPermissions: Array.from(revokedPermissions)
       });
     },
     {
       onSuccess: () => {
         successToast("Permissoes do municipio atualizadas.");
         queryClient.invalidateQueries(
-          getUserPermissionsQueryKey(selectedCityId),
+          getUserPermissionsQueryKey(selectedCityId)
         );
       },
       onError: () => {
         errorToast("Nao foi possivel atualizar as permissoes.");
-      },
-    },
+      }
+    }
   );
 
   const hasPermission = (permissionKey: string) => {
@@ -159,7 +159,7 @@ const PermissionManagementPage = () => {
   };
 
   const enabledCount = permissions.filter((permission) =>
-    hasPermission(permission.key),
+    hasPermission(permission.key)
   ).length;
 
   const isLoading =
@@ -306,7 +306,7 @@ const PermissionManagementPage = () => {
                         })}
                       </div>
                     </section>
-                  ),
+                  )
                 )}
               </div>
             </div>

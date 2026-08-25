@@ -12,10 +12,7 @@ import {
   signInWithEmailAndPasswordLocal,
   waitForUser
 } from "@/store/services/auth";
-import {
-  createUserDoc,
-  deleteUserDoc
-} from "@/store/services/user";
+import { createUserDoc, deleteUserDoc } from "@/store/services/user";
 import { UserEntity as UserDoc, UserEntity } from "@/common/entities/user";
 
 import AuthContext from "./context";
@@ -54,8 +51,11 @@ const AuthProvider = ({ children }: Props) => {
 
   const loginWithInternalService = async (email: string, password: string) => {
     setLoading((prev) => ({ ...prev, loginWithInternalService: true }));
-    const { user, error } = await signInWithEmailAndPasswordLocal(email, password);
-    
+    const { user, error } = await signInWithEmailAndPasswordLocal(
+      email,
+      password
+    );
+
     setLoading((prev) => ({ ...prev, loginWithInternalService: false }));
     if (user && !error) {
       successToast("Bem vindo!");
@@ -142,7 +142,9 @@ const AuthProvider = ({ children }: Props) => {
       if (error) throw new Error(error);
       successToast("Email de redefinição de senha enviado.");
     } catch (err: any) {
-      errorToast("Não foi possível solicitar a redefinição de senha no momento.");
+      errorToast(
+        "Não foi possível solicitar a redefinição de senha no momento."
+      );
     }
     setLoading((prev) => ({ ...prev, redefinePassword: false }));
   };

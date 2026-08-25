@@ -50,8 +50,10 @@ const InfoRow = ({ data }: { data: Extended }) => {
       >
         <span className={labelStyles}>Data</span>
         {
-        <span>
-            {data.createdAt ? format(new Date(data.createdAt), "dd/MM/yyyy", { locale: ptBR }) : "—"}
+          <span>
+            {data.createdAt
+              ? format(new Date(data.createdAt), "dd/MM/yyyy", { locale: ptBR })
+              : "—"}
           </span>
         }
       </div>

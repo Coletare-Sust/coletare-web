@@ -17,7 +17,7 @@ export default function Sidebar({
   isOpen,
   toggleSidebar,
   links,
-  headerColor,
+  headerColor
 }: Props) {
   const pathname = usePathname();
 

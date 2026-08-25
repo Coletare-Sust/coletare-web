@@ -2,7 +2,7 @@ import { apiFetch } from "@/utils/apiFetch";
 import { WithdrawalsRequestEntity } from "@/common/entities/WithdrawalsRequest";
 import {
   normalizeWithdrawalRequestType,
-  getResidueTypeLabel,
+  getResidueTypeLabel
 } from "@/common/mappers/backendEnums";
 
 // ---------- Backend DTOs (WithdrawalRequestOutputDTO) ----------
@@ -65,7 +65,7 @@ function mapWithdrawalOutputToEntity(
     createdById: dto.requesterId ?? "",
     isResolved: dto.status ?? false,
     image: dto.image ?? null,
-    createdAt: dto.createdAt,
+    createdAt: dto.createdAt
   };
 }
 
@@ -96,7 +96,10 @@ export const createWithdrawalRequest = async (
 ): Promise<WithdrawalsRequestEntity> => {
   const formData = new FormData();
   // "data" parte: JSON serializado como Blob com content-type application/json
-  formData.append("data", new Blob([JSON.stringify(input)], { type: "application/json" }));
+  formData.append(
+    "data",
+    new Blob([JSON.stringify(input)], { type: "application/json" })
+  );
   if (imageFile) {
     formData.append("image", imageFile);
   }
@@ -108,7 +111,7 @@ export const createWithdrawalRequest = async (
     {
       method: "POST",
       credentials: "include",
-      body: formData,
+      body: formData
     }
   );
 
@@ -129,7 +132,7 @@ export const updateWithdrawalRequest = async (
     `/withdrawal-request/${id}`,
     {
       method: "PUT",
-      body: JSON.stringify(input),
+      body: JSON.stringify(input)
     }
   );
   return mapWithdrawalOutputToEntity(data);
@@ -160,4 +163,3 @@ export const getWithdrawalRequestCount = async (
     return 0;
   }
 };
-

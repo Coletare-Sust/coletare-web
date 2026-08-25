@@ -52,7 +52,7 @@ export default function EditWarningPage() {
         title,
         description,
         // Backend aceita apenas string (URL) para image, não File
-        image: typeof image === "string" ? image : null,
+        image: typeof image === "string" ? image : null
       });
       successToast("Aviso atualizado!");
       router.push("/avisos");

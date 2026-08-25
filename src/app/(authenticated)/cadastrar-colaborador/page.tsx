@@ -57,7 +57,7 @@ const CadastrarVeiculoPage = () => {
         // Edição: atualiza name e cpf via PUT /user/{id}
         return await updateUserDoc(id as string, {
           name: formData.name,
-          cpf: formData.cpf,
+          cpf: formData.cpf
         });
       }
 
@@ -79,9 +79,13 @@ const CadastrarVeiculoPage = () => {
           fullAddress: null,
           latitude: null,
           longitude: null,
-          calcData: { fuel: null, landfillDelivery: null, initialDate: null as any },
+          calcData: {
+            fuel: null,
+            landfillDelivery: null,
+            initialDate: null as any
+          },
           createdAt: null as any,
-          updatedAt: null as any,
+          updatedAt: null as any
         },
         imageFile
       );
