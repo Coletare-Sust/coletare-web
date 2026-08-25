@@ -4,7 +4,9 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const isFormData = options?.body instanceof FormData;
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+  const urlApi = "https://api.coletapp.com";
+
+  const res = await fetch(`${urlApi}${path}`, {
     ...options,
     credentials: "include",
     headers: isFormData
