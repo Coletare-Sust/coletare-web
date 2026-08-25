@@ -89,6 +89,8 @@ export const getAllWithdrawalsRequests = async (
  * POST usa multipart/form-data (exigência do backend).
  * O campo "data" recebe JSON serializado e "image" (opcional) recebe o arquivo.
  */
+const apiUrl = "https://api.coletapp.com/";
+
 export const createWithdrawalRequest = async (
   cityId: string,
   input: CreateWithdrawalRequestInput,
@@ -107,7 +109,8 @@ export const createWithdrawalRequest = async (
   // NÃO usar apiFetch aqui pois ele força Content-Type: application/json
   // O browser seta automaticamente multipart/form-data com o boundary correto
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/withdrawal-request/${cityId}/city`,
+    // `${process.env.NEXT_PUBLIC_API_URL}/withdrawal-request/${cityId}/city`,
+    `${apiUrl}/withdrawal-request/${cityId}/city`,
     {
       method: "POST",
       credentials: "include",
