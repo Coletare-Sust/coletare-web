@@ -21,7 +21,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const { isLoaded, loadError } = useJsApiLoader({
+  const { loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
     libraries
@@ -61,7 +61,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     "/veiculos-colaboradores",
     "/avisos",
     "/rotas-andamento",
-    "/municipios"
+    "/municipios",
+    "/permissoes"
   ];
   const deveMostrarSidebar = rotasComSidebar.includes(pathname);
 

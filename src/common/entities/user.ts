@@ -27,4 +27,5 @@ export interface UserEntity {
   };
   tokens?: string[];
   status?: string;
+  permissions?: string[];
 }

@@ -21,6 +21,10 @@ export interface CollectEntity {
   duration: number;
   vehicleLatitude: number;
   vehicleLongitude: number;
+  realTimePosition: {
+    latitude: number;
+    longitude: number;
+  }[];
   createdAt: Timestamp | TimestampEntity;
   hasEnded: boolean;
 }
