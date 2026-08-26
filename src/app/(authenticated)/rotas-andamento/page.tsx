@@ -17,11 +17,9 @@ import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import useCity from "@/hooks/queries/useCity";
 import useRoutes from "@hooks/queries/useAllRoutes";
-import useAllCollectsByCity from "@/hooks/queries/useAllCollectsByCity";
 import { successToast } from "@/hooks/useAppToast";
 
 import { decodePolyline } from "@utils/decodePolyline";
-import { CollectEntity } from "@/common/entities/Collect";
 import { RouteEntity } from "@/common/entities/route";
 
 interface RoutePoint {
@@ -37,6 +35,7 @@ interface LiveTruck {
   vehicleName: string;
   routeId: string;
   routePath: RoutePoint[];
+  lastSeenAt: number;
 }
 
 interface LiveLocationPayload {
@@ -59,6 +58,8 @@ const defaultMapCenter = {
   lng: -36.4251
 };
 
+const LIVE_TRUCK_TTL_MS = 2 * 60 * 1000;
+
 const RotasAndamento = () => {
   const [, setMap] = useState<google.maps.Map>();
 
@@ -74,13 +75,6 @@ const RotasAndamento = () => {
 
   const cityId = user?.cityId;
   const { data: allRoutes } = useRoutes(cityId ?? "");
-  const { data: collects } = useAllCollectsByCity<CollectEntity[]>(
-    cityId ?? "",
-    (data) =>
-      (data as CollectEntity[] | undefined)?.filter(
-        (collect) => !collect.hasEnded
-      ) ?? []
-  );
 
   const onMapLoad = (map: google.maps.Map) => {
     setMap(map);
@@ -94,31 +88,6 @@ const RotasAndamento = () => {
       return acc;
     }, {});
   }, [allRoutes]);
-
-  useEffect(() => {
-    if (!collects) return;
-
-    setTrucks(
-      collects
-        .filter(
-          (collect) =>
-            collect.vehicleLatitude !== 0 && collect.vehicleLongitude !== 0
-        )
-        .map((collect) => ({
-          id: collect.id,
-          lat: collect.vehicleLatitude,
-          lng: collect.vehicleLongitude,
-          carPlate: collect.carPlate,
-          vehicleName: collect.vehicleName,
-          routeId: collect.routeId,
-          routePath:
-            collect.realTimePosition?.map((position) => ({
-              lat: position.latitude,
-              lng: position.longitude
-            })) ?? []
-        }))
-    );
-  }, [collects]);
 
   useEffect(() => {
     if (navigator.geolocation && locationStatus.current === "pending") {
@@ -182,6 +151,10 @@ const RotasAndamento = () => {
               return;
             }
 
+            if (!payload.latitude || !payload.longitude) {
+              return;
+            }
+
             setTrucks((prevTrucks) => {
               const routePath =
                 payload.routePath?.map((position) => ({
@@ -196,7 +169,8 @@ const RotasAndamento = () => {
                 carPlate: payload.carPlate,
                 vehicleName: payload.vehicleName,
                 routeId: payload.routeId,
-                routePath
+                routePath,
+                lastSeenAt: Date.now()
               };
 
               const existingIndex = prevTrucks.findIndex(
@@ -244,6 +218,19 @@ const RotasAndamento = () => {
       stompClient.deactivate();
     };
   }, [user?.cityId]);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      const now = Date.now();
+      setTrucks((prevTrucks) =>
+        prevTrucks.filter(
+          (truck) => now - truck.lastSeenAt <= LIVE_TRUCK_TTL_MS
+        )
+      );
+    }, 30_000);
+
+    return () => window.clearInterval(interval);
+  }, []);
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center overflow-x-hidden">
