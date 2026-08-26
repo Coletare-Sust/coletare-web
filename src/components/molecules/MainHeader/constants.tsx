@@ -42,7 +42,7 @@ export const linksCity: NavigationLink[] = [
     },
     alertNumber: -1,
     hiddenInSidebar: false,
-    permissions: ["COLLECT_LOCATION_SEND"]
+    permissions: ["COLLECT_READ"]
   },
   {
     label: "Visualizar rota",

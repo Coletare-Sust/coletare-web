@@ -8,7 +8,7 @@ export interface RouteAccessRule {
 export const routeAccessRules: RouteAccessRule[] = [
   { path: "/dashboard/inserir-dados", permissions: ["COLLECT_CREATE"] },
   { path: "/dashboard", permissions: ["METRICS_DASHBOARD_READ"] },
-  { path: "/rotas-andamento", permissions: ["COLLECT_LOCATION_SEND"] },
+  { path: "/rotas-andamento", permissions: ["COLLECT_READ"] },
   { path: "/rotas", permissions: ["ROUTE_READ"] },
   { path: "/rota", permissions: ["COLLECT_READ"] },
   { path: "/criar-rota", permissions: ["ROUTE_CREATE"] },
