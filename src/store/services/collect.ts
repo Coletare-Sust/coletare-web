@@ -1,5 +1,6 @@
 import { apiFetch } from "@/utils/apiFetch";
 import { CollectEntity } from "@/common/entities/Collect";
+import { isLocationPoint, normalizeLocationPoint } from "@/utils/coordinates";
 
 export interface LocationDTO {
   latitude: number;
@@ -35,8 +36,15 @@ export interface CollectOutputDTO {
 }
 
 export function mapCollectOutputToEntity(dto: CollectOutputDTO): CollectEntity {
-  const lastPosition = dto.realTimePosition?.length
-    ? dto.realTimePosition[dto.realTimePosition.length - 1]
+  const realTimePosition =
+    dto.realTimePosition
+      ?.map((position) =>
+        normalizeLocationPoint(position.latitude, position.longitude)
+      )
+      .filter(isLocationPoint) ?? [];
+
+  const lastPosition = realTimePosition.length
+    ? realTimePosition[realTimePosition.length - 1]
     : { latitude: 0, longitude: 0 };
 
   return {
@@ -58,7 +66,7 @@ export function mapCollectOutputToEntity(dto: CollectOutputDTO): CollectEntity {
     duration: dto.metrics?.durationSeconds || 0,
     vehicleLatitude: lastPosition.latitude,
     vehicleLongitude: lastPosition.longitude,
-    realTimePosition: dto.realTimePosition ?? [],
+    realTimePosition,
     createdAt: dto.createdAt
       ? ({
           seconds: Math.floor(new Date(dto.createdAt).getTime() / 1000),
