@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SignUpForm from "@/validations/signUp";
 import { z } from "zod";
@@ -14,6 +14,8 @@ import {
 } from "@/store/services/auth";
 import { createUserDoc, deleteUserDoc } from "@/store/services/user";
 import { UserEntity as UserDoc, UserEntity } from "@/common/entities/user";
+import { AUTHORIZATION_EXPIRED_EVENT } from "@/utils/apiFetch";
+import { persister, queryClient } from "@/store/providers/queryClient";
 
 import AuthContext from "./context";
 
@@ -38,6 +40,31 @@ const AuthProvider = ({ children }: Props) => {
   const [userUid, setUserUid] = useState<string>("");
   const [loading, setLoading] = useState(initialLoadingObject);
   const router = useRouter();
+
+  const clearClientSession = useCallback(() => {
+    queryClient.clear();
+    persister.removeClient();
+    setUserUid("");
+  }, []);
+
+  useEffect(() => {
+    const handleAuthorizationExpired = () => {
+      clearClientSession();
+      router.replace("/");
+    };
+
+    window.addEventListener(
+      AUTHORIZATION_EXPIRED_EVENT,
+      handleAuthorizationExpired
+    );
+
+    return () => {
+      window.removeEventListener(
+        AUTHORIZATION_EXPIRED_EVENT,
+        handleAuthorizationExpired
+      );
+    };
+  }, [clearClientSession, router]);
 
   // No initial effect watching "onAuthStateChanged" anymore, since HTTPOnly is stateless for frontend
   // And requires active polling or single fetch. "waitForUserSync" will be executed by components relying on Auth state.
@@ -130,7 +157,7 @@ const AuthProvider = ({ children }: Props) => {
   const logoutUser = async () => {
     setLoading((prev) => ({ ...prev, logout: true }));
     await logoutService();
-    setUserUid("");
+    clearClientSession();
     router.push("/");
     setLoading((prev) => ({ ...prev, logout: false }));
   };

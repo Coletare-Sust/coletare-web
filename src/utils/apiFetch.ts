@@ -1,3 +1,19 @@
+export const AUTHORIZATION_EXPIRED_EVENT = "coletare:authorization-expired";
+
+const publicAuthPaths = [
+  "/auth/login",
+  "/auth/logout",
+  "/auth/password-reset/request"
+];
+
+function notifyAuthorizationExpired(path: string) {
+  if (typeof window === "undefined" || publicAuthPaths.includes(path)) {
+    return;
+  }
+
+  window.dispatchEvent(new Event(AUTHORIZATION_EXPIRED_EVENT));
+}
+
 export async function apiFetch<T>(
   path: string,
   options?: RequestInit
@@ -20,6 +36,10 @@ export async function apiFetch<T>(
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      notifyAuthorizationExpired(path);
+    }
+
     const error = await res.json().catch(() => ({}));
     throw new Error(error.message ?? `HTTP ${res.status}`);
   }
