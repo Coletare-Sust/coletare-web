@@ -1,7 +1,30 @@
 import { apiFetch } from "@/utils/apiFetch";
 import { CollectEntity } from "@/common/entities/Collect";
+import { PageEntity } from "@/common/entities/pagination";
 import { CollectOutputDTO, mapCollectOutputToEntity } from "./collect";
 import { DashboardEntity } from "@/common/entities/dashboard";
+
+interface PageOutputDTO<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+}
+
+function mapCollectPageOutputToEntity(
+  dto: PageOutputDTO<CollectOutputDTO>
+): PageEntity<CollectEntity> {
+  return {
+    content: dto.content.map(mapCollectOutputToEntity),
+    page: dto.page,
+    size: dto.size,
+    totalElements: dto.totalElements,
+    totalPages: dto.totalPages,
+    last: dto.last
+  };
+}
 
 export const getAllCollectsByRoute = async (routeId: string) => {
   try {
@@ -15,10 +38,42 @@ export const getAllCollectsByRoute = async (routeId: string) => {
   }
 };
 
+export const getCollectsPageByRoute = async (
+  routeId: string,
+  page = 0,
+  size = 10
+) => {
+  try {
+    const data = await apiFetch<PageOutputDTO<CollectOutputDTO>>(
+      `/collect/route/${routeId}/page?page=${page}&size=${size}`
+    );
+    return mapCollectPageOutputToEntity(data);
+  } catch (error: any) {
+    console.error(error);
+    return null;
+  }
+};
+
 export const getAllCollectsByCity = async (cityId: string) => {
   try {
     const data = await apiFetch<CollectOutputDTO[]>(`/collect/${cityId}/city`);
     return data.map(mapCollectOutputToEntity);
+  } catch (error: any) {
+    console.error(error);
+    return null;
+  }
+};
+
+export const getCollectsPageByCity = async (
+  cityId: string,
+  page = 0,
+  size = 10
+) => {
+  try {
+    const data = await apiFetch<PageOutputDTO<CollectOutputDTO>>(
+      `/collect/${cityId}/city/page?page=${page}&size=${size}`
+    );
+    return mapCollectPageOutputToEntity(data);
   } catch (error: any) {
     console.error(error);
     return null;
