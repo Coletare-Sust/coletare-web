@@ -1,5 +1,6 @@
 import { apiFetch } from "@/utils/apiFetch";
 import { WarningEntity } from "@/common/entities/Warning";
+import { PageEntity } from "@/common/entities/pagination";
 
 // ---------- Backend DTOs (WarningOutputDTO) ----------
 
@@ -10,6 +11,15 @@ interface WarningOutputDTO {
   image: string | null;
   cityId: string;
   createdAt?: string;
+}
+
+interface PageOutputDTO<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
 }
 
 // ---------- Input types ----------
@@ -36,14 +46,14 @@ function mapWarningOutputToEntity(dto: WarningOutputDTO): WarningEntity {
     description: dto.description,
     image: dto.image ?? null,
     createdAt: dto.createdAt ?? "",
-    updatedAt: ""
+    updatedAt: "",
   };
 }
 
 // ---------- Services ----------
 
 export const getAllWarningService = async (
-  cityId: string
+  cityId: string,
 ): Promise<WarningEntity[]> => {
   try {
     const data = await apiFetch<WarningOutputDTO[]>(`/warning/${cityId}/city`);
@@ -54,9 +64,38 @@ export const getAllWarningService = async (
   }
 };
 
+export const getWarningsPageService = async (
+  cityId: string,
+  page = 0,
+  size = 10,
+  search?: string,
+): Promise<PageEntity<WarningEntity>> => {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  });
+
+  if (search?.trim()) {
+    params.set("search", search.trim());
+  }
+
+  const data = await apiFetch<PageOutputDTO<WarningOutputDTO>>(
+    `/warning/${cityId}/city/page?${params.toString()}`,
+  );
+
+  return {
+    content: data.content.map(mapWarningOutputToEntity),
+    page: data.page,
+    size: data.size,
+    totalElements: data.totalElements,
+    totalPages: data.totalPages,
+    last: data.last,
+  };
+};
+
 export const createWarningService = async (
   cityId: string,
-  warning: CreateWarningInput
+  warning: CreateWarningInput,
 ): Promise<WarningEntity> => {
   const formData = new FormData();
   formData.append("title", warning.title);
@@ -69,29 +108,29 @@ export const createWarningService = async (
     method: "POST",
     body: formData,
     // Sem Content-Type: o browser define automaticamente o boundary do multipart
-    headers: {}
+    headers: {},
   });
   return mapWarningOutputToEntity(data);
 };
 
 export const updateWarningService = async (
   warningId: string,
-  data: UpdateWarningInput
+  data: UpdateWarningInput,
 ): Promise<WarningEntity> => {
   const body = {
     title: data.title,
     description: data.description,
-    image: typeof data.image === "string" ? data.image : null
+    image: typeof data.image === "string" ? data.image : null,
   };
   const result = await apiFetch<WarningOutputDTO>(`/warning/${warningId}`, {
     method: "PUT",
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
   return mapWarningOutputToEntity(result);
 };
 
 export const deleteWarningService = async (
-  warningId: string
+  warningId: string,
 ): Promise<{ error: string | null }> => {
   try {
     await apiFetch(`/warning/${warningId}`, { method: "DELETE" });
@@ -103,7 +142,7 @@ export const deleteWarningService = async (
 };
 
 export const getWarningService = async (
-  warningId: string
+  warningId: string,
 ): Promise<WarningEntity | null> => {
   try {
     const data = await apiFetch<WarningOutputDTO>(`/warning/${warningId}`);

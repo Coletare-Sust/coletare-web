@@ -1,8 +1,9 @@
 import { apiFetch } from "@/utils/apiFetch";
 import { WithdrawalsRequestEntity } from "@/common/entities/WithdrawalsRequest";
+import { PageEntity } from "@/common/entities/pagination";
 import {
   normalizeWithdrawalRequestType,
-  getResidueTypeLabel
+  getResidueTypeLabel,
 } from "@/common/mappers/backendEnums";
 
 // ---------- Backend DTOs (WithdrawalRequestOutputDTO) ----------
@@ -25,6 +26,15 @@ interface WithdrawalRequestOutputDTO {
   status: boolean;
   address: AddressDTO;
   createdAt?: string;
+}
+
+interface PageOutputDTO<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
 }
 
 // ---------- Input types ----------
@@ -51,7 +61,7 @@ export interface UpdateWithdrawalRequestInput {
 // ---------- Mapper ----------
 
 function mapWithdrawalOutputToEntity(
-  dto: WithdrawalRequestOutputDTO
+  dto: WithdrawalRequestOutputDTO,
 ): WithdrawalsRequestEntity {
   return {
     id: dto.id,
@@ -65,23 +75,69 @@ function mapWithdrawalOutputToEntity(
     createdById: dto.requesterId ?? "",
     isResolved: dto.status ?? false,
     image: dto.image ?? null,
-    createdAt: dto.createdAt
+    createdAt: dto.createdAt,
   };
 }
 
 // ---------- Services ----------
 
 export const getAllWithdrawalsRequests = async (
-  cityId: string
+  cityId: string,
 ): Promise<WithdrawalsRequestEntity[]> => {
   try {
     const data = await apiFetch<WithdrawalRequestOutputDTO[]>(
-      `/withdrawal-request/${cityId}/city`
+      `/withdrawal-request/${cityId}/city`,
     );
     return data.map(mapWithdrawalOutputToEntity);
   } catch (error) {
     console.error(error);
     return [];
+  }
+};
+
+export const getWithdrawalsRequestsPage = async (
+  cityId: string,
+  page = 0,
+  size = 10,
+  filters?: {
+    status?: boolean;
+    type?: string;
+    residueType?: string;
+  },
+): Promise<PageEntity<WithdrawalsRequestEntity> | null> => {
+  try {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+
+    if (filters?.status !== undefined) {
+      params.set("status", String(filters.status));
+    }
+
+    if (filters?.type?.trim()) {
+      params.set("type", filters.type.trim());
+    }
+
+    if (filters?.residueType?.trim()) {
+      params.set("residueType", filters.residueType.trim());
+    }
+
+    const data = await apiFetch<PageOutputDTO<WithdrawalRequestOutputDTO>>(
+      `/withdrawal-request/${cityId}/city/page?${params.toString()}`,
+    );
+
+    return {
+      content: data.content.map(mapWithdrawalOutputToEntity),
+      page: data.page,
+      size: data.size,
+      totalElements: data.totalElements,
+      totalPages: data.totalPages,
+      last: data.last,
+    };
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 };
 
@@ -96,13 +152,13 @@ const apiUrl = (
 export const createWithdrawalRequest = async (
   cityId: string,
   input: CreateWithdrawalRequestInput,
-  imageFile?: File | null
+  imageFile?: File | null,
 ): Promise<WithdrawalsRequestEntity> => {
   const formData = new FormData();
   // "data" parte: JSON serializado como Blob com content-type application/json
   formData.append(
     "data",
-    new Blob([JSON.stringify(input)], { type: "application/json" })
+    new Blob([JSON.stringify(input)], { type: "application/json" }),
   );
   if (imageFile) {
     formData.append("image", imageFile);
@@ -113,7 +169,7 @@ export const createWithdrawalRequest = async (
   const res = await fetch(`${apiUrl}/withdrawal-request/${cityId}/city`, {
     method: "POST",
     credentials: "include",
-    body: formData
+    body: formData,
   });
 
   if (!res.ok) {
@@ -127,20 +183,20 @@ export const createWithdrawalRequest = async (
 
 export const updateWithdrawalRequest = async (
   id: string,
-  input: UpdateWithdrawalRequestInput
+  input: UpdateWithdrawalRequestInput,
 ): Promise<WithdrawalsRequestEntity> => {
   const data = await apiFetch<WithdrawalRequestOutputDTO>(
     `/withdrawal-request/${id}`,
     {
       method: "PUT",
-      body: JSON.stringify(input)
-    }
+      body: JSON.stringify(input),
+    },
   );
   return mapWithdrawalOutputToEntity(data);
 };
 
 export const deleteWithdrawalRequest = async (
-  id: string
+  id: string,
 ): Promise<{ error: string | null }> => {
   try {
     await apiFetch(`/withdrawal-request/${id}`, { method: "DELETE" });
@@ -152,11 +208,11 @@ export const deleteWithdrawalRequest = async (
 };
 
 export const getWithdrawalRequestCount = async (
-  cityId: string
+  cityId: string,
 ): Promise<number> => {
   try {
     const data = await apiFetch<{ count: number }>(
-      `/withdrawal-request/${cityId}/city/count`
+      `/withdrawal-request/${cityId}/city/count`,
     );
     return data.count ?? 0;
   } catch (error) {

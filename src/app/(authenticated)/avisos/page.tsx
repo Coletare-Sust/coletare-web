@@ -7,8 +7,8 @@ import useProfile from "@/hooks/queries/useProfile";
 import useAuth from "@/hooks/useAuth";
 import { deleteImage } from "@/store/services/firebaseStorage";
 import {
-  getAllWarningService,
-  deleteWarningService
+  getWarningsPageService,
+  deleteWarningService,
 } from "@/store/services/warning";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -17,14 +17,19 @@ import ConfirmationModal from "@/components/molecules/ConfirmationModal/confirma
 import { errorToast, successToast } from "@/hooks/useAppToast";
 import DatePicker from "@/components/molecules/DatePicker/datePicker";
 import { isSameDay } from "date-fns";
+import PaginationControls from "@/components/molecules/PaginationControls/paginationControls";
 
 export default function ListaDeAvisosPag() {
   const { userUid } = useAuth();
   const { data: user } = useProfile(userUid);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [page, setPage] = useState(0);
+  const [search, setSearch] = useState("");
+  const [totalPages, setTotalPages] = useState(0);
+  const pageSize = 10;
 
   const [warnings, setWarnings] = useState<WarningEntity[] | null>(null);
-  const [, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [clickedWarning, setClickedWarning] = useState<
@@ -37,8 +42,15 @@ export default function ListaDeAvisosPag() {
     const fetchWarning = async () => {
       if (!user) return;
       try {
-        const fetchedWarnings = await getAllWarningService(user.id);
-        setWarnings(fetchedWarnings);
+        setIsLoading(true);
+        const fetchedWarnings = await getWarningsPageService(
+          user.id,
+          page,
+          pageSize,
+          search,
+        );
+        setWarnings(fetchedWarnings.content);
+        setTotalPages(fetchedWarnings.totalPages);
       } catch (error) {
         console.error(error);
       } finally {
@@ -47,13 +59,17 @@ export default function ListaDeAvisosPag() {
     };
 
     fetchWarning();
-  }, [user]);
+  }, [page, search, user]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [search, user?.id]);
 
   const filteredWarnings = useMemo(() => {
     if (!warnings) return [];
     if (!selectedDate) return warnings;
     return warnings.filter((warning) =>
-      isSameDay(new Date(warning.createdAt), selectedDate)
+      isSameDay(new Date(warning.createdAt), selectedDate),
     );
   }, [warnings, selectedDate]);
 
@@ -71,7 +87,7 @@ export default function ListaDeAvisosPag() {
       if (error) throw new Error(error);
 
       setWarnings(
-        (prev) => prev?.filter((w) => w.id !== clickedWarning.id) ?? null
+        (prev) => prev?.filter((w) => w.id !== clickedWarning.id) ?? null,
       );
       successToast("Aviso removido com sucesso!");
     } catch (err) {
@@ -95,14 +111,21 @@ export default function ListaDeAvisosPag() {
             Criar novo aviso
           </Button>
           <DatePicker date={selectedDate} setDate={setSelectedDate} />
+          <input
+            className="min-w-[280px] rounded-lg border border-greenBlue-400 bg-white-1000 px-4 py-3 outline-none focus:border-greenBlue-1000"
+            placeholder="Buscar aviso"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
         </div>
+        {isLoading && <p className="text-sm text-gray-500">Carregando...</p>}
         <div className="grid w-full grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredWarnings && filteredWarnings.length > 0 ? (
             filteredWarnings
               .sort(
                 (currentDate, nextDate) =>
                   new Date(nextDate.createdAt).getTime() -
-                  new Date(currentDate.createdAt).getTime()
+                  new Date(currentDate.createdAt).getTime(),
               )
               .map((e) => {
                 return (
@@ -149,6 +172,12 @@ export default function ListaDeAvisosPag() {
             </div>
           )}
         </div>
+        <PaginationControls
+          page={page}
+          totalPages={totalPages}
+          isLoading={isLoading}
+          onPageChange={setPage}
+        />
       </div>
 
       <ConfirmationModal

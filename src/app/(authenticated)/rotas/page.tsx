@@ -1,20 +1,21 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { AccordionChildren } from "@atoms/Accordion/accordion";
 import Button from "@atoms/Button/button";
 import Title from "@atoms/Title/title";
 import LoadingComponent from "@atoms/Loading/loading";
-import useAllRoutes from "@/hooks/queries/useAllRoutes";
+import usePaginatedRoutes from "@/hooks/queries/usePaginatedRoutes";
 import { weekDays } from "@molecules/CreateRoute/constants";
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import { wrapper } from "@/common/constants/wrapper";
 import { getResidueTypeLabel } from "@/common/mappers/backendEnums";
 import { hasPermission } from "@/common/accessControl/permissions";
+import PaginationControls from "@/components/molecules/PaginationControls/paginationControls";
 
 import RouteComponent from "./components/RouteComponent/routeComponent";
 
@@ -25,11 +26,22 @@ const Rotas = () => {
   const { data: user } = useProfile(userUid);
   const cityId = searchParams.get("city");
   const routeId = searchParams.get("value");
-  const { data: routes, isLoading } = useAllRoutes(
-    cityId ?? (user?.id as string)
-  );
+  const [page, setPage] = useState(0);
+  const [routeName, setRouteName] = useState("");
+  const currentCityId = cityId ?? (user?.id as string);
+  const pageSize = 10;
+  const {
+    data: routesPage,
+    isLoading,
+    isFetching,
+  } = usePaginatedRoutes(currentCityId, page, pageSize, routeName);
+  const routes = routesPage?.content ?? [];
   const [openItem, setOpenItem] = useState("");
   const canCreateRoute = hasPermission(user, "ROUTE_CREATE");
+
+  useEffect(() => {
+    setPage(0);
+  }, [currentCityId, routeName]);
 
   const closeItem = () => {
     setOpenItem("");
@@ -54,13 +66,24 @@ const Rotas = () => {
           </Button>
         )}
       </div>
+      <div className="mb-8 flex w-full max-w-[520px] flex-col gap-2">
+        <label className="text-sm font-medium text-greenBlue-1000">
+          Filtrar por nome da rota
+        </label>
+        <input
+          className="rounded-lg border border-greenBlue-400 bg-white-1000 px-4 py-3 outline-none focus:border-greenBlue-1000"
+          placeholder="Digite o nome da rota"
+          value={routeName}
+          onChange={(event) => setRouteName(event.target.value)}
+        />
+      </div>
       {isLoading ? (
         <LoadingComponent />
       ) : (
         <>
           {" "}
           <div>
-            {routes?.length === 0 && (
+            {routes.length === 0 && (
               <p className="text-lg font-medium">Não há rotas criadas.</p>
             )}
           </div>
@@ -70,7 +93,7 @@ const Rotas = () => {
               setOpenItem={setOpenItem}
               items={
                 (routeId
-                  ? routes?.filter((r) => r.id === routeId)
+                  ? routes.filter((r) => r.id === routeId)
                   : routes
                 )?.map((route) => {
                   let period = "";
@@ -106,8 +129,8 @@ const Rotas = () => {
                       { prop: "Dias", answer: routeDays },
                       {
                         prop: "Tipo de residuo",
-                        answer: getResidueTypeLabel(route.residueType)
-                      }
+                        answer: getResidueTypeLabel(route.residueType),
+                      },
                     ],
                     children: (
                       <RouteComponent
@@ -116,13 +139,19 @@ const Rotas = () => {
                         routeDays={routeDays}
                         isAdmin={user?.role === "platformAdmin"}
                       />
-                    )
+                    ),
                   };
                 }) ?? []
               }
               itemClassName="mb-10"
               triggerClassName="bg-white-1000 border border-greenBlue-400 py-4 data-[state=open]:opacity-0 data-[state=open]:h-0 grid grid-cols-[1fr_1fr_1fr_1fr_auto] place-items-between"
               contentClassName="bg-white-800 border border-greenBlue-400 py-8 px-6 rounded-lg"
+            />
+            <PaginationControls
+              page={page}
+              totalPages={routesPage?.totalPages}
+              isLoading={isFetching}
+              onPageChange={setPage}
             />
           </div>{" "}
         </>
