@@ -9,6 +9,7 @@ import Button from "@atoms/Button/button";
 import Title from "@atoms/Title/title";
 import LoadingComponent from "@atoms/Loading/loading";
 import usePaginatedRoutes from "@/hooks/queries/usePaginatedRoutes";
+import useRoute from "@/hooks/queries/useRoute";
 import { weekDays } from "@molecules/CreateRoute/constants";
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
@@ -36,6 +37,11 @@ const Rotas = () => {
     isFetching,
   } = usePaginatedRoutes(currentCityId, page, pageSize, routeName);
   const routes = routesPage?.content ?? [];
+  const { data: selectedRoute } = useRoute(routeId as string);
+  const displayedRoutes =
+    routeId && selectedRoute && !("error" in selectedRoute)
+      ? [selectedRoute]
+      : routes;
   const [openItem, setOpenItem] = useState("");
   const canCreateRoute = hasPermission(user, "ROUTE_CREATE");
 
@@ -83,7 +89,7 @@ const Rotas = () => {
         <>
           {" "}
           <div>
-            {routes.length === 0 && (
+            {displayedRoutes.length === 0 && (
               <p className="text-lg font-medium">Não há rotas criadas.</p>
             )}
           </div>
@@ -92,10 +98,7 @@ const Rotas = () => {
               openItem={openItem}
               setOpenItem={setOpenItem}
               items={
-                (routeId
-                  ? routes.filter((r) => r.id === routeId)
-                  : routes
-                )?.map((route) => {
+                displayedRoutes?.map((route) => {
                   let period = "";
 
                   switch (route.period) {
