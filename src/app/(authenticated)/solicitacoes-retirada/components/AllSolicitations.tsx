@@ -6,17 +6,30 @@ import Subtitle from "@atoms/Subtitle/subtitle";
 import LoadingComponent from "@atoms/Loading/loading";
 import RadioDropdown from "@atoms/RadioDropdown/radioDropdown";
 import InfoTable from "@molecules/InfoTable/infoTable";
-import useAllWithdrawalsRequest from "@/hooks/queries/useAllWithdrawalsRequests";
+import usePaginatedWithdrawalsRequests from "@/hooks/queries/usePaginatedWithdrawalsRequests";
 import { residuesTypes } from "@common/constants/residuesTypes";
+import PaginationControls from "@/components/molecules/PaginationControls/paginationControls";
 
 const AllSolicitations = () => {
   const [activeResidue, setActiveResidue] = useState("");
+  const [page, setPage] = useState(0);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const cityId = searchParams.get("city");
-  const { data: solicitationsData, isLoading: isLoadingSolicitationsData } =
-    useAllWithdrawalsRequest(cityId as string);
+  const pageSize = 10;
+  const {
+    data: solicitationsPage,
+    isLoading: isLoadingSolicitationsData,
+    isFetching,
+  } = usePaginatedWithdrawalsRequests(cityId as string, page, pageSize, {
+    residueType: activeResidue || undefined,
+  });
+  const solicitationsData = solicitationsPage?.content;
+
+  React.useEffect(() => {
+    setPage(0);
+  }, [activeResidue, cityId]);
 
   const filteredData = solicitationsData?.sort((a, b) => {
     if (a.isResolved === b.isResolved) {
@@ -34,14 +47,14 @@ const AllSolicitations = () => {
       router.push(
         `/solicitacoes-retirada?garbagePoint=${item.id}&city=${cityId}`,
         {
-          scroll: false
-        }
+          scroll: false,
+        },
       );
       window.scrollTo({
         top: 0,
-        behavior: "smooth"
+        behavior: "smooth",
       });
-    }
+    },
   }));
 
   return (
@@ -67,15 +80,15 @@ const AllSolicitations = () => {
           <LoadingComponent />
         </div>
       ) : (
-        <InfoTable
-          data={
-            (activeResidue
-              ? functionalData?.filter(
-                  (item) => item.residueType.toLowerCase() === activeResidue
-                )
-              : functionalData) as []
-          }
-        />
+        <>
+          <InfoTable data={functionalData as []} />
+          <PaginationControls
+            page={page}
+            totalPages={solicitationsPage?.totalPages}
+            isLoading={isFetching}
+            onPageChange={setPage}
+          />
+        </>
       )}
     </section>
   );
