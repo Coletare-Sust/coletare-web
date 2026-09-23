@@ -8,24 +8,37 @@ import type { PageEntity } from "@/common/entities/pagination";
 import type { RouteEntity } from "@/common/entities/route";
 import { getRoutesPage } from "@/store/services/route";
 
+export interface PaginatedRoutesFilters {
+  name?: string;
+  residueType?: string;
+}
+
 export function getPaginatedRoutesQueryKey(
   cityId: string,
   page: number,
   size: number,
-  name?: string,
+  filters?: PaginatedRoutesFilters,
 ) {
-  return ["routes", cityId, "page", page, size, name ?? ""];
+  return [
+    "routes",
+    cityId,
+    "page",
+    page,
+    size,
+    filters?.name ?? "",
+    filters?.residueType ?? "",
+  ];
 }
 
 const usePaginatedRoutes = (
   cityId: string,
   page = 0,
   size = 10,
-  name?: string,
+  filters?: PaginatedRoutesFilters,
 ) => {
   return useQuery<PageEntity<RouteEntity> | null>(
-    getPaginatedRoutesQueryKey(cityId, page, size, name),
-    () => getRoutesPage(cityId, page, size, name),
+    getPaginatedRoutesQueryKey(cityId, page, size, filters),
+    () => getRoutesPage(cityId, page, size, filters),
     {
       enabled: Boolean(cityId),
       keepPreviousData: true,

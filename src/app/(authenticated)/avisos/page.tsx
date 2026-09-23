@@ -16,13 +16,18 @@ import { useEffect, useMemo, useState } from "react";
 import ConfirmationModal from "@/components/molecules/ConfirmationModal/confirmationModal";
 import { errorToast, successToast } from "@/hooks/useAppToast";
 import DatePicker from "@/components/molecules/DatePicker/datePicker";
-import { isSameDay } from "date-fns";
+import { endOfDay, startOfDay } from "date-fns";
 import PaginationControls from "@/components/molecules/PaginationControls/paginationControls";
 
 export default function ListaDeAvisosPag() {
   const { userUid } = useAuth();
   const { data: user } = useProfile(userUid);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [startDateFilter, setStartDateFilter] = useState<Date | undefined>(
+    undefined,
+  );
+  const [endDateFilter, setEndDateFilter] = useState<Date | undefined>(
+    undefined,
+  );
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(0);
@@ -37,6 +42,19 @@ export default function ListaDeAvisosPag() {
   >(undefined);
 
   const router = useRouter();
+  const dateFilters = useMemo(() => {
+    if (!startDateFilter) {
+      return {
+        startDate: undefined,
+        endDate: undefined,
+      };
+    }
+
+    return {
+      startDate: startOfDay(startDateFilter).toISOString(),
+      endDate: endOfDay(endDateFilter ?? startDateFilter).toISOString(),
+    };
+  }, [endDateFilter, startDateFilter]);
 
   useEffect(() => {
     const fetchWarning = async () => {
@@ -47,7 +65,11 @@ export default function ListaDeAvisosPag() {
           user.id,
           page,
           pageSize,
-          search,
+          {
+            search,
+            startDate: dateFilters.startDate,
+            endDate: dateFilters.endDate,
+          },
         );
         setWarnings(fetchedWarnings.content);
         setTotalPages(fetchedWarnings.totalPages);
@@ -59,19 +81,11 @@ export default function ListaDeAvisosPag() {
     };
 
     fetchWarning();
-  }, [page, search, user]);
+  }, [dateFilters.endDate, dateFilters.startDate, page, search, user]);
 
   useEffect(() => {
     setPage(0);
-  }, [search, user?.id]);
-
-  const filteredWarnings = useMemo(() => {
-    if (!warnings) return [];
-    if (!selectedDate) return warnings;
-    return warnings.filter((warning) =>
-      isSameDay(new Date(warning.createdAt), selectedDate),
-    );
-  }, [warnings, selectedDate]);
+  }, [dateFilters.endDate, dateFilters.startDate, search, user?.id]);
 
   const handleDelete = async () => {
     if (!clickedWarning) return;
@@ -110,7 +124,14 @@ export default function ListaDeAvisosPag() {
           <Button onClick={() => router.push("/avisos/cadastrar")}>
             Criar novo aviso
           </Button>
-          <DatePicker date={selectedDate} setDate={setSelectedDate} />
+          <DatePicker
+            date={startDateFilter}
+            setDate={setStartDateFilter}
+            endDate={endDateFilter}
+            setEndDate={setEndDateFilter}
+            mode="range"
+            label="Periodo"
+          />
           <input
             className="min-w-[280px] rounded-lg border border-greenBlue-400 bg-white-1000 px-4 py-3 outline-none focus:border-greenBlue-1000"
             placeholder="Buscar aviso"
@@ -120,8 +141,8 @@ export default function ListaDeAvisosPag() {
         </div>
         {isLoading && <p className="text-sm text-gray-500">Carregando...</p>}
         <div className="grid w-full grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredWarnings && filteredWarnings.length > 0 ? (
-            filteredWarnings
+          {warnings && warnings.length > 0 ? (
+            warnings
               .sort(
                 (currentDate, nextDate) =>
                   new Date(nextDate.createdAt).getTime() -

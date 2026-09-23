@@ -119,7 +119,10 @@ export const getRoutesPage = async (
   cityId: string,
   page = 0,
   size = 10,
-  name?: string,
+  filters?: {
+    name?: string;
+    residueType?: string;
+  },
 ): Promise<PageEntity<RouteEntity> | null> => {
   try {
     const params = new URLSearchParams({
@@ -127,8 +130,12 @@ export const getRoutesPage = async (
       size: String(size),
     });
 
-    if (name?.trim()) {
-      params.set("name", name.trim());
+    if (filters?.name?.trim()) {
+      params.set("name", filters.name.trim());
+    }
+
+    if (filters?.residueType?.trim()) {
+      params.set("residueType", filters.residueType.trim());
     }
 
     const data = await apiFetch<PageOutputDTO<RouteOutputDTO>>(

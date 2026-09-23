@@ -68,15 +68,27 @@ export const getWarningsPageService = async (
   cityId: string,
   page = 0,
   size = 10,
-  search?: string,
+  filters?: {
+    search?: string;
+    startDate?: string;
+    endDate?: string;
+  },
 ): Promise<PageEntity<WarningEntity>> => {
   const params = new URLSearchParams({
     page: String(page),
     size: String(size),
   });
 
-  if (search?.trim()) {
-    params.set("search", search.trim());
+  if (filters?.search?.trim()) {
+    params.set("search", filters.search.trim());
+  }
+
+  if (filters?.startDate) {
+    params.set("startDate", filters.startDate);
+  }
+
+  if (filters?.endDate) {
+    params.set("endDate", filters.endDate);
   }
 
   const data = await apiFetch<PageOutputDTO<WarningOutputDTO>>(
