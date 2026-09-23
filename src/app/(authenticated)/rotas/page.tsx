@@ -14,7 +14,10 @@ import { weekDays } from "@molecules/CreateRoute/constants";
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import { wrapper } from "@/common/constants/wrapper";
-import { getResidueTypeLabel } from "@/common/mappers/backendEnums";
+import {
+  RESIDUE_TYPE_LABELS,
+  getResidueTypeLabel,
+} from "@/common/mappers/backendEnums";
 import { hasPermission } from "@/common/accessControl/permissions";
 import PaginationControls from "@/components/molecules/PaginationControls/paginationControls";
 
@@ -29,13 +32,17 @@ const Rotas = () => {
   const routeId = searchParams.get("value");
   const [page, setPage] = useState(0);
   const [routeName, setRouteName] = useState("");
+  const [routeResidueType, setRouteResidueType] = useState("");
   const currentCityId = cityId ?? (user?.id as string);
   const pageSize = 10;
   const {
     data: routesPage,
     isLoading,
     isFetching,
-  } = usePaginatedRoutes(currentCityId, page, pageSize, routeName);
+  } = usePaginatedRoutes(currentCityId, page, pageSize, {
+    name: routeName,
+    residueType: routeResidueType || undefined,
+  });
   const routes = routesPage?.content ?? [];
   const { data: selectedRoute } = useRoute(routeId as string);
   const displayedRoutes =
@@ -47,7 +54,7 @@ const Rotas = () => {
 
   useEffect(() => {
     setPage(0);
-  }, [currentCityId, routeName]);
+  }, [currentCityId, routeName, routeResidueType]);
 
   const closeItem = () => {
     setOpenItem("");
@@ -72,16 +79,35 @@ const Rotas = () => {
           </Button>
         )}
       </div>
-      <div className="mb-8 flex w-full max-w-[520px] flex-col gap-2">
-        <label className="text-sm font-medium text-greenBlue-1000">
-          Filtrar por nome da rota
-        </label>
-        <input
-          className="rounded-lg border border-greenBlue-400 bg-white-1000 px-4 py-3 outline-none focus:border-greenBlue-1000"
-          placeholder="Digite o nome da rota"
-          value={routeName}
-          onChange={(event) => setRouteName(event.target.value)}
-        />
+      <div className="mb-8 grid w-full max-w-[900px] grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-greenBlue-1000">
+            Filtrar por nome da rota
+          </label>
+          <input
+            className="rounded-lg border border-greenBlue-400 bg-white-1000 px-4 py-3 outline-none focus:border-greenBlue-1000"
+            placeholder="Digite o nome da rota"
+            value={routeName}
+            onChange={(event) => setRouteName(event.target.value)}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-greenBlue-1000">
+            Filtrar por tipo de residuo
+          </label>
+          <select
+            className="rounded-lg border border-greenBlue-400 bg-white-1000 px-4 py-3 outline-none focus:border-greenBlue-1000"
+            value={routeResidueType}
+            onChange={(event) => setRouteResidueType(event.target.value)}
+          >
+            <option value="">Todos os tipos</option>
+            {Object.entries(RESIDUE_TYPE_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
       {isLoading ? (
         <LoadingComponent />
