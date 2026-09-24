@@ -19,7 +19,7 @@ const AllRoutes = ({ isAdmin }: AllRoutesProps) => {
     filteredRoutes = filteredRoutes?.filter((route) => route.cityId === cityId);
   if (residueType)
     filteredRoutes = filteredRoutes?.filter(
-      (route) => route.residueType === RESIDUE_TYPE_LABELS[residueType],
+      (route) => route.residueType === RESIDUE_TYPE_LABELS[residueType]
     );
 
   return (

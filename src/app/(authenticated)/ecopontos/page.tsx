@@ -12,7 +12,7 @@ import { AccordionChildren } from "@atoms/Accordion/accordion";
 import { wrapper } from "@/common/constants/wrapper";
 import {
   RESIDUE_TYPE_LABELS,
-  getResidueTypeLabel,
+  getResidueTypeLabel
 } from "@/common/mappers/backendEnums";
 
 import usePaginatedEcopontos from "@/hooks/queries/ecoponto/usePaginatedEcopontos";
@@ -28,7 +28,7 @@ import PaginationControls from "@/components/molecules/PaginationControls/pagina
 const PAGE_SIZE = 10;
 
 const residuesTypesOptions = Object.entries(RESIDUE_TYPE_LABELS).map(
-  ([value, label]) => ({ value, label }),
+  ([value, label]) => ({ value, label })
 );
 
 const EcopontosPage = () => {
@@ -54,16 +54,16 @@ const EcopontosPage = () => {
   const filters = useMemo(
     () => ({
       name: nameFilter,
-      residueType: selectedResidueType,
+      residueType: selectedResidueType
     }),
-    [nameFilter, selectedResidueType],
+    [nameFilter, selectedResidueType]
   );
 
   const { data: ecopointsPage, isLoading } = usePaginatedEcopontos(
     cityId,
     page,
     PAGE_SIZE,
-    filters,
+    filters
   );
 
   const ecopoints = ecopointsPage?.content ?? [];
@@ -81,7 +81,7 @@ const EcopontosPage = () => {
       },
       onError: (err: any) => {
         errorToast(err?.message || "Erro ao excluir ecoponto.");
-      },
+      }
     });
   }
 
@@ -186,16 +186,16 @@ const EcopontosPage = () => {
               properties: [
                 {
                   prop: "Detalhes/Endereco",
-                  answer: point.description || "N/A",
+                  answer: point.description || "N/A"
                 },
                 {
                   prop: "Tipos de residuos",
-                  answer: point.residueType.map(getResidueTypeLabel).join(", "),
-                },
+                  answer: point.residueType.map(getResidueTypeLabel).join(", ")
+                }
               ],
               children: (
                 <EcopontoDetail ecoponto={point} onDelete={handleDelete} />
-              ),
+              )
             }))}
             itemClassName="mb-4"
             triggerClassName={`

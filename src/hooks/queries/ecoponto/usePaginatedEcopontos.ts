@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import {
   ONE_DAY_IN_MS,
-  FIFTEEN_MINUTES_IN_MS,
+  FIFTEEN_MINUTES_IN_MS
 } from "@common/constants/generic";
 import type { PageEntity } from "@/common/entities/pagination";
 import { Ecoponto, getEcopontosPage } from "@/store/services/ecopoint";
@@ -15,7 +15,7 @@ export function getPaginatedEcopontosQueryKey(
     name?: string;
     residueType?: string;
     isActive?: boolean;
-  },
+  }
 ) {
   return [
     "ecopontos",
@@ -25,7 +25,7 @@ export function getPaginatedEcopontosQueryKey(
     size,
     filters?.name ?? "",
     filters?.residueType ?? "",
-    filters?.isActive ?? "",
+    filters?.isActive ?? ""
   ];
 }
 
@@ -37,7 +37,7 @@ export default function usePaginatedEcopontos(
     name?: string;
     residueType?: string;
     isActive?: boolean;
-  },
+  }
 ) {
   return useQuery<PageEntity<Ecoponto> | null>(
     getPaginatedEcopontosQueryKey(cityId, page, size, filters),
@@ -46,7 +46,7 @@ export default function usePaginatedEcopontos(
       enabled: Boolean(cityId),
       keepPreviousData: true,
       staleTime: FIFTEEN_MINUTES_IN_MS,
-      cacheTime: ONE_DAY_IN_MS,
-    },
+      cacheTime: ONE_DAY_IN_MS
+    }
   );
 }

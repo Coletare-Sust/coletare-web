@@ -16,7 +16,7 @@ import useProfile from "@/hooks/queries/useProfile";
 import { wrapper } from "@/common/constants/wrapper";
 import {
   RESIDUE_TYPE_LABELS,
-  getResidueTypeLabel,
+  getResidueTypeLabel
 } from "@/common/mappers/backendEnums";
 import { hasPermission } from "@/common/accessControl/permissions";
 import PaginationControls from "@/components/molecules/PaginationControls/paginationControls";
@@ -38,10 +38,10 @@ const Rotas = () => {
   const {
     data: routesPage,
     isLoading,
-    isFetching,
+    isFetching
   } = usePaginatedRoutes(currentCityId, page, pageSize, {
     name: routeName,
-    residueType: routeResidueType || undefined,
+    residueType: routeResidueType || undefined
   });
   const routes = routesPage?.content ?? [];
   const { data: selectedRoute } = useRoute(routeId as string);
@@ -158,8 +158,8 @@ const Rotas = () => {
                       { prop: "Dias", answer: routeDays },
                       {
                         prop: "Tipo de residuo",
-                        answer: getResidueTypeLabel(route.residueType),
-                      },
+                        answer: getResidueTypeLabel(route.residueType)
+                      }
                     ],
                     children: (
                       <RouteComponent
@@ -168,7 +168,7 @@ const Rotas = () => {
                         routeDays={routeDays}
                         isAdmin={user?.role === "platformAdmin"}
                       />
-                    ),
+                    )
                   };
                 }) ?? []
               }

@@ -25,7 +25,7 @@ const Colaboradores = () => {
   const {
     data: collaboratorsPage,
     isLoading,
-    isFetching,
+    isFetching
   } = usePaginatedCollaborators(cityId, page, 10, { name });
   const collaborators = collaboratorsPage?.content ?? [];
 
@@ -71,8 +71,8 @@ const Colaboradores = () => {
               values={[
                 {
                   label: "Documento de identificacao",
-                  content: collaborator.cpf || "Nao encontrado",
-                },
+                  content: collaborator.cpf || "Nao encontrado"
+                }
               ]}
             />
           ))}

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import {
   ONE_DAY_IN_MS,
-  FIFTEEN_MINUTES_IN_MS,
+  FIFTEEN_MINUTES_IN_MS
 } from "@common/constants/generic";
 import type { PageEntity } from "@/common/entities/pagination";
 import type { RouteEntity } from "@/common/entities/route";
@@ -17,7 +17,7 @@ export function getPaginatedRoutesQueryKey(
   cityId: string,
   page: number,
   size: number,
-  filters?: PaginatedRoutesFilters,
+  filters?: PaginatedRoutesFilters
 ) {
   return [
     "routes",
@@ -26,7 +26,7 @@ export function getPaginatedRoutesQueryKey(
     page,
     size,
     filters?.name ?? "",
-    filters?.residueType ?? "",
+    filters?.residueType ?? ""
   ];
 }
 
@@ -34,7 +34,7 @@ const usePaginatedRoutes = (
   cityId: string,
   page = 0,
   size = 10,
-  filters?: PaginatedRoutesFilters,
+  filters?: PaginatedRoutesFilters
 ) => {
   return useQuery<PageEntity<RouteEntity> | null>(
     getPaginatedRoutesQueryKey(cityId, page, size, filters),
@@ -43,8 +43,8 @@ const usePaginatedRoutes = (
       enabled: Boolean(cityId),
       keepPreviousData: true,
       staleTime: FIFTEEN_MINUTES_IN_MS,
-      cacheTime: ONE_DAY_IN_MS,
-    },
+      cacheTime: ONE_DAY_IN_MS
+    }
   );
 };
 

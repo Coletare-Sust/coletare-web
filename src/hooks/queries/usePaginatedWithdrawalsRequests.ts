@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import {
   ONE_DAY_IN_MS,
-  FIFTEEN_MINUTES_IN_MS,
+  FIFTEEN_MINUTES_IN_MS
 } from "@common/constants/generic";
 import type { PageEntity } from "@/common/entities/pagination";
 import type { WithdrawalsRequestEntity } from "@/common/entities/WithdrawalsRequest";
@@ -18,7 +18,7 @@ export function getPaginatedWithdrawalsRequestsQueryKey(
   cityId: string,
   page: number,
   size: number,
-  filters?: WithdrawalRequestFilters,
+  filters?: WithdrawalRequestFilters
 ) {
   return [
     "withdrawals",
@@ -28,7 +28,7 @@ export function getPaginatedWithdrawalsRequestsQueryKey(
     size,
     filters?.status ?? "",
     filters?.type ?? "",
-    filters?.residueType ?? "",
+    filters?.residueType ?? ""
   ];
 }
 
@@ -36,7 +36,7 @@ const usePaginatedWithdrawalsRequests = (
   cityId: string,
   page = 0,
   size = 10,
-  filters?: WithdrawalRequestFilters,
+  filters?: WithdrawalRequestFilters
 ) => {
   return useQuery<PageEntity<WithdrawalsRequestEntity> | null>(
     getPaginatedWithdrawalsRequestsQueryKey(cityId, page, size, filters),
@@ -45,8 +45,8 @@ const usePaginatedWithdrawalsRequests = (
       enabled: Boolean(cityId),
       keepPreviousData: true,
       staleTime: FIFTEEN_MINUTES_IN_MS,
-      cacheTime: ONE_DAY_IN_MS,
-    },
+      cacheTime: ONE_DAY_IN_MS
+    }
   );
 };
 
