@@ -2,6 +2,7 @@ import { apiFetch } from "@/utils/apiFetch";
 import { UserEntity } from "@common/entities/user";
 import { normalizeUserRole } from "@/common/mappers/backendEnums";
 import { normalizePermission } from "@/common/accessControl/permissions";
+import { PageEntity } from "@/common/entities/pagination";
 
 // ---------- Backend Output DTOs ----------
 
@@ -96,6 +97,15 @@ interface CityOutputDTO {
   supportEmail?: string | null;
 }
 
+interface PageOutputDTO<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+}
+
 // ---------- Input DTOs ----------
 
 export interface CreateEmployeeInput {
@@ -165,7 +175,7 @@ function mapUserResponseToEntity(dto: UserResponseDTO): UserEntity {
     calcData: {
       fuel: dto.calcData?.fuel ?? null,
       landfillDelivery: dto.calcData?.landFillDelivery ?? null,
-      initialDate: null as any
+      initialDate: null as any,
     },
     tokens: dto.tokens ?? [],
     // Converte o boolean do backend para string 'Ativo'/'Inativo'
@@ -175,7 +185,7 @@ function mapUserResponseToEntity(dto: UserResponseDTO): UserEntity {
         : dto.status === false
         ? "Inativo"
         : undefined,
-    permissions: extractPermissions(dto)
+    permissions: extractPermissions(dto),
   };
 }
 
@@ -199,7 +209,7 @@ function mapVehicleOutputToEntity(dto: VehicleOutputDTO): UserEntity {
     longitude: null,
     createdAt: null as any,
     updatedAt: null as any,
-    calcData: { fuel: null, landfillDelivery: null, initialDate: null as any }
+    calcData: { fuel: null, landfillDelivery: null, initialDate: null as any },
   };
 }
 
@@ -223,7 +233,7 @@ function mapEmployeeOutputToEntity(dto: EmployeeOutputDTO): UserEntity {
     longitude: null,
     createdAt: null as any,
     updatedAt: null as any,
-    calcData: { fuel: null, landfillDelivery: null, initialDate: null as any }
+    calcData: { fuel: null, landfillDelivery: null, initialDate: null as any },
   };
 }
 
@@ -251,8 +261,8 @@ function mapCityOutputToEntity(dto: CityOutputDTO): UserEntity {
     calcData: {
       fuel: dto.calcData?.fuel ?? null,
       landfillDelivery: dto.calcData?.landFillDelivery ?? null,
-      initialDate: null as any
-    }
+      initialDate: null as any,
+    },
   };
 }
 
@@ -279,9 +289,9 @@ function mapCityResponseToEntity(dto: CityResponseDTO): UserEntity {
     calcData: {
       fuel: dto.calcData?.fuel ?? null,
       landfillDelivery: dto.calcData?.landFillDelivery ?? null,
-      initialDate: null as any
+      initialDate: null as any,
     },
-    status: dto.status ? "Ativo" : "Inativo"
+    status: dto.status ? "Ativo" : "Inativo",
   };
 }
 
@@ -303,7 +313,7 @@ export const getMe = async (): Promise<UserEntity | null> => {
 };
 
 export const getUser = async (
-  id: string | null
+  id: string | null,
 ): Promise<UserEntity | null> => {
   if (!id) return null;
   try {
@@ -316,7 +326,7 @@ export const getUser = async (
 };
 
 export const getCityById = async (
-  id: string | null
+  id: string | null,
 ): Promise<UserEntity | null> => {
   if (!id) return null;
   try {
@@ -342,7 +352,7 @@ export const getUsers = async (): Promise<UserEntity[]> => {
 export const getAllVehicles = async (cityId: string): Promise<UserEntity[]> => {
   try {
     const data = await apiFetch<VehicleOutputDTO[]>(
-      `/user/${cityId}/city/vehicles`
+      `/user/${cityId}/city/vehicles`,
     );
     return data.map(mapVehicleOutputToEntity);
   } catch (error: any) {
@@ -351,17 +361,69 @@ export const getAllVehicles = async (cityId: string): Promise<UserEntity[]> => {
   }
 };
 
+export const getVehiclesPage = async (
+  cityId: string,
+  page = 0,
+  size = 10,
+  filters?: { name?: string; carPlate?: string },
+): Promise<PageEntity<UserEntity> | null> => {
+  try {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+
+    if (filters?.name?.trim()) params.set("name", filters.name.trim());
+    if (filters?.carPlate?.trim())
+      params.set("carPlate", filters.carPlate.trim());
+
+    const data = await apiFetch<PageOutputDTO<VehicleOutputDTO>>(
+      `/user/${cityId}/city/vehicles/page?${params.toString()}`,
+    );
+
+    return { ...data, content: data.content.map(mapVehicleOutputToEntity) };
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 export const getAllCollaborators = async (
-  cityId: string
+  cityId: string,
 ): Promise<UserEntity[]> => {
   try {
     const data = await apiFetch<EmployeeOutputDTO[]>(
-      `/user/${cityId}/city/employees`
+      `/user/${cityId}/city/employees`,
     );
     return data.map(mapEmployeeOutputToEntity);
   } catch (error: any) {
     console.error(error);
     return [];
+  }
+};
+
+export const getCollaboratorsPage = async (
+  cityId: string,
+  page = 0,
+  size = 10,
+  filters?: { name?: string },
+): Promise<PageEntity<UserEntity> | null> => {
+  try {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+
+    if (filters?.name?.trim()) params.set("name", filters.name.trim());
+
+    const data = await apiFetch<PageOutputDTO<EmployeeOutputDTO>>(
+      `/user/${cityId}/city/employees/page?${params.toString()}`,
+    );
+
+    return { ...data, content: data.content.map(mapEmployeeOutputToEntity) };
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 };
 
@@ -375,12 +437,36 @@ export const getAllCities = async (): Promise<UserEntity[]> => {
   }
 };
 
+export const getCitiesPage = async (
+  page = 0,
+  size = 10,
+  filters?: { name?: string },
+): Promise<PageEntity<UserEntity> | null> => {
+  try {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+
+    if (filters?.name?.trim()) params.set("name", filters.name.trim());
+
+    const data = await apiFetch<PageOutputDTO<CityOutputDTO>>(
+      `/user/all-cities/page?${params.toString()}`,
+    );
+
+    return { ...data, content: data.content.map(mapCityOutputToEntity) };
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 export const getAllCitizens = async (
-  _cityId: string
+  _cityId: string,
 ): Promise<UserEntity[]> => {
   try {
     const data = await apiFetch<UserResponseDTO[]>(
-      `/user/${_cityId}/city/citizens`
+      `/user/${_cityId}/city/citizens`,
     );
     return data.map(mapUserResponseToEntity);
   } catch (error) {
@@ -392,7 +478,7 @@ export const getAllCitizens = async (
 /** Cria colaborador, veículo, cidadão ou cidade via endpoint correto */
 export const createUser = async (
   data: Partial<UserEntity>,
-  _image?: File | null
+  _image?: File | null,
 ): Promise<{ error: string | null }> => {
   try {
     const role = data.role;
@@ -403,8 +489,8 @@ export const createUser = async (
         body: JSON.stringify({
           name: data.name,
           cpf: data.cpf,
-          cityId: data.cityId
-        })
+          cityId: data.cityId,
+        }),
       });
     } else if (role === "vehicle") {
       await apiFetch("/auth/register/vehicle", {
@@ -414,13 +500,13 @@ export const createUser = async (
           carPlate: data.carPlate,
           consume: parseFloat(data.consume ?? "0"),
           emission: parseFloat(data.emission ?? "0"),
-          cityId: data.cityId
-        })
+          cityId: data.cityId,
+        }),
       });
     } else if (role === "citizen") {
       await apiFetch("/auth/register/citizen", {
         method: "POST",
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
     } else if (role === "admin") {
       // Backend espera multipart/form-data com part 'data' (JSON) e 'image' opcional
@@ -431,30 +517,30 @@ export const createUser = async (
         password: (data as any).password,
         facilitatorData: {
           facilitatorName: data.facilitatorName,
-          supportEmail: data.supportEmail
+          supportEmail: data.supportEmail,
         },
         calcData: {
           landFillDeliveryCost: data.calcData?.landfillDelivery ?? null,
-          fuelCost: data.calcData?.fuel ?? null
+          fuelCost: data.calcData?.fuel ?? null,
         },
         address: {
           latitude: data.latitude ?? null,
           longitude: data.longitude ?? null,
-          localityName: data.fullAddress ?? null
+          localityName: data.fullAddress ?? null,
         },
         status: (data as any).status === "Ativo",
-        color: data.color ?? null
+        color: data.color ?? null,
       };
       formData.append(
         "data",
-        new Blob([JSON.stringify(cityPayload)], { type: "application/json" })
+        new Blob([JSON.stringify(cityPayload)], { type: "application/json" }),
       );
       if (_image) {
         formData.append("image", _image);
       }
       await apiFetch("/auth/register/city", {
         method: "POST",
-        body: formData
+        body: formData,
       });
     }
 
@@ -470,7 +556,7 @@ export const createUserDoc = createUser;
 
 export const updateUser = async (
   id: string,
-  data: Partial<UserEntity>
+  data: Partial<UserEntity>,
 ): Promise<{ error: string | null }> => {
   try {
     const input: UpdateUserInput = {
@@ -479,11 +565,11 @@ export const updateUser = async (
       cpf: data.cpf ?? undefined,
       carPlate: data.carPlate ?? undefined,
       consume: data.consume ? parseFloat(data.consume) : undefined,
-      emission: data.emission ? parseFloat(data.emission) : undefined
+      emission: data.emission ? parseFloat(data.emission) : undefined,
     };
     await apiFetch(`/user/${id}`, {
       method: "PUT",
-      body: JSON.stringify(input)
+      body: JSON.stringify(input),
     });
     return { error: null };
   } catch (error: any) {
@@ -496,7 +582,7 @@ export const updateUser = async (
 export const updateUserDoc = updateUser;
 
 export const deleteUser = async (
-  id: string
+  id: string,
 ): Promise<{ error: string | null }> => {
   try {
     await apiFetch(`/user/${id}`, { method: "DELETE" });
