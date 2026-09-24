@@ -1,14 +1,53 @@
 import { apiFetch } from "@/utils/apiFetch";
 import { CollectEntity } from "@/common/entities/Collect";
+import { PageEntity } from "@/common/entities/pagination";
 import { CollectOutputDTO, mapCollectOutputToEntity } from "./collect";
 import { DashboardEntity } from "@/common/entities/dashboard";
+
+interface PageOutputDTO<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+}
+
+function mapCollectPageOutputToEntity(
+  dto: PageOutputDTO<CollectOutputDTO>,
+): PageEntity<CollectEntity> {
+  return {
+    content: dto.content.map(mapCollectOutputToEntity),
+    page: dto.page,
+    size: dto.size,
+    totalElements: dto.totalElements,
+    totalPages: dto.totalPages,
+    last: dto.last,
+  };
+}
 
 export const getAllCollectsByRoute = async (routeId: string) => {
   try {
     const data = await apiFetch<CollectOutputDTO[]>(
-      `/collect/route/${routeId}`
+      `/collect/route/${routeId}`,
     );
     return data.map(mapCollectOutputToEntity);
+  } catch (error: any) {
+    console.error(error);
+    return null;
+  }
+};
+
+export const getCollectsPageByRoute = async (
+  routeId: string,
+  page = 0,
+  size = 10,
+) => {
+  try {
+    const data = await apiFetch<PageOutputDTO<CollectOutputDTO>>(
+      `/collect/route/${routeId}/page?page=${page}&size=${size}`,
+    );
+    return mapCollectPageOutputToEntity(data);
   } catch (error: any) {
     console.error(error);
     return null;
@@ -25,9 +64,47 @@ export const getAllCollectsByCity = async (cityId: string) => {
   }
 };
 
+export const getCollectsPageByCity = async (
+  cityId: string,
+  page = 0,
+  size = 10,
+  filters?: {
+    routeId?: string;
+    residueType?: string;
+    hasEnded?: boolean;
+  },
+) => {
+  try {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+
+    if (filters?.routeId?.trim()) {
+      params.set("routeId", filters.routeId.trim());
+    }
+
+    if (filters?.residueType?.trim()) {
+      params.set("residueType", filters.residueType.trim());
+    }
+
+    if (filters?.hasEnded !== undefined) {
+      params.set("hasEnded", String(filters.hasEnded));
+    }
+
+    const data = await apiFetch<PageOutputDTO<CollectOutputDTO>>(
+      `/collect/${cityId}/city/page?${params.toString()}`,
+    );
+    return mapCollectPageOutputToEntity(data);
+  } catch (error: any) {
+    console.error(error);
+    return null;
+  }
+};
+
 export const updateCollect = async (
   id: string,
-  data: Partial<CollectEntity>
+  data: Partial<CollectEntity>,
 ) => {
   try {
     const input = {
@@ -46,12 +123,12 @@ export const updateCollect = async (
       consume: data.consume,
       emission: data.emission,
       fuelCost: data.cost?.fuel,
-      landfillDeliveryCost: data.cost?.landfillDelivery
+      landfillDeliveryCost: data.cost?.landfillDelivery,
     };
 
     const response = await apiFetch(`/collect/${id}`, {
       method: "PUT",
-      body: JSON.stringify(input)
+      body: JSON.stringify(input),
     });
     console.log(response);
     return { error: null };
@@ -78,35 +155,35 @@ interface DashboardDataOutputDTO {
 }
 
 function mapDashboardOutputToEntity(
-  dto: DashboardDataOutputDTO
+  dto: DashboardDataOutputDTO,
 ): DashboardEntity {
   return {
     landfill: {
       year: dto.landfill?.year ?? [],
       semester: dto.landfill?.semester ?? [],
-      month: dto.landfill?.month ?? []
+      month: dto.landfill?.month ?? [],
     },
     fuel: {
       year: dto.fuel?.year ?? [],
       semester: dto.fuel?.semester ?? [],
-      month: dto.fuel?.month ?? []
+      month: dto.fuel?.month ?? [],
     },
     emission: {
       year: dto.emission?.year ?? [],
       semester: dto.emission?.semester ?? [],
-      month: dto.emission?.month ?? []
+      month: dto.emission?.month ?? [],
     },
     mass: {
       year: dto.mass?.year ?? [],
       semester: dto.mass?.semester ?? [],
-      month: dto.mass?.month ?? []
-    }
+      month: dto.mass?.month ?? [],
+    },
   };
 }
 
 export const getDashboardData = async (
   cityId: string,
-  routeId?: string
+  routeId?: string,
 ): Promise<DashboardEntity | null> => {
   try {
     const url = routeId

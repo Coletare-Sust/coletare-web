@@ -8,9 +8,11 @@ import Button from "@atoms/Button/button";
 import Title from "@atoms/Title/title";
 import MoreDropdown from "@atoms/MoreDropdown/moreDropdown";
 import LoadingComponent from "@atoms/Loading/loading";
+import Input from "@atoms/Input/input";
 import ConfirmationModal from "@molecules/ConfirmationModal/confirmationModal";
 import { wrapper } from "@/common/constants/wrapper";
-import useAllCities from "@/hooks/queries/useAllCities";
+import usePaginatedCities from "@/hooks/queries/usePaginatedCities";
+import PaginationControls from "@/components/molecules/PaginationControls/paginationControls";
 import { errorToast, successToast } from "@/hooks/useAppToast";
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
@@ -24,10 +26,21 @@ const Municipios = () => {
   const router = useRouter();
   const { deleteUserAuth, userUid } = useAuth();
   const { data: user } = useProfile(userUid);
-  const { data: cities } = useAllCities();
+  const [page, setPage] = useState(0);
+  const [name, setName] = useState("");
+  const {
+    data: citiesPage,
+    isLoading: isLoadingCities,
+    isFetching,
+  } = usePaginatedCities(page, 10, { name });
+  const cities = citiesPage?.content ?? [];
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [clickedCity, setClickedCity] = useState<UserEntity>();
+
+  React.useEffect(() => {
+    setPage(0);
+  }, [name]);
 
   const mutationDelete = useMutation(
     async (data: UserEntity) => {
@@ -55,8 +68,8 @@ const Municipios = () => {
       },
       onSettled: () => {
         setLoading(false);
-      }
-    }
+      },
+    },
   );
 
   const handleDelete = async (data: UserEntity | undefined) => {
@@ -88,15 +101,22 @@ const Municipios = () => {
           </Button>
         )}
       </div>
-      {loading ? (
+      <Input
+        name="cityName"
+        placeholder="Buscar por nome do municipio"
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+        className="max-w-md"
+      />
+      {loading || isLoadingCities ? (
         <div className="flex h-[200px] items-center">
           <LoadingComponent />
         </div>
       ) : (
-        cities?.map((city, key) => (
+        cities.map((city) => (
           <div
             className="flex items-center justify-between rounded-[8px] border border-greenBlue-600 px-4 py-6"
-            key={key}
+            key={city.id}
           >
             <div className="flex items-center gap-16">
               <Image
@@ -150,10 +170,10 @@ const Municipios = () => {
                             label: "Editar",
                             onClick: () => {
                               router.push(
-                                `/municipios/cadastrar?id=${city.id}`
+                                `/municipios/cadastrar?id=${city.id}`,
                               );
-                            }
-                          }
+                            },
+                          },
                         ]
                       : []),
                     ...(canDeleteCity
@@ -163,10 +183,10 @@ const Municipios = () => {
                             onClick: () => {
                               setOpenDeleteModal(true);
                               setClickedCity(city);
-                            }
-                          }
+                            },
+                          },
                         ]
-                      : [])
+                      : []),
                   ]}
                 />
               )}
@@ -174,11 +194,17 @@ const Municipios = () => {
           </div>
         ))
       )}
-      {(!cities || cities?.length === 0) && (
+      {!isLoadingCities && cities.length === 0 && (
         <p className="text-center text-sm">
           Não há cidades cadastradas ainda ...
         </p>
       )}
+      <PaginationControls
+        page={page}
+        totalPages={citiesPage?.totalPages}
+        isLoading={isFetching}
+        onPageChange={setPage}
+      />
       <ConfirmationModal
         title="Excluir município"
         description="Tem certeza de deseja excluir esse município? Todos os dados relativos a ele serão excluídos e não poderão ser recuperados."

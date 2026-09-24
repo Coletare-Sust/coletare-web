@@ -13,14 +13,14 @@ const Input = ({
   value,
   mask = "",
   onBlur,
-  disabled
+  disabled,
 }: InputProps) => {
   return (
     <ReactInputMask
       disabled={disabled}
       className={`${twMerge(
-        "rounded-lg border border-greenDark-400 bg-transparent px-2 py-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-        className
+        "h-11 w-full rounded-lg border border-greenBlue-800 bg-white-1000 px-4 py-2 text-greenBlue-1000 outline-none focus:border-greenDark-400 disabled:cursor-not-allowed disabled:opacity-50",
+        className,
       )}`}
       mask={mask}
       alwaysShowMask={false}
