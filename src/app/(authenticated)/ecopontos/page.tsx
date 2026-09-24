@@ -21,6 +21,7 @@ import useDeleteEcoponto from "@/hooks/queries/ecoponto/useDeleteEcoponto";
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import LoadingComponent from "@atoms/Loading/loading";
+import Input from "@atoms/Input/input";
 import EcopontoDetail from "@/components/molecules/EcopontoDetail/EcopontoDetail";
 import PaginationControls from "@/components/molecules/PaginationControls/paginationControls";
 
@@ -109,11 +110,12 @@ const EcopontosPage = () => {
         </p>
 
         <div className="flex flex-col gap-4 md:flex-row md:items-end">
-          <input
+          <Input
             value={nameFilter}
             onChange={(event) => setNameFilter(event.target.value)}
             placeholder="Buscar por nome"
-            className="h-11 w-72 rounded-lg border border-greenBlue-800 bg-white-1000 px-4 text-greenBlue-1000 outline-none"
+            name="nameFilter"
+            className="w-72"
           />
 
           <div className="relative">
