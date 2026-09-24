@@ -21,13 +21,15 @@ export const getAllCollectsQueryFn = (routeId: string) => {
 
 const useAllCollectsByRoute = <T = CollectEntity[]>(
   routeId: string,
-  select?: (data: DocumentData) => T
+  select?: (data: DocumentData) => T,
+  enabled = true
 ) => {
   return useQuery(
     getAllCollectsQueryKey(routeId),
     getAllCollectsQueryFn(routeId),
     {
       select,
+      enabled: Boolean(routeId) && enabled,
       staleTime: FORTY_FIVE_MINUTES_IN_MS,
       cacheTime: ONE_DAY_IN_MS
     }

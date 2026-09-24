@@ -5,7 +5,7 @@ import {
   Marker,
   Polyline,
   OverlayView,
-  OverlayViewF
+  OverlayViewF,
 } from "@react-google-maps/api";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { ChevronRight, Radio, Truck } from "lucide-react";
@@ -26,7 +26,7 @@ import {
   getRoutePointHeading,
   isRoutePoint,
   normalizeRoutePoint,
-  RoutePoint
+  RoutePoint,
 } from "@/utils/coordinates";
 import { RouteEntity } from "@/common/entities/route";
 
@@ -60,7 +60,7 @@ interface LiveLocationPayload {
 
 const defaultMapCenter = {
   lat: -8.3369,
-  lng: -36.4251
+  lng: -36.4251,
 };
 
 const LIVE_TRUCK_TTL_MS = 2 * 60 * 1000;
@@ -77,7 +77,7 @@ function hasCollectEnded(payload: LiveLocationPayload) {
   }
 
   return ["ended", "finished", "finalized", "completed"].includes(
-    payload.status?.toLowerCase() ?? ""
+    payload.status?.toLowerCase() ?? "",
   );
 }
 
@@ -88,38 +88,38 @@ const mapStyles: google.maps.MapTypeStyle[] = [
   {
     featureType: "administrative",
     elementType: "geometry.stroke",
-    stylers: [{ color: "#d7dde1" }]
+    stylers: [{ color: "#d7dde1" }],
   },
   {
     featureType: "poi",
     elementType: "labels",
-    stylers: [{ visibility: "off" }]
+    stylers: [{ visibility: "off" }],
   },
   {
     featureType: "road",
     elementType: "geometry",
-    stylers: [{ color: "#ffffff" }]
+    stylers: [{ color: "#ffffff" }],
   },
   {
     featureType: "road.arterial",
     elementType: "geometry",
-    stylers: [{ color: "#e1e6e9" }]
+    stylers: [{ color: "#e1e6e9" }],
   },
   {
     featureType: "road.highway",
     elementType: "geometry",
-    stylers: [{ color: "#cbd4d8" }]
+    stylers: [{ color: "#cbd4d8" }],
   },
   {
     featureType: "transit",
     elementType: "labels",
-    stylers: [{ visibility: "off" }]
+    stylers: [{ visibility: "off" }],
   },
   {
     featureType: "water",
     elementType: "geometry",
-    stylers: [{ color: "#dbe9ed" }]
-  }
+    stylers: [{ color: "#dbe9ed" }],
+  },
 ];
 
 const RotasAndamento = () => {
@@ -166,7 +166,7 @@ const RotasAndamento = () => {
 
   const selectedTruck = useMemo(
     () => trucks.find((truck) => truck.id === selectedTruckId) ?? null,
-    [selectedTruckId, trucks]
+    [selectedTruckId, trucks],
   );
 
   const focusTruck = (truck: LiveTruck) => {
@@ -194,7 +194,7 @@ const RotasAndamento = () => {
 
           setCenter({
             lat: position.coords.latitude,
-            lng: position.coords.longitude
+            lng: position.coords.longitude,
           });
         },
         () => {
@@ -206,7 +206,7 @@ const RotasAndamento = () => {
           ) {
             setCenter({ lat: city.latitude, lng: city.longitude });
           }
-        }
+        },
       );
     }
   }, [city?.latitude, city?.longitude]);
@@ -238,19 +238,23 @@ const RotasAndamento = () => {
       },
       onConnect: () => {
         console.log(
-          `STOMP conectado, inscrevendo-se em: /topic/locations/${user.cityId}`
+          `STOMP conectado, inscrevendo-se em: /topic/locations/${user.cityId}`,
         );
         stompClient.subscribe(`/topic/locations/${user.cityId}`, (message) => {
           if (message.body) {
             const payload = JSON.parse(message.body) as LiveLocationPayload;
 
             if (hasCollectEnded(payload)) {
+              if (endedCollectIdsRef.current.has(payload.collectId)) {
+                return;
+              }
+
               endedCollectIdsRef.current.add(payload.collectId);
               successToast(
-                `A coleta do veículo ${payload.vehicleName} foi finalizada!`
+                `A coleta do veículo ${payload.vehicleName} foi finalizada!`,
               );
               setTrucks((prevTrucks) =>
-                prevTrucks.filter((t) => t.id !== payload.collectId)
+                prevTrucks.filter((t) => t.id !== payload.collectId),
               );
               return;
             }
@@ -261,7 +265,7 @@ const RotasAndamento = () => {
 
             const currentPosition = normalizeRoutePoint(
               payload.latitude,
-              payload.longitude
+              payload.longitude,
             );
 
             if (!currentPosition) {
@@ -272,19 +276,19 @@ const RotasAndamento = () => {
               const routePath =
                 payload.routePath
                   ?.map((position) =>
-                    normalizeRoutePoint(position.latitude, position.longitude)
+                    normalizeRoutePoint(position.latitude, position.longitude),
                   )
                   .filter(isRoutePoint) ?? [];
 
               const existingTruck = prevTrucks.find(
-                (truck) => truck.id === payload.collectId
+                (truck) => truck.id === payload.collectId,
               );
               const previousRoutePoint = [...routePath]
                 .reverse()
                 .find(
                   (point) =>
                     point.lat !== currentPosition.lat ||
-                    point.lng !== currentPosition.lng
+                    point.lng !== currentPosition.lng,
                 );
               const previousPoint = existingTruck
                 ? { lat: existingTruck.lat, lng: existingTruck.lng }
@@ -301,20 +305,20 @@ const RotasAndamento = () => {
                 heading: getRoutePointHeading(
                   previousPoint,
                   currentPosition,
-                  existingTruck?.heading
+                  existingTruck?.heading,
                 ),
-                lastSeenAt: Date.now()
+                lastSeenAt: Date.now(),
               };
 
               const existingIndex = prevTrucks.findIndex(
-                (t) => t.id === newTruck.id
+                (t) => t.id === newTruck.id,
               );
               if (existingIndex >= 0) {
                 const newTrucks = [...prevTrucks];
                 const previousRoutePath =
                   newTrucks[existingIndex].routePath
                     ?.map((position) =>
-                      normalizeRoutePoint(position.lat, position.lng)
+                      normalizeRoutePoint(position.lat, position.lng),
                     )
                     .filter(isRoutePoint) ?? [];
                 newTrucks[existingIndex] = {
@@ -322,7 +326,7 @@ const RotasAndamento = () => {
                   routePath:
                     routePath.length > 0
                       ? routePath
-                      : [...previousRoutePath, currentPosition]
+                      : [...previousRoutePath, currentPosition],
                 };
                 return newTrucks;
               } else {
@@ -331,8 +335,8 @@ const RotasAndamento = () => {
                   {
                     ...newTruck,
                     routePath:
-                      routePath.length > 0 ? routePath : [currentPosition]
-                  }
+                      routePath.length > 0 ? routePath : [currentPosition],
+                  },
                 ];
               }
             });
@@ -341,7 +345,7 @@ const RotasAndamento = () => {
       },
       onStompError: (frame) => {
         console.error("STOMP Error:", frame.headers.message);
-      }
+      },
     });
 
     stompClient.activate();
@@ -356,8 +360,8 @@ const RotasAndamento = () => {
       const now = Date.now();
       setTrucks((prevTrucks) =>
         prevTrucks.filter(
-          (truck) => now - truck.lastSeenAt <= LIVE_TRUCK_TTL_MS
-        )
+          (truck) => now - truck.lastSeenAt <= LIVE_TRUCK_TTL_MS,
+        ),
       );
     }, LIVE_TRUCK_CLEANUP_INTERVAL_MS);
 
@@ -375,23 +379,23 @@ const RotasAndamento = () => {
             const collect = await getCollect(truck.id);
 
             return "hasEnded" in collect && collect.hasEnded ? truck.id : null;
-          })
+          }),
         )
       ).filter((collectId): collectId is string => collectId !== null);
 
       if (!endedCollectIds.length) return;
 
       endedCollectIds.forEach((collectId) =>
-        endedCollectIdsRef.current.add(collectId)
+        endedCollectIdsRef.current.add(collectId),
       );
       setTrucks((currentTrucks) =>
-        currentTrucks.filter((truck) => !endedCollectIds.includes(truck.id))
+        currentTrucks.filter((truck) => !endedCollectIds.includes(truck.id)),
       );
     };
 
     const interval = window.setInterval(
       reconcileCollectStatuses,
-      COLLECT_STATUS_RECONCILIATION_MS
+      COLLECT_STATUS_RECONCILIATION_MS,
     );
 
     return () => window.clearInterval(interval);
@@ -447,7 +451,7 @@ const RotasAndamento = () => {
                   mapTypeControl: false,
                   gestureHandling: "greedy",
                   backgroundColor: "#dbe9ed",
-                  styles: mapStyles
+                  styles: mapStyles,
                 }}
               >
                 {selectedTruck &&
@@ -458,7 +462,7 @@ const RotasAndamento = () => {
                     const path = currentRoute
                       ? decodePolyline(currentRoute.polyline)
                           .map((point) =>
-                            normalizeRoutePoint(point.lat, point.lng)
+                            normalizeRoutePoint(point.lat, point.lng),
                           )
                           .filter(isRoutePoint)
                       : [];
@@ -472,7 +476,7 @@ const RotasAndamento = () => {
                               strokeColor: "#11A8A0",
                               strokeOpacity: 0.72,
                               strokeWeight: 5,
-                              zIndex: 1
+                              zIndex: 1,
                             }}
                           />
                         )}
@@ -484,7 +488,7 @@ const RotasAndamento = () => {
                               strokeColor: "#1D4ED8",
                               strokeOpacity: 0.95,
                               strokeWeight: 6,
-                              zIndex: 2
+                              zIndex: 2,
                             }}
                           />
                         )}
@@ -501,10 +505,10 @@ const RotasAndamento = () => {
                                   fillColor: "#004A55",
                                   fillOpacity: 1,
                                   strokeWeight: 1,
-                                  strokeColor: "white"
+                                  strokeColor: "white",
                                 }}
                               />
-                            )
+                            ),
                           )}
 
                         <OverlayViewF
@@ -512,7 +516,7 @@ const RotasAndamento = () => {
                           mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                           getPixelPositionOffset={(width, height) => ({
                             x: -(width / 2),
-                            y: -(height / 2)
+                            y: -(height / 2),
                           })}
                         >
                           <button
@@ -528,7 +532,7 @@ const RotasAndamento = () => {
                               alt=""
                               className="h-[54px] w-[54px] select-none object-contain drop-shadow-[0_4px_4px_rgba(15,23,42,0.35)] transition-transform duration-700 ease-out"
                               style={{
-                                transform: `rotate(${truck.heading}deg)`
+                                transform: `rotate(${truck.heading}deg)`,
                               }}
                             />
                           </button>
@@ -540,7 +544,7 @@ const RotasAndamento = () => {
                             mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                             getPixelPositionOffset={(width, height) => ({
                               x: -(width / 2),
-                              y: -height - 20
+                              y: -height - 20,
                             })}
                           >
                             <div className="pointer-events-none flex flex-col items-center">
