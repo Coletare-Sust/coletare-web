@@ -26,7 +26,7 @@ const Veiculos = () => {
   const {
     data: vehiclesPage,
     isLoading,
-    isFetching,
+    isFetching
   } = usePaginatedVehicles(cityId, page, 10, { name, carPlate });
   const vehicles = vehiclesPage?.content ?? [];
 
@@ -80,8 +80,8 @@ const Veiculos = () => {
                 { label: "Senha", content: "*********" },
                 {
                   label: "Placa",
-                  content: vehicle.carPlate || "Nao encontrado",
-                },
+                  content: vehicle.carPlate || "Nao encontrado"
+                }
               ]}
             />
           ))}

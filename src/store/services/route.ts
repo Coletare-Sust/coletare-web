@@ -3,7 +3,7 @@ import { RouteEntity } from "@/common/entities/route";
 import { PageEntity } from "@/common/entities/pagination";
 import {
   RESIDUE_TYPE_LABELS,
-  getResidueTypeLabel,
+  getResidueTypeLabel
 } from "@/common/mappers/backendEnums";
 
 // Backend Types
@@ -40,12 +40,12 @@ const DEFAULT_DAYS = [
   "WEDNESDAY",
   "THURSDAY",
   "FRIDAY",
-  "SATURDAY",
+  "SATURDAY"
 ];
 
 export function mapRouteOutputToEntity(dto: RouteOutputDTO): RouteEntity {
   const daysEntity = DEFAULT_DAYS.map(
-    (day) => dto.days?.includes(day) || false,
+    (day) => dto.days?.includes(day) || false
   );
   return {
     id: dto.id,
@@ -61,8 +61,8 @@ export function mapRouteOutputToEntity(dto: RouteOutputDTO): RouteEntity {
     waypoints: (dto.waypoints || []).map((wp) => ({
       lat: wp.location.latitude,
       lng: wp.location.longitude,
-      wasChecked: wp.checked,
-    })),
+      wasChecked: wp.checked
+    }))
   };
 }
 
@@ -81,13 +81,13 @@ export function mapEntityToRouteInput(entity: Partial<RouteEntity>) {
     isSpecial: entity.isSpecial,
     residueType:
       Object.entries(RESIDUE_TYPE_LABELS).find(
-        ([key, val]) => val === entity.residueType,
+        ([key, val]) => val === entity.residueType
       )?.[0] || entity.residueType,
     polyline: entity.polyline,
     waypoints: entity.waypoints?.map((wp) => ({
       checked: wp.wasChecked,
-      location: { latitude: wp.lat, longitude: wp.lng },
-    })),
+      location: { latitude: wp.lat, longitude: wp.lng }
+    }))
   };
 }
 
@@ -96,7 +96,7 @@ export const createRoute = async (data: RouteEntity) => {
     const input = mapEntityToRouteInput(data);
     await apiFetch(`/route/${data.cityId}/city`, {
       method: "POST",
-      body: JSON.stringify(input),
+      body: JSON.stringify(input)
     });
     return { error: null };
   } catch (error: any) {
@@ -122,12 +122,12 @@ export const getRoutesPage = async (
   filters?: {
     name?: string;
     residueType?: string;
-  },
+  }
 ): Promise<PageEntity<RouteEntity> | null> => {
   try {
     const params = new URLSearchParams({
       page: String(page),
-      size: String(size),
+      size: String(size)
     });
 
     if (filters?.name?.trim()) {
@@ -139,7 +139,7 @@ export const getRoutesPage = async (
     }
 
     const data = await apiFetch<PageOutputDTO<RouteOutputDTO>>(
-      `/route/${cityId}/city/page?${params.toString()}`,
+      `/route/${cityId}/city/page?${params.toString()}`
     );
 
     return {
@@ -148,7 +148,7 @@ export const getRoutesPage = async (
       size: data.size,
       totalElements: data.totalElements,
       totalPages: data.totalPages,
-      last: data.last,
+      last: data.last
     };
   } catch (error) {
     console.error(error);
@@ -159,7 +159,7 @@ export const getRoutesPage = async (
 export const deleteRoute = async (routeId: string) => {
   try {
     await apiFetch(`/route/${routeId}`, {
-      method: "DELETE",
+      method: "DELETE"
     });
     return { error: null };
   } catch (error: any) {
@@ -180,13 +180,13 @@ export const getRoute = async (routeId: string) => {
 
 export const updateRouteDoc = async (
   uid: string,
-  data: Partial<RouteEntity>,
+  data: Partial<RouteEntity>
 ) => {
   try {
     const input = mapEntityToRouteInput(data);
     await apiFetch(`/route/${uid}`, {
       method: "PUT",
-      body: JSON.stringify(input),
+      body: JSON.stringify(input)
     });
     return { error: null };
   } catch (error: any) {

@@ -11,7 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
+  PopoverTrigger
 } from "@/components/ui/popover";
 import { DatePickerProps } from "./types";
 
@@ -25,7 +25,7 @@ const DatePicker = ({
   className,
   classNameButton,
   disabled = false,
-  activeDays,
+  activeDays
 }: DatePickerProps) => {
   const isRange = mode === "range";
   const buttonLabel = React.useMemo(() => {
@@ -35,7 +35,7 @@ const DatePicker = ({
 
     if (date && endDate) {
       return `${format(date, "P", { locale: ptBR })} - ${format(endDate, "P", {
-        locale: ptBR,
+        locale: ptBR
       })}`;
     }
 
@@ -58,7 +58,7 @@ const DatePicker = ({
               "w-[200px] items-center justify-center border border-greenDark-600 text-left font-normal text-greenDark-1000",
               !date && "",
               isRange && "w-[260px]",
-              classNameButton,
+              classNameButton
             )}
           >
             <span className={twMerge("text-lg text-greenDark-800", className)}>

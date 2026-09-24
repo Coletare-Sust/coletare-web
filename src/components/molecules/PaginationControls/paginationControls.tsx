@@ -15,7 +15,7 @@ export default function PaginationControls({
   page,
   totalPages = 0,
   isLoading = false,
-  onPageChange,
+  onPageChange
 }: PaginationControlsProps) {
   if (totalPages <= 1) return null;
 

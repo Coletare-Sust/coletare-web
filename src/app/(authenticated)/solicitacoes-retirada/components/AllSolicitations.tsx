@@ -23,21 +23,20 @@ const AllSolicitations = () => {
   const filters = useMemo(
     () => ({
       residueType: residueType || undefined,
-      status:
-        status === "open" ? false : status === "closed" ? true : undefined,
+      status: status === "open" ? false : status === "closed" ? true : undefined
     }),
-    [residueType, status],
+    [residueType, status]
   );
 
   const {
     data: solicitationsPage,
     isLoading: isLoadingSolicitationsData,
-    isFetching,
+    isFetching
   } = usePaginatedWithdrawalsRequests(
     cityId as string,
     page,
     PAGE_SIZE,
-    filters,
+    filters
   );
   const solicitationsData = solicitationsPage?.content ?? [];
 
@@ -51,11 +50,11 @@ const AllSolicitations = () => {
       router.push(
         `/solicitacoes-retirada?garbagePoint=${item.id}&city=${cityId}`,
         {
-          scroll: false,
-        },
+          scroll: false
+        }
       );
       window.scrollTo({ top: 0, behavior: "smooth" });
-    },
+    }
   }));
 
   return (

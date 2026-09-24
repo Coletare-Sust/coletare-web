@@ -8,7 +8,7 @@ import useAuth from "@/hooks/useAuth";
 import { deleteImage } from "@/store/services/firebaseStorage";
 import {
   getWarningsPageService,
-  deleteWarningService,
+  deleteWarningService
 } from "@/store/services/warning";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -23,10 +23,10 @@ export default function ListaDeAvisosPag() {
   const { userUid } = useAuth();
   const { data: user } = useProfile(userUid);
   const [startDateFilter, setStartDateFilter] = useState<Date | undefined>(
-    undefined,
+    undefined
   );
   const [endDateFilter, setEndDateFilter] = useState<Date | undefined>(
-    undefined,
+    undefined
   );
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
@@ -46,13 +46,13 @@ export default function ListaDeAvisosPag() {
     if (!startDateFilter) {
       return {
         startDate: undefined,
-        endDate: undefined,
+        endDate: undefined
       };
     }
 
     return {
       startDate: startOfDay(startDateFilter).toISOString(),
-      endDate: endOfDay(endDateFilter ?? startDateFilter).toISOString(),
+      endDate: endOfDay(endDateFilter ?? startDateFilter).toISOString()
     };
   }, [endDateFilter, startDateFilter]);
 
@@ -68,8 +68,8 @@ export default function ListaDeAvisosPag() {
           {
             search,
             startDate: dateFilters.startDate,
-            endDate: dateFilters.endDate,
-          },
+            endDate: dateFilters.endDate
+          }
         );
         setWarnings(fetchedWarnings.content);
         setTotalPages(fetchedWarnings.totalPages);
@@ -101,7 +101,7 @@ export default function ListaDeAvisosPag() {
       if (error) throw new Error(error);
 
       setWarnings(
-        (prev) => prev?.filter((w) => w.id !== clickedWarning.id) ?? null,
+        (prev) => prev?.filter((w) => w.id !== clickedWarning.id) ?? null
       );
       successToast("Aviso removido com sucesso!");
     } catch (err) {
@@ -146,7 +146,7 @@ export default function ListaDeAvisosPag() {
               .sort(
                 (currentDate, nextDate) =>
                   new Date(nextDate.createdAt).getTime() -
-                  new Date(currentDate.createdAt).getTime(),
+                  new Date(currentDate.createdAt).getTime()
               )
               .map((e) => {
                 return (
