@@ -168,9 +168,9 @@ export const deleteRoute = async (routeId: string) => {
   }
 };
 
-export const getRoute = async (routeId: string) => {
+export const getRoute = async (routeId: string, init?: RequestInit) => {
   try {
-    const data = await apiFetch<RouteOutputDTO>(`/route/${routeId}`);
+    const data = await apiFetch<RouteOutputDTO>(`/route/${routeId}`, init);
     return mapRouteOutputToEntity(data);
   } catch (error: any) {
     console.error(error);
