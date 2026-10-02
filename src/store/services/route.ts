@@ -21,6 +21,7 @@ interface RouteOutputDTO {
   isSpecial: boolean;
   residueType: string;
   polyline: string;
+  polylinePoints?: { lat: number; lng: number }[] | null;
   waypoints: WaypointDTO[];
 }
 
@@ -56,6 +57,7 @@ export function mapRouteOutputToEntity(dto: RouteOutputDTO): RouteEntity {
     isSpecial: dto.isSpecial,
     residueType: getResidueTypeLabel(dto.residueType),
     polyline: dto.polyline || "",
+    polylinePoints: dto.polylinePoints ?? null,
     wasChecked: false,
     withdrawalRequestsIds: [],
     waypoints: (dto.waypoints || []).map((wp) => ({
@@ -84,10 +86,11 @@ export function mapEntityToRouteInput(entity: Partial<RouteEntity>) {
         ([key, val]) => val === entity.residueType
       )?.[0] || entity.residueType,
     polyline: entity.polyline,
+    polylinePoints: entity.polylinePoints ?? null,
     waypoints: entity.waypoints?.map((wp) => ({
       checked: wp.wasChecked,
-      location: { latitude: wp.lat, longitude: wp.lng }
-    }))
+      location: { latitude: wp.lat, longitude: wp.lng },
+    })),
   };
 }
 
@@ -180,7 +183,7 @@ export const getRoute = async (routeId: string, init?: RequestInit) => {
 
 export const updateRouteDoc = async (
   uid: string,
-  data: Partial<RouteEntity>
+  data: Partial<RouteEntity>,
 ) => {
   try {
     const input = mapEntityToRouteInput(data);

@@ -37,7 +37,11 @@ const CreateRoute = ({
   setCount,
   adresses,
   handleDeleteWaypoint,
-  response,
+  polylineEncoded,
+  polylinePoints,
+  isCalculatingPolyline,
+  polylineError,
+  onCalculatePolyline,
   isEdit,
   routeId,
   setAdresses,
@@ -181,8 +185,6 @@ const CreateRoute = ({
     }
   );
 
-  console.log(activeSuggestions.map((item) => item.id));
-
   const handleSuggestionClick =
     (solicitation: WithdrawalsRequestEntity) => () => {
       setActiveSuggestions((prev) => [...prev, solicitation]);
@@ -250,6 +252,18 @@ const CreateRoute = ({
       return;
     }
 
+    if (isCalculatingPolyline) {
+      errorToast("Aguarde o calculo da rota terminar.");
+      setRouteError("Aguarde o calculo da rota terminar.");
+      return;
+    }
+
+    if (!polylineEncoded || polylinePoints.length <= 1 || polylineError) {
+      errorToast("Nao foi possivel calcular o caminho da rota.");
+      setRouteError("Nao foi possivel calcular o caminho da rota.");
+      return;
+    }
+
     const route: RouteEntity = {
       id: isEdit ? (routeId as string) : uuidv4(),
       waypoints: waypoints.map((waypoint) => {
@@ -263,7 +277,8 @@ const CreateRoute = ({
       period,
       residueType,
       name: routeName,
-      polyline: response?.routes[0].overview_polyline as string,
+      polyline: polylineEncoded ?? "",
+      polylinePoints: polylinePoints.length > 0 ? polylinePoints : null,
       wasChecked: false,
       cityId: user?.id as string,
       isSpecial,
@@ -290,7 +305,8 @@ const CreateRoute = ({
         period: periodSecondary,
         residueType: residueTypeSecondary,
         name: routeNameSecondary,
-        polyline: response?.routes[0].overview_polyline as string,
+        polyline: polylineEncoded ?? "",
+        polylinePoints: polylinePoints.length > 0 ? polylinePoints : null,
         wasChecked: false,
         cityId: user?.id as string,
         isSpecial,
@@ -499,6 +515,19 @@ const CreateRoute = ({
             </div>
           </div>
           <FormErrorLabel className="mt-2">{routeError}</FormErrorLabel>
+          <FormErrorLabel className="mt-2">{polylineError}</FormErrorLabel>
+          <Button
+            className="mt-4 w-full"
+            buttonType="button"
+            loading={isCalculatingPolyline}
+            disabled={waypoints.length <= 1}
+            onClick={() => {
+              setRouteError("");
+              onCalculatePolyline();
+            }}
+          >
+            Calcular rota
+          </Button>
         </div>
         {isSpecial && (
           <div>
