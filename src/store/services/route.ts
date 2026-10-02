@@ -89,8 +89,8 @@ export function mapEntityToRouteInput(entity: Partial<RouteEntity>) {
     polylinePoints: entity.polylinePoints ?? null,
     waypoints: entity.waypoints?.map((wp) => ({
       checked: wp.wasChecked,
-      location: { latitude: wp.lat, longitude: wp.lng },
-    })),
+      location: { latitude: wp.lat, longitude: wp.lng }
+    }))
   };
 }
 
@@ -183,7 +183,7 @@ export const getRoute = async (routeId: string, init?: RequestInit) => {
 
 export const updateRouteDoc = async (
   uid: string,
-  data: Partial<RouteEntity>,
+  data: Partial<RouteEntity>
 ) => {
   try {
     const input = mapEntityToRouteInput(data);
