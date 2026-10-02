@@ -82,11 +82,13 @@ function mapWithdrawalOutputToEntity(
 // ---------- Services ----------
 
 export const getAllWithdrawalsRequests = async (
-  cityId: string
+  cityId: string,
+  init?: RequestInit
 ): Promise<WithdrawalsRequestEntity[]> => {
   try {
     const data = await apiFetch<WithdrawalRequestOutputDTO[]>(
-      `/withdrawal-request/${cityId}/city`
+      `/withdrawal-request/${cityId}/city`,
+      init
     );
     return data.map(mapWithdrawalOutputToEntity);
   } catch (error) {
