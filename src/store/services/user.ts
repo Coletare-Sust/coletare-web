@@ -462,11 +462,13 @@ export const getCitiesPage = async (
 };
 
 export const getAllCitizens = async (
-  _cityId: string
+  _cityId: string,
+  init?: RequestInit
 ): Promise<UserEntity[]> => {
   try {
     const data = await apiFetch<UserResponseDTO[]>(
-      `/user/${_cityId}/city/citizens`
+      `/user/${_cityId}/city/citizens`,
+      init
     );
     return data.map(mapUserResponseToEntity);
   } catch (error) {
