@@ -8,6 +8,7 @@ import BlockInactiveUserWrapper from "@/components/templates/BlockInactiveUser/b
 import AuthenticatedOnlyFeatureWrapper from "@/components/templates/Authenticated/authenticated";
 import MainHeader from "@molecules/MainHeader/mainHeader";
 import Sidebar from "@molecules/Sidebar/sidebar";
+import LoadingComponent from "@/components/atoms/Loading/loading";
 
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
@@ -23,7 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const { loadError } = useJsApiLoader({
+  const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
     libraries
@@ -79,11 +80,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     !routeAccessRule || canAccessAll(user, routeAccessRule.permissions);
 
   const renderContent = () => {
-    // Maps não bloqueia o render da página — componentes que usam Maps
-    // tratam o estado de carregamento internamente.
-    // loadError é logado mas não impede a navegação.
     if (loadError) {
-      console.warn("Google Maps não pôde ser carregado:", loadError);
+      console.warn("Google Maps nao pode ser carregado:", loadError);
+
+      return (
+        <div className="flex h-full min-h-[320px] items-center justify-center text-center text-greenDark-800">
+          Nao foi possivel carregar o Google Maps. Verifique a chave de API.
+        </div>
+      );
     }
     if (user && !canAccessCurrentRoute) {
       return (
@@ -95,6 +99,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             Seu usuario nao possui permissao para acessar esta tela.
           </p>
         </section>
+      );
+    }
+
+    if (!isLoaded) {
+      return (
+        <div className="flex h-full min-h-[320px] items-center justify-center">
+          <LoadingComponent color="#004A55" size={32} />
+        </div>
       );
     }
 

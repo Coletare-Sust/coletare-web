@@ -1,18 +1,21 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 "use client";
 
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   GoogleMap,
   Marker,
-  DirectionsService,
-  DirectionsRenderer
+  OverlayView,
+  OverlayViewF,
+  Polyline
 } from "@react-google-maps/api";
 
 import CreateRoute from "@/components/molecules/CreateRoute/createRoute";
+import { apiFetch } from "@/utils/apiFetch";
 import { useSearchParams } from "next/navigation";
 import { WithdrawalsRequestEntity } from "@/common/entities/WithdrawalsRequest";
 import { errorToast } from "@/hooks/useAppToast";
+import useRoute from "@/hooks/queries/useRoute";
 
 const position = {
   lat: -8.05224,
@@ -30,50 +33,160 @@ const CriarRota = () => {
   const [activeSuggestions, setActiveSuggestions] = useState<
     WithdrawalsRequestEntity[]
   >([]);
-  const [response, setResponse] = useState<google.maps.DirectionsResult | null>(
-    null
+
+  const [polylineEncoded, setPolylineEncoded] = useState<string | null>(null);
+  const [decodedPath, setDecodedPath] = useState<google.maps.LatLngLiteral[]>(
+    []
   );
+  const [isCalculatingPolyline, setIsCalculatingPolyline] = useState(false);
+  const [polylineError, setPolylineError] = useState<string | null>(null);
+
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const hydratedRouteIdRef = useRef<string | null>(null);
 
   const isEdit = useSearchParams().get("isEdit");
   const routeId = useSearchParams().get("routeId");
-
   const isSpecial = useSearchParams().get("especial") === "true";
+  const { data: routeToEdit } = useRoute(routeId ?? "");
+  const isRouteCalculated = decodedPath.length > 1;
 
   const onMapLoad = (map: google.maps.Map) => {
     setMap(map);
   };
 
-  const directionsServiceOptions =
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    useMemo<google.maps.DirectionsRequest>(() => {
-      return {
-        origin: waypoints[0],
-        destination: waypoints[waypoints.length - 1],
-        waypoints: waypoints.slice(1, waypoints.length - 1).map((waypoint) => {
-          return {
-            location: waypoint,
-            stopover: true
-          };
-        }),
-        travelMode: "DRIVING"
-      };
-    }, [waypoints]);
+  const fetchPolyline = useCallback(
+    async (wps: google.maps.LatLngLiteral[]) => {
+      abortControllerRef.current?.abort();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      setIsCalculatingPolyline(true);
+      setPolylineError(null);
 
-  const directionsCallback = useCallback((res: any) => {
-    if (res !== null && res.status === "OK") {
-      setResponse(res);
-    } else {
-      console.error(res);
+      try {
+        const data = await apiFetch<{
+          polyline: string;
+          polylinePoints?: google.maps.LatLngLiteral[] | null;
+        }>("/route/calculate-polyline", {
+          method: "POST",
+          body: JSON.stringify({ waypoints: wps }),
+          signal: controller.signal
+        });
+
+        const encoded = data.polyline;
+        const path =
+          data.polylinePoints && data.polylinePoints.length > 0
+            ? data.polylinePoints
+            : google.maps.geometry.encoding
+                .decodePath(encoded)
+                .map((p) => ({ lat: p.lat(), lng: p.lng() }));
+
+        setPolylineEncoded(encoded);
+        setDecodedPath(path);
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === "AbortError") return;
+
+        setPolylineEncoded(null);
+        setDecodedPath([]);
+        setPolylineError("Nao foi possivel calcular o caminho da rota.");
+        errorToast("Nao foi possivel calcular o caminho da rota.");
+        console.error("Erro ao calcular polyline:", err);
+      } finally {
+        if (
+          abortControllerRef.current === controller &&
+          !controller.signal.aborted
+        ) {
+          setIsCalculatingPolyline(false);
+        }
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    setDecodedPath([]);
+    setPolylineEncoded(null);
+    setPolylineError(null);
+    setIsCalculatingPolyline(false);
+    abortControllerRef.current?.abort();
+  }, [waypoints]);
+
+  useEffect(() => {
+    if (
+      isEdit !== "true" ||
+      !routeId ||
+      !routeToEdit ||
+      hydratedRouteIdRef.current === routeId ||
+      waypoints.length !== routeToEdit.waypoints.length
+    ) {
+      return;
     }
-  }, []);
 
-  const directionsRendererOptions: google.maps.DirectionsRendererOptions =
-    React.useMemo(() => {
-      return {
-        directions: response
-      };
-    }, [response]);
+    const savedPath =
+      routeToEdit.polylinePoints && routeToEdit.polylinePoints.length > 0
+        ? routeToEdit.polylinePoints
+        : routeToEdit.polyline &&
+          typeof google !== "undefined" &&
+          google.maps?.geometry?.encoding
+        ? google.maps.geometry.encoding
+            .decodePath(routeToEdit.polyline)
+            .map((p) => ({ lat: p.lat(), lng: p.lng() }))
+        : [];
+
+    if (savedPath.length <= 1) return;
+
+    setPolylineEncoded(routeToEdit.polyline);
+    setDecodedPath(savedPath);
+    setPolylineError(null);
+    hydratedRouteIdRef.current = routeId;
+  }, [isEdit, routeId, routeToEdit, waypoints.length]);
+
+  const handleCalculatePolyline = useCallback(() => {
+    if (waypoints.length <= 1) {
+      errorToast("Adicione ao menos 2 enderecos para calcular a rota.");
+      setPolylineError("Adicione ao menos 2 enderecos para calcular a rota.");
+      return;
+    }
+
+    fetchPolyline(waypoints);
+  }, [fetchPolyline, waypoints]);
+
+  const getCalculatedWaypointIcon = (
+    index: number
+  ): google.maps.Symbol | undefined => {
+    if (typeof google === "undefined") return undefined;
+
+    const isEndpoint = index === 0 || index === waypoints.length - 1;
+
+    return {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: isEndpoint ? 7 : 6,
+      fillColor: isEndpoint ? "#004A55" : "#00ADB4",
+      fillOpacity: 1,
+      strokeColor: "white",
+      strokeWeight: isEndpoint ? 3 : 2
+    };
+  };
+
+  const renderEndpointLabel = (
+    position: google.maps.LatLngLiteral,
+    label: string
+  ) => (
+    <OverlayViewF
+      position={position}
+      mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+      getPixelPositionOffset={(width, height) => ({
+        x: -(width / 2),
+        y: -height - 20
+      })}
+    >
+      <div className="pointer-events-none flex flex-col items-center">
+        <div className="relative rounded-md bg-greenBlue-1000 px-3 py-2 text-xs font-bold text-white-1000 shadow-lg">
+          {label}
+          <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-greenBlue-1000" />
+        </div>
+      </div>
+    </OverlayViewF>
+  );
 
   const getAddressFromCoordinates = (latLng: google.maps.LatLng) => {
     const geocoder = new google.maps.Geocoder();
@@ -98,7 +211,7 @@ const CriarRota = () => {
   const handleMapClick = useCallback(
     (event: google.maps.MapMouseEvent) => {
       if (count === 0 || count === waypoints.length) {
-        errorToast("Adicione um endereço antes selecionar uma localização.");
+        errorToast("Adicione um endereco antes selecionar uma localizacao.");
         return;
       }
 
@@ -145,7 +258,8 @@ const CriarRota = () => {
     setCount((prev) => prev - 1);
 
     if (newWaypointsArray.length <= 1) {
-      setResponse(null);
+      setPolylineEncoded(null);
+      setDecodedPath([]);
     }
   };
 
@@ -170,7 +284,11 @@ const CriarRota = () => {
               setCount={setCount}
               adresses={adresses}
               handleDeleteWaypoint={handleDeleteWaypoint}
-              response={response}
+              polylineEncoded={polylineEncoded}
+              polylinePoints={decodedPath}
+              isCalculatingPolyline={isCalculatingPolyline}
+              polylineError={polylineError}
+              onCalculatePolyline={handleCalculatePolyline}
               isEdit={isEdit === "true"}
               routeId={routeId}
               setAdresses={setAdresses}
@@ -178,20 +296,43 @@ const CriarRota = () => {
               activeSuggestions={activeSuggestions}
               setActiveSuggestions={setActiveSuggestions}
             />
-            {!response &&
-              waypoints.length > 0 &&
+
+            {isRouteCalculated && (
+              <Polyline
+                key={polylineEncoded ?? "calculated-route"}
+                path={decodedPath}
+                options={{
+                  strokeColor: "#00ADB4",
+                  strokeWeight: 4,
+                  strokeOpacity: 1
+                }}
+              />
+            )}
+
+            {!isRouteCalculated &&
               waypoints.map((waypoint, index) => (
                 <Marker key={index} position={waypoint} />
               ))}
-            {waypoints.length > 1 && (
-              <DirectionsService
-                options={directionsServiceOptions}
-                callback={directionsCallback}
-              />
-            )}
-            {response && directionsRendererOptions && waypoints.length > 1 && (
-              <DirectionsRenderer options={directionsRendererOptions} />
-            )}
+
+            {isRouteCalculated &&
+              waypoints.map((waypoint, index) => (
+                <Marker
+                  key={`${waypoint.lat}-${waypoint.lng}-${index}`}
+                  position={waypoint}
+                  icon={getCalculatedWaypointIcon(index)}
+                  zIndex={
+                    index === 0 || index === waypoints.length - 1 ? 11 : 10
+                  }
+                />
+              ))}
+
+            {isRouteCalculated &&
+              waypoints[0] &&
+              renderEndpointLabel(waypoints[0], "Inicio")}
+
+            {isRouteCalculated &&
+              waypoints[waypoints.length - 1] &&
+              renderEndpointLabel(waypoints[waypoints.length - 1], "Fim")}
           </GoogleMap>
         </>
       </div>
