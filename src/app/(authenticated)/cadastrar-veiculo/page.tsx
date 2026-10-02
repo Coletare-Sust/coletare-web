@@ -23,7 +23,7 @@ type RegisterVehicleForm = z.infer<typeof RegisterVehicleFormSchema>;
 type EditVehicleForm = z.infer<typeof EditVehicleFormSchema>;
 
 const CadastrarVeiculoPage = () => {
-  const { userUid, createUserWithInternalService } = useAuth();
+  const { userUid } = useAuth();
   const { data: user } = useProfile(userUid);
   const isEdit = useSearchParams().get("isEdit");
   const id = useSearchParams().get("id");

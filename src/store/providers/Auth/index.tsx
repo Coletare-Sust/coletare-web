@@ -1,19 +1,16 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import SignUpForm from "@/validations/signUp";
-import { z } from "zod";
 
 import { errorToast, successToast } from "@/hooks/useAppToast";
 import {
-  createUserWithEmailAndPasswordLocal,
   logout as logoutService,
   recoverPassword,
   signInWithEmailAndPasswordLocal,
   waitForUser
 } from "@/store/services/auth";
-import { createUserDoc, deleteUserDoc } from "@/store/services/user";
-import { UserEntity as UserDoc, UserEntity } from "@/common/entities/user";
+import { deleteUserDoc } from "@/store/services/user";
+import { UserEntity as UserDoc } from "@/common/entities/user";
 import { AUTHORIZATION_EXPIRED_EVENT } from "@/utils/apiFetch";
 import { persister, queryClient } from "@/store/providers/queryClient";
 
@@ -24,14 +21,12 @@ interface Props {
 }
 
 export type UserType = UserDoc | null;
-type SignUpFormValidationData = z.infer<typeof SignUpForm>;
 
 const AuthProvider = ({ children }: Props) => {
   const initialLoadingObject = {
     onAuthUserChanged: true,
     loginWithGoogle: false,
     loginWithInternalService: false,
-    createUserWithInternalService: false,
     forgotPassword: false,
     updatePassword: false,
     deleteUser: false,
@@ -69,13 +64,6 @@ const AuthProvider = ({ children }: Props) => {
   // No initial effect watching "onAuthStateChanged" anymore, since HTTPOnly is stateless for frontend
   // And requires active polling or single fetch. "waitForUserSync" will be executed by components relying on Auth state.
 
-  const createUserAuth = async (email: string, password: string) => {
-    return await fetch("/api/createAuth", {
-      method: "POST",
-      body: JSON.stringify({ email, password })
-    }).then((data) => data.json());
-  };
-
   const loginWithInternalService = async (email: string, password: string) => {
     setLoading((prev) => ({ ...prev, loginWithInternalService: true }));
     const { user, error } = await signInWithEmailAndPasswordLocal(
@@ -95,39 +83,6 @@ const AuthProvider = ({ children }: Props) => {
     }
   };
 
-  const createUserWithInternalService = async (
-    data: UserEntity & { password?: string; confirmPassword?: string }
-  ) => {
-    if (data.email && data.password) {
-      setLoading((prev) => ({ ...prev, createUserWithInternalService: true }));
-      const { uid, error } = await createUserAuth(data.email, data.password);
-      if (error) {
-        errorToast(error);
-        setLoading((prev) => ({
-          ...prev,
-          createUserWithInternalService: false
-        }));
-        return;
-      }
-      delete data.password;
-      delete data.confirmPassword;
-      const { error: errorDoc } = await createUserDoc({
-        ...data,
-        id: uid
-      });
-      if (!errorDoc) {
-        successToast("O cadastro foi realizado com sucesso!");
-      } else {
-        errorToast(
-          "Não foi possível realizar o cadastro. Tente novamente mais tarde."
-        );
-      }
-      setLoading((prev) => ({ ...prev, createUserWithInternalService: false }));
-    } else {
-      errorToast("Email and password are required");
-    }
-  };
-
   const waitForUserSync = async () => {
     return new Promise<void>((resolve) => {
       setLoading((prev) => ({ ...prev, onAuthUserChanged: true }));
@@ -144,14 +99,8 @@ const AuthProvider = ({ children }: Props) => {
   };
 
   const deleteUserAuth = async (userUid: string) => {
-    const { error: errorDoc } = await deleteUserDoc(userUid);
-    if (!errorDoc) {
-      return { error: null };
-    }
-    return await fetch("/api/deleteAuth", {
-      method: "POST",
-      body: JSON.stringify(userUid)
-    }).then((data) => data.json());
+    const { error } = await deleteUserDoc(userUid);
+    return { error };
   };
 
   const logoutUser = async () => {
@@ -184,9 +133,7 @@ const AuthProvider = ({ children }: Props) => {
         loginWithInternalService,
         logoutUser,
         setUserUid,
-        createUserWithInternalService,
         waitForUserSync,
-        createUserAuth,
         deleteUserAuth,
         redefinePassword
       }}
