@@ -42,3 +42,7 @@ next-env.d.ts
 
 # ai specs
 /specs
+
+# Firebase service account keys (never commit)
+*firebase-adminsdk*.json
+serviceAccountKey*.json
