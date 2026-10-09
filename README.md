@@ -1,5 +1,8 @@
 # Coletapp Web
 
+> **Documentação técnica e branches:** veja [`docs/README.md`](docs/README.md) e o [`CLAUDE.md`](CLAUDE.md). A branch de trabalho deste repositório é **`refactor/migrate-backend`** (futura padrão); o backend (`coletapp-backend`) usa `main`.
+
+
 Este é o **README da versão Web do Coletapp**, uma plataforma de utilidade pública para coleta e registro de informações em campo, desenvolvida com **React (Next.js)**.
 
 O objetivo deste guia é fornecer as instruções necessárias para configurar, rodar e fazer o deploy do projeto.
