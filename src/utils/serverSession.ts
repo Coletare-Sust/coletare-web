@@ -1,5 +1,6 @@
 import "server-only";
 import { NextResponse } from "next/server";
+import { getApiUrl } from "@/config/api";
 
 export type SessionUser = {
   id: string;
@@ -9,11 +10,7 @@ export type SessionUser = {
 
 type SessionResult = { user: SessionUser } | { response: NextResponse };
 
-const apiUrl = () =>
-  (process.env.NEXT_PUBLIC_API_URL ?? "https://api.coletapp.com").replace(
-    /\/$/,
-    ""
-  );
+const apiUrl = () => getApiUrl();
 
 /** Credenciais do chamador (cookie do web ou Bearer do mobile), para repassar ao backend. */
 export function forwardedAuthHeaders(request: Request): Record<string, string> {
