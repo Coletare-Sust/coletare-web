@@ -17,6 +17,7 @@ yarn dev            # http://localhost:3000
 | `NEXT_PUBLIC_LOGIN_URL`, `NEXT_PUBLIC_API_ECOTOOLS_URL` | cliente | Presentes no `.env`; confirme o uso antes de mexer |
 | `NODEMAILER_USER`, `NODEMAILER_PASS` | servidor | Envio de e-mail em `/api/email` (o código ainda aceita as versões `NEXT_PUBLIC_*`, que não devem carregar credenciais) |
 | `EXPO_ACCESS_TOKEN` | servidor | Push em `/api/notifications` |
+| `NEXT_PUBLIC_BUILD_ID` | cliente (build, opcional) | Versão do cache persistido do React Query; se ausente, `next.config.js` usa o horário do build |
 
 `NEXT_PUBLIC_*` vai para o bundle do navegador: nunca coloque segredo nessas variáveis. A conta de serviço do Firebase Admin não deve estar no repositório.
 

@@ -12,7 +12,7 @@ import {
 import { deleteUserDoc } from "@/store/services/user";
 import { UserEntity as UserDoc } from "@/common/entities/user";
 import { AUTHORIZATION_EXPIRED_EVENT } from "@/utils/apiFetch";
-import { persister, queryClient } from "@/store/providers/queryClient";
+import { clearQueryCache } from "@/store/providers/queryClient";
 
 import AuthContext from "./context";
 
@@ -37,8 +37,7 @@ const AuthProvider = ({ children }: Props) => {
   const router = useRouter();
 
   const clearClientSession = useCallback(() => {
-    queryClient.clear();
-    persister.removeClient();
+    clearQueryCache();
     setUserUid("");
   }, []);
 

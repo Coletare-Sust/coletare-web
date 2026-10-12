@@ -31,7 +31,7 @@ Env vars (see `docs/development.md`; never print or commit values): `NEXT_PUBLIC
 
 ## Architecture
 
-Next.js 14 App Router, TypeScript, Tailwind, Radix/shadcn-style primitives, TanStack Query v4 (cache persisted to `localStorage`, 5-day cacheTime), react-hook-form + zod, Google Maps (`@react-google-maps/api`), Chart.js, STOMP over SockJS.
+Next.js 14 App Router, TypeScript, Tailwind, Radix/shadcn-style primitives, TanStack Query v4 (cache persisted to `localStorage`, max 24 h, busted per build via `NEXT_PUBLIC_BUILD_ID`), react-hook-form + zod, Google Maps (`@react-google-maps/api`), Chart.js, STOMP over SockJS.
 
 ```
 src/app/(authenticated)/   pages: dashboard, rotas, rota, criar-rota, rotas-andamento (live map), ecopontos, avisos,
