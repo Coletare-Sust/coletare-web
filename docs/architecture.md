@@ -20,7 +20,7 @@ src/
     api/email, api/notifications         rotas de servidor (exigem sessão no backend)
   common/        accessControl, constants, dtos, entities, mappers, validation
   components/    atoms, molecules, organisms, templates, ui
-  config/        api.ts (URL da API), firebase.ts (legado)
+  config/        api.ts (URL da API)
   hooks/         useAuth, useAppToast, queries/* (React Query)
   store/         providers (Auth, QueryClientApp) e services (HTTP por recurso)
   utils/         apiFetch, serverSession, polyline, datas, coordenadas

@@ -14,7 +14,6 @@ yarn dev            # http://localhost:3000
 | --- | --- | --- |
 | `NEXT_PUBLIC_API_URL` | cliente | URL do backend (padrão: `http://localhost:8080` em dev) |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | cliente | Mapas (restrinja a chave por referrer) |
-| `NEXT_PUBLIC_FIREBASE_*` | cliente | Legado; a migração visa remover |
 | `NEXT_PUBLIC_LOGIN_URL`, `NEXT_PUBLIC_API_ECOTOOLS_URL` | cliente | Presentes no `.env`; confirme o uso antes de mexer |
 | `NODEMAILER_USER`, `NODEMAILER_PASS` | servidor | Envio de e-mail em `/api/email` (o código ainda aceita as versões `NEXT_PUBLIC_*`, que não devem carregar credenciais) |
 | `EXPO_ACCESS_TOKEN` | servidor | Push em `/api/notifications` |

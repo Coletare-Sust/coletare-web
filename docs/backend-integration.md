@@ -26,7 +26,7 @@ Notificações push: o web envia por `POST /api/notifications` (Expo Push) usand
 - Rate limit nas rotas públicas de auth: o front deve tratar HTTP 429.
 
 ## Pendências da migração (`refactor/migrate-backend`)
-- Remover os resquícios de Firebase: `config/firebase.ts`, imports de tipos `Timestamp`/`DocumentData` de `firebase/firestore` (substituir por tipos próprios) e as variáveis `NEXT_PUBLIC_FIREBASE_*` não usadas.
+- O SDK do Firebase foi removido (#133): `Timestamp`/`DocumentData` são tipos locais e `NEXT_PUBLIC_FIREBASE_*` não é mais lido.
 - `firebaseStorage.ts` é um stub: uploads devem ir como multipart ao backend (já é assim para avisos e retiradas).
 - Edição de município (`cor`, `endereço`, `status`, `calcData`, ...) usa `PUT /user/{id}`; confirmar no backend se esses campos já são aceitos (a proposta de RBAC apontava a falta de `PUT /city/{id}`).
 - Trocar checagens por `role` por checagens de permissão.

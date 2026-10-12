@@ -27,7 +27,7 @@ yarn lint               # next lint (eslint 8, rocketseat + airbnb config)
 
 There is no unit-test suite. `load_tests/coletapp_test.js` is a k6 script for the backend's location endpoint. Prettier: `trailingComma: none`, tailwind plugin; run it on files you touch (CRLF/LF warnings from Git on Windows are noise).
 
-Env vars (see `docs/development.md`; never print or commit values): `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, remnants of `NEXT_PUBLIC_FIREBASE_*`, and server-only `NODEMAILER_USER/PASS`, `EXPO_ACCESS_TOKEN`. The Firebase Admin service-account JSON that sits in the repo root is **untracked on purpose**; never `git add` it.
+Env vars (see `docs/development.md`; never print or commit values): `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, and server-only `NODEMAILER_USER/PASS`, `EXPO_ACCESS_TOKEN`. The Firebase Admin service-account JSON that sits in the repo root is **untracked on purpose**; never `git add` it.
 
 ## Architecture
 
@@ -51,7 +51,7 @@ Path aliases (`tsconfig.json`): `@/*` -> `src/*`, plus `@atoms/`, `@molecules/`,
 
 ## Rules that matter
 
-- **All data goes through the backend** via `apiFetch` in `src/store/services/*`. Do not add Firebase reads/writes. Leftover `firebase/*` imports are only type usage (`Timestamp`, `DocumentData`) and `config/firebase.ts`; `firebaseStorage.ts` is a stub (uploads are multipart to the backend).
+- **All data goes through the backend** via `apiFetch` in `src/store/services/*`. Do not add Firebase reads/writes. The Firebase SDK is no longer a dependency (`Timestamp`/`DocumentData` are local types in `common/entities`); `firebaseStorage.ts` is a stub (uploads are multipart to the backend).
 - **Session = HttpOnly cookie `jwt`** set by `POST /auth/login`. JavaScript never sees the token; there is no `onAuthStateChanged`. The Auth provider calls `/auth/me`; a 401 anywhere dispatches `coletare:authorization-expired`, which clears the query cache and sends the user to `/`.
 - **Authorization is permission-based.** The backend returns the user's permissions; gate routes in `src/common/accessControl/routes.ts` and UI with the helpers in `permissions.ts`. Do not add new `role === "admin"` checks; the backend enforces the same permissions (`@PreAuthorize`) and city scope, so the UI gate is UX only. When the backend adds a permission, add it to `PermissionKey`.
 - **Multi-tenant:** most endpoints are `/{resource}/{cityId}/city`. `PLATFORM_ADMIN` can access any city (the `/municipios` area); `ADMIN` is bound to the user's `cityId`. Some legacy guards still compare `user.role` (e.g. `templates/Administrator` checks `platformAdmin`); migrate them to permissions when touching them.
