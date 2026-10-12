@@ -1,3 +1,5 @@
+import { getApiUrl } from "@/config/api";
+
 export const AUTHORIZATION_EXPIRED_EVENT = "coletare:authorization-expired";
 
 const publicAuthPaths = [
@@ -20,9 +22,7 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const isFormData = options?.body instanceof FormData;
 
-  const urlApi = (
-    process.env.NEXT_PUBLIC_API_URL ?? "https://api.coletapp.com"
-  ).replace(/\/$/, "");
+  const urlApi = getApiUrl();
 
   const res = await fetch(`${urlApi}${path}`, {
     ...options,

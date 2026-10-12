@@ -5,6 +5,7 @@ import {
   normalizeWithdrawalRequestType,
   getResidueTypeLabel
 } from "@/common/mappers/backendEnums";
+import { getApiUrl } from "@/config/api";
 
 // ---------- Backend DTOs (WithdrawalRequestOutputDTO) ----------
 
@@ -147,9 +148,7 @@ export const getWithdrawalsRequestsPage = async (
  * POST usa multipart/form-data (exigência do backend).
  * O campo "data" recebe JSON serializado e "image" (opcional) recebe o arquivo.
  */
-const apiUrl = (
-  process.env.NEXT_PUBLIC_API_URL ?? "https://api.coletapp.com"
-).replace(/\/$/, "");
+const apiUrl = getApiUrl();
 
 export const createWithdrawalRequest = async (
   cityId: string,

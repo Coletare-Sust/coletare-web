@@ -11,7 +11,7 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { ChevronRight, Radio, Truck } from "lucide-react";
 import Title from "@/components/atoms/Title/title";
 
-import { Client } from "@stomp/stompjs";
+import { Client, ReconnectionTimeMode } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 
 import useAuth from "@/hooks/useAuth";
@@ -29,6 +29,8 @@ import {
   RoutePoint
 } from "@/utils/coordinates";
 import { RouteEntity } from "@/common/entities/route";
+import { getApiUrl } from "@/config/api";
+import { apiFetch, AUTHORIZATION_EXPIRED_EVENT } from "@/utils/apiFetch";
 
 interface LiveTruck {
   id: string;
@@ -67,6 +69,23 @@ const LIVE_TRUCK_TTL_MS = 2 * 60 * 1000;
 const LIVE_TRUCK_CLEANUP_INTERVAL_MS = 15 * 1000;
 const COLLECT_STATUS_RECONCILIATION_MS = 30 * 1000;
 const FOLLOW_ZOOM = 16;
+const STOMP_RECONNECT_BASE_DELAY_MS = 3000;
+const STOMP_RECONNECT_MAX_DELAY_MS = 30 * 1000;
+// Depois de N handshakes seguidos sem sucesso (ex.: JWT de 1 h expirou e o /ws responde 401),
+// valida a sessao em /auth/me. Um 401 la dispara o evento de sessao expirada e paramos de tentar.
+const STOMP_FAILURES_BEFORE_SESSION_CHECK = 5;
+
+function parseLiveLocationPayload(body: string): LiveLocationPayload | null {
+  try {
+    const payload = JSON.parse(body);
+    return payload && typeof payload === "object"
+      ? (payload as LiveLocationPayload)
+      : null;
+  } catch (error) {
+    console.error("Mensagem de localizacao invalida:", error);
+    return null;
+  }
+}
 
 function hasCollectEnded(payload: LiveLocationPayload) {
   if (
@@ -147,6 +166,15 @@ const RotasAndamento = () => {
     mapRef.current = map;
   };
 
+  // Guarda onde o usuário deixou o mapa, para qualquer re-render reaplicar essa posição.
+  const onMapDragEnd = () => {
+    const nextCenter = mapRef.current?.getCenter();
+
+    if (nextCenter) {
+      setCenter({ lat: nextCenter.lat(), lng: nextCenter.lng() });
+    }
+  };
+
   const onMapZoomChanged = () => {
     const nextZoom = mapRef.current?.getZoom();
 
@@ -225,24 +253,32 @@ const RotasAndamento = () => {
   useEffect(() => {
     if (!user?.cityId) return;
 
-    const apiUrl = (
-      process.env.NEXT_PUBLIC_API_URL || "https://api.coletapp.com"
-    ).replace(/\/$/, "");
-    const socketUrl = `${apiUrl}/ws`;
-    const socket = new SockJS(socketUrl);
+    const socketUrl = `${getApiUrl()}/ws`;
+    let consecutiveFailures = 0;
+    let connectedSinceLastClose = false;
+    let stopped = false;
 
     const stompClient = new Client({
-      webSocketFactory: () => socket as any,
+      // Cria um SockJS novo a cada (re)conexão: reutilizar uma instância fechada
+      // impede o STOMP de reconectar depois de uma queda ou handshake recusado.
+      webSocketFactory: () => new SockJS(socketUrl) as any,
+      reconnectDelay: STOMP_RECONNECT_BASE_DELAY_MS,
+      // Backoff exponencial (3 s, 6 s, 12 s...) com teto; volta ao valor base ao conectar.
+      reconnectTimeMode: ReconnectionTimeMode.EXPONENTIAL,
+      maxReconnectDelay: STOMP_RECONNECT_MAX_DELAY_MS,
       debug: () => {
         // console.log("STOMP debug");
       },
       onConnect: () => {
+        consecutiveFailures = 0;
+        connectedSinceLastClose = true;
         console.log(
           `STOMP conectado, inscrevendo-se em: /topic/locations/${user.cityId}`
         );
         stompClient.subscribe(`/topic/locations/${user.cityId}`, (message) => {
           if (message.body) {
-            const payload = JSON.parse(message.body) as LiveLocationPayload;
+            const payload = parseLiveLocationPayload(message.body);
+            if (!payload) return;
 
             if (hasCollectEnded(payload)) {
               if (endedCollectIdsRef.current.has(payload.collectId)) {
@@ -345,13 +381,41 @@ const RotasAndamento = () => {
       },
       onStompError: (frame) => {
         console.error("STOMP Error:", frame.headers.message);
+      },
+      onWebSocketError: (event) => {
+        console.error("WebSocket error:", event);
+      },
+      onWebSocketClose: () => {
+        if (connectedSinceLastClose) {
+          connectedSinceLastClose = false;
+          return;
+        }
+
+        consecutiveFailures += 1;
+        if (
+          stopped ||
+          consecutiveFailures % STOMP_FAILURES_BEFORE_SESSION_CHECK !== 0
+        ) {
+          return;
+        }
+
+        // Um 401 aqui dispara AUTHORIZATION_EXPIRED_EVENT (tratado abaixo e pelo
+        // provider de autenticacao). Outros erros (backend fora do ar) mantem o backoff.
+        apiFetch("/auth/me").catch(() => undefined);
       }
     });
 
+    const stopReconnecting = () => {
+      stopped = true;
+      stompClient.deactivate();
+    };
+
+    window.addEventListener(AUTHORIZATION_EXPIRED_EVENT, stopReconnecting);
     stompClient.activate();
 
     return () => {
-      stompClient.deactivate();
+      window.removeEventListener(AUTHORIZATION_EXPIRED_EVENT, stopReconnecting);
+      stopReconnecting();
     };
   }, [user?.cityId]);
 
@@ -411,13 +475,19 @@ const RotasAndamento = () => {
     });
   }, [trucks]);
 
+  // Centraliza apenas quando o veículo selecionado muda. Reagir a cada posição nova
+  // (selectedTruck é recriado a cada mensagem) devolvia a câmera ao caminhão e
+  // descartava o pan/zoom que o usuário tinha escolhido.
   useEffect(() => {
-    if (!selectedTruck) return;
+    if (!selectedTruckId) return;
 
-    const position = { lat: selectedTruck.lat, lng: selectedTruck.lng };
+    const truck = trucksRef.current.find((item) => item.id === selectedTruckId);
+    if (!truck) return;
+
+    const position = { lat: truck.lat, lng: truck.lng };
     setCenter(position);
     mapRef.current?.panTo(position);
-  }, [selectedTruck]);
+  }, [selectedTruckId]);
 
   return (
     <div className="w-full">
@@ -436,6 +506,7 @@ const RotasAndamento = () => {
               <GoogleMap
                 onLoad={onMapLoad}
                 onZoomChanged={onMapZoomChanged}
+                onDragEnd={onMapDragEnd}
                 mapContainerStyle={{ width: "100%", height: "100%" }}
                 zoom={mapZoom}
                 center={center}
