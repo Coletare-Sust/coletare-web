@@ -1,7 +1,23 @@
 node_modules
+.next
+out
+build
+coverage
 dist
 .git
 .angular
 .vscode
+.idea
 Dockerfile
+.dockerignore
 README.md
+*.tsbuildinfo
+
+# Segredos: nunca entram no contexto do build
+.env
+.env*
+*.pem
+*firebase-adminsdk*.json
+serviceAccountKey*.json
+service-account*.json
+*service-account*.json
