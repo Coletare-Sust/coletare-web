@@ -19,6 +19,7 @@ import useProfile from "@/hooks/queries/useProfile";
 import useAllWithdrawalsRequest from "@/hooks/queries/useAllWithdrawalsRequests";
 import useOneUser from "@/hooks/queries/useOneUser";
 import { sendEmail } from "@/store/services/email";
+import { escapeHtml } from "@/utils/escapeHtml";
 import { Divide } from "lucide-react";
 
 const Solicitations = () => {
@@ -101,13 +102,18 @@ const Solicitations = () => {
       email: currentCity?.email as string,
       subject: `Crie uma rota pra esse ponto de coleta!`,
       html: `
-        <p> Olá, ${currentCity?.name}! Foi solicatada uma nova retirada de lixo na plataforma Coletare. </p>
-        <p> Ponto de lixo no endereço <strong>${filteredData?.fullAddress}</strong> foi registrado na plataforma. </p>
+        <p> Olá, ${escapeHtml(
+          currentCity?.name
+        )}! Foi solicatada uma nova retirada de lixo na plataforma Coletare. </p>
+        <p> Ponto de lixo no endereço <strong>${escapeHtml(
+          filteredData?.fullAddress
+        )}</strong> foi registrado na plataforma. </p>
         <p> A retirada do lixo desse ponto é essencial para a sociedade. Acesse nossa plataforma e crie uma nova rota!  </p>
       `
     });
     if (error) {
       errorToast("Não foi possível notificar o município!");
+      setLoading(false);
       return;
     }
     successToast("Município notificado!");
