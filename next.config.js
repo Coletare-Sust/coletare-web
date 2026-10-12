@@ -5,8 +5,9 @@
  * quebrar telas. Acompanhe os relatorios no console do navegador e, quando limpo, troque a
  * chave para "Content-Security-Policy".
  */
+// Mesmo criterio de getApiUrl (src/config/api.ts): variavel vazia cai no fallback.
 const apiUrl =
-  process.env.NEXT_PUBLIC_API_URL ??
+  process.env.NEXT_PUBLIC_API_URL ||
   (process.env.NODE_ENV === "production"
     ? "https://api.coletapp.com"
     : "http://localhost:8080");
