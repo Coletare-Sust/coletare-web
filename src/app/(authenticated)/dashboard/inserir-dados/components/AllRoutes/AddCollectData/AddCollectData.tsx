@@ -101,7 +101,9 @@ const AddCollectData = ({ collectData, isAdmin }: AddCollectDataProps) => {
         ]);
         setIsEdit(false);
       },
-
+      onError: (err: Error) => {
+        errorToast(err?.message || "Não foi possível atualizar a coleta.");
+      },
       onSettled: () => {
         setLoading(false);
       }
@@ -114,7 +116,8 @@ const AddCollectData = ({ collectData, isAdmin }: AddCollectDataProps) => {
       return;
     }
     setLoading(true);
-    await mutationUpdate.mutateAsync(data);
+    // O erro já é exibido em onError.
+    await mutationUpdate.mutateAsync(data).catch(() => undefined);
   };
 
   return (

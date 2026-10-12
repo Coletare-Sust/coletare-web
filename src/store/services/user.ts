@@ -477,122 +477,109 @@ export const getAllCitizens = async (
   }
 };
 
-/** Cria colaborador, veículo, cidadão ou cidade via endpoint correto */
+/**
+ * Cria colaborador, veículo, cidadão ou cidade via endpoint correto.
+ * Lança em erro HTTP para que a mutation caia em onError.
+ */
 export const createUser = async (
   data: Partial<UserEntity>,
   _image?: File | null
-): Promise<{ error: string | null }> => {
-  try {
-    const role = data.role;
+): Promise<void> => {
+  const role = data.role;
 
-    if (role === "employee") {
-      await apiFetch("/auth/register/employee", {
-        method: "POST",
-        body: JSON.stringify({
-          name: data.name,
-          cpf: data.cpf,
-          cityId: data.cityId
-        })
-      });
-    } else if (role === "vehicle") {
-      await apiFetch("/auth/register/vehicle", {
-        method: "POST",
-        body: JSON.stringify({
-          name: data.name,
-          carPlate: data.carPlate,
-          consume: parseFloat(data.consume ?? "0"),
-          emission: parseFloat(data.emission ?? "0"),
-          cityId: data.cityId
-        })
-      });
-    } else if (role === "citizen") {
-      await apiFetch("/auth/register/citizen", {
-        method: "POST",
-        body: JSON.stringify(data)
-      });
-    } else if (role === "admin") {
-      // Backend espera multipart/form-data com part 'data' (JSON) e 'image' opcional
-      const formData = new FormData();
-      const cityPayload = {
-        municipalityName: data.name,
-        email: data.email,
-        password: (data as any).password,
-        facilitatorData: {
-          facilitatorName: data.facilitatorName,
-          supportEmail: data.supportEmail
-        },
-        calcData: {
-          landFillDeliveryCost: data.calcData?.landfillDelivery ?? null,
-          fuelCost: data.calcData?.fuel ?? null
-        },
-        address: {
-          latitude: data.latitude ?? null,
-          longitude: data.longitude ?? null,
-          localityName: data.fullAddress ?? null
-        },
-        status: (data as any).status === "Ativo",
-        color: data.color ?? null
-      };
-      formData.append(
-        "data",
-        new Blob([JSON.stringify(cityPayload)], { type: "application/json" })
-      );
-      if (_image) {
-        formData.append("image", _image);
-      }
-      await apiFetch("/auth/register/city", {
-        method: "POST",
-        body: formData
-      });
+  if (role === "employee") {
+    await apiFetch("/auth/register/employee", {
+      method: "POST",
+      body: JSON.stringify({
+        name: data.name,
+        cpf: data.cpf,
+        cityId: data.cityId
+      })
+    });
+  } else if (role === "vehicle") {
+    await apiFetch("/auth/register/vehicle", {
+      method: "POST",
+      body: JSON.stringify({
+        name: data.name,
+        carPlate: data.carPlate,
+        consume: parseFloat(data.consume ?? "0"),
+        emission: parseFloat(data.emission ?? "0"),
+        cityId: data.cityId
+      })
+    });
+  } else if (role === "citizen") {
+    await apiFetch("/auth/register/citizen", {
+      method: "POST",
+      body: JSON.stringify(data)
+    });
+  } else if (role === "admin") {
+    // Backend espera multipart/form-data com part 'data' (JSON) e 'image' opcional
+    const formData = new FormData();
+    const cityPayload = {
+      municipalityName: data.name,
+      email: data.email,
+      password: (data as any).password,
+      facilitatorData: {
+        facilitatorName: data.facilitatorName,
+        supportEmail: data.supportEmail
+      },
+      calcData: {
+        landFillDeliveryCost: data.calcData?.landfillDelivery ?? null,
+        fuelCost: data.calcData?.fuel ?? null
+      },
+      address: {
+        latitude: data.latitude ?? null,
+        longitude: data.longitude ?? null,
+        localityName: data.fullAddress ?? null
+      },
+      status: (data as any).status === "Ativo",
+      color: data.color ?? null
+    };
+    formData.append(
+      "data",
+      new Blob([JSON.stringify(cityPayload)], { type: "application/json" })
+    );
+    if (_image) {
+      formData.append("image", _image);
     }
-
-    return { error: null };
-  } catch (error: any) {
-    console.error(error);
-    return { error: error.message };
+    await apiFetch("/auth/register/city", {
+      method: "POST",
+      body: formData
+    });
   }
 };
 
 /** Alias mantido para compatibilidade com telas existentes */
 export const createUserDoc = createUser;
 
+/**
+ * O backend (UpdateUserInput) só aceita name, email, cityId, cpf, carPlate, consume e emission;
+ * outros campos (calcData, cor, endereço, status, imagem, facilitador) são ignorados.
+ * Lança em erro HTTP para que a mutation caia em onError.
+ */
 export const updateUser = async (
   id: string,
   data: Partial<UserEntity>
-): Promise<{ error: string | null }> => {
-  try {
-    const input: UpdateUserInput = {
-      name: data.name,
-      email: data.email ?? undefined,
-      cpf: data.cpf ?? undefined,
-      carPlate: data.carPlate ?? undefined,
-      consume: data.consume ? parseFloat(data.consume) : undefined,
-      emission: data.emission ? parseFloat(data.emission) : undefined
-    };
-    await apiFetch(`/user/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(input)
-    });
-    return { error: null };
-  } catch (error: any) {
-    console.error(error);
-    return { error: error.message };
-  }
+): Promise<void> => {
+  const input: UpdateUserInput = {
+    name: data.name,
+    email: data.email ?? undefined,
+    cpf: data.cpf ?? undefined,
+    carPlate: data.carPlate ?? undefined,
+    consume: data.consume ? parseFloat(data.consume) : undefined,
+    emission: data.emission ? parseFloat(data.emission) : undefined
+  };
+  await apiFetch(`/user/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(input)
+  });
 };
 
 /** Alias mantido para compatibilidade com telas existentes */
 export const updateUserDoc = updateUser;
 
-export const deleteUser = async (
-  id: string
-): Promise<{ error: string | null }> => {
-  try {
-    await apiFetch(`/user/${id}`, { method: "DELETE" });
-    return { error: null };
-  } catch (error: any) {
-    console.error(error);
-    return { error: error.message };
-  }
+export const deleteUser = async (id: string): Promise<void> => {
+  await apiFetch(`/user/${id}`, { method: "DELETE" });
 };
 
 /** Alias mantido para compatibilidade com telas existentes */
