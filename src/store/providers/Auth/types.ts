@@ -13,6 +13,7 @@ export interface AuthContextType {
     password: string
   ) => Promise<{ error: null | string }>;
   waitForUserSync: () => Promise<void>;
-  deleteUserAuth: (userUid: string) => Promise<{ error: string | null }>;
+  /** Lança em erro HTTP. */
+  deleteUserAuth: (userUid: string) => Promise<void>;
   redefinePassword: (email: string) => Promise<void>;
 }

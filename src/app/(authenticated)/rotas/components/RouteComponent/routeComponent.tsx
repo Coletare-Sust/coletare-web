@@ -8,6 +8,7 @@ import { useState } from "react";
 
 import Button from "@atoms/Button/button";
 import { deleteRoute } from "@/store/services/route";
+import { errorToast } from "@/hooks/useAppToast";
 import ConfirmationModal from "@molecules/ConfirmationModal/confirmationModal";
 
 import { RouteProps } from "./types";
@@ -33,6 +34,9 @@ const RouteComponent = ({
       onSuccess: () => {
         queryClient.invalidateQueries(["routes"]);
         closeItem();
+      },
+      onError: (err: Error) => {
+        errorToast(err?.message || "Não foi possível excluir a rota.");
       }
     }
   );
@@ -53,7 +57,8 @@ const RouteComponent = ({
   };
 
   const handleDelete = async () => {
-    await mutationDelete.mutateAsync();
+    // O erro já é exibido em onError.
+    await mutationDelete.mutateAsync().catch(() => undefined);
   };
 
   return (

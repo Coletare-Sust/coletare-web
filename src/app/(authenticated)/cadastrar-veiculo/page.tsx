@@ -91,7 +91,7 @@ const CadastrarVeiculoPage = () => {
       },
       onError: (err: any) => {
         console.error("Erro ao cadastrar veículo:", err);
-        errorToast("Erro ao cadastrar veículo.");
+        errorToast(err?.message || "Erro ao cadastrar veículo.");
       }
     }
   );
@@ -106,16 +106,20 @@ const CadastrarVeiculoPage = () => {
         queryClient.invalidateQueries(["profile", id]);
         successToast("Veículo atualizado com sucesso!");
         router.push("/veiculos-colaboradores");
+      },
+      onError: (err: Error) => {
+        errorToast(err?.message || "Erro ao atualizar veículo.");
       }
     }
   );
 
   const handleSubmitForm = async (data: RegisterVehicleForm) => {
-    await mutation.mutateAsync(data);
+    // O erro já é exibido em onError.
+    await mutation.mutateAsync(data).catch(() => undefined);
   };
 
   const handleSubmitFormEdit = async (data: EditVehicleForm) => {
-    await mutationUpdate.mutateAsync(data);
+    await mutationUpdate.mutateAsync(data).catch(() => undefined);
   };
 
   return (

@@ -103,13 +103,14 @@ const CadastrarVeiculoPage = () => {
       },
       onError: (error: any) => {
         console.error("Erro na mutation:", error);
-        errorToast("Erro ao processar a operação.");
+        errorToast(error?.message || "Erro ao processar a operação.");
       }
     }
   );
 
   const handleSubmitForm = async (formData: registerCollaborator) => {
-    await mutation.mutateAsync(formData);
+    // O erro já é exibido em onError.
+    await mutation.mutateAsync(formData).catch(() => undefined);
   };
 
   return (

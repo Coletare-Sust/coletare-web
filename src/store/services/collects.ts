@@ -105,37 +105,30 @@ export const getCollectsPageByCity = async (
 export const updateCollect = async (
   id: string,
   data: Partial<CollectEntity>
-) => {
-  try {
-    const input = {
-      cityId: data.cityId,
-      routeId: data.routeId,
-      driverId: data.employeeId,
-      vehicleId: "", // Not available in frontend entity mapped structure currently
-      vehicleName: data.vehicleName,
-      carPlate: data.carPlate,
-      latitude: data.vehicleLatitude,
-      longitude: data.vehicleLongitude,
-      hasEnded: data.hasEnded,
-      durationSeconds: data.duration,
-      kmRun: data.kmRun,
-      mass: data.mass,
-      consume: data.consume,
-      emission: data.emission,
-      fuelCost: data.cost?.fuel,
-      landfillDeliveryCost: data.cost?.landfillDelivery
-    };
+): Promise<void> => {
+  const input = {
+    cityId: data.cityId,
+    routeId: data.routeId,
+    driverId: data.employeeId,
+    vehicleId: "", // Not available in frontend entity mapped structure currently
+    vehicleName: data.vehicleName,
+    carPlate: data.carPlate,
+    latitude: data.vehicleLatitude,
+    longitude: data.vehicleLongitude,
+    hasEnded: data.hasEnded,
+    durationSeconds: data.duration,
+    kmRun: data.kmRun,
+    mass: data.mass,
+    consume: data.consume,
+    emission: data.emission,
+    fuelCost: data.cost?.fuel,
+    landfillDeliveryCost: data.cost?.landfillDelivery
+  };
 
-    const response = await apiFetch(`/collect/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(input)
-    });
-    console.log(response);
-    return { error: null };
-  } catch (error: any) {
-    console.error(error);
-    return { error: error.message };
-  }
+  await apiFetch(`/collect/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(input)
+  });
 };
 
 // ---------- Dashboard ----------

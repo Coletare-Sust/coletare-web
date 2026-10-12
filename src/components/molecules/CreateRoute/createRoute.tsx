@@ -180,8 +180,8 @@ const CreateRoute = ({
         queryClient.invalidateQueries(["routes"]);
         router.replace("/rotas");
       },
-      onError: () => {
-        errorToast("Erro ao criar rota");
+      onError: (err: Error) => {
+        errorToast(err?.message || "Erro ao criar rota");
       }
     }
   );
@@ -196,6 +196,9 @@ const CreateRoute = ({
         queryClient.invalidateQueries(["routes"]);
         queryClient.invalidateQueries(["route", routeId]);
         router.replace("/rotas");
+      },
+      onError: (err: Error) => {
+        errorToast(err?.message || "Erro ao atualizar rota");
       }
     }
   );
@@ -301,9 +304,9 @@ const CreateRoute = ({
     };
 
     if (isEdit && routeId) {
-      mutationUpdate.mutateAsync({ route });
+      mutationUpdate.mutate({ route });
     } else {
-      mutation.mutateAsync({ route });
+      mutation.mutate({ route });
     }
 
     if (hasSecondaryCollection) {
@@ -328,7 +331,7 @@ const CreateRoute = ({
         withdrawalRequestsIds: activeSuggestions.map((item) => item.id) ?? []
       };
 
-      mutation.mutateAsync({ route: secondaryRoute });
+      mutation.mutate({ route: secondaryRoute });
     }
   };
 
