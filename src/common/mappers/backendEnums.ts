@@ -34,11 +34,30 @@ export const RESIDUE_TYPE_LABELS: Record<string, string> = {
   CONSTRUCTION: "Resíduos de Construção",
   NORMAL: "Resíduo Comum",
   PRUNING: "Resíduos de Podas",
-  HIGH_VOLUMES: "Grandes Volumes"
+  HIGH_VOLUMES: "Grandes Volumes",
+  ELECTRONICS: "Eletroeletrônicos"
 };
+
+export const DEFAULT_RESIDUE_TYPE = "NORMAL";
 
 export function getResidueTypeLabel(backendValue: string): string {
   return RESIDUE_TYPE_LABELS[backendValue] ?? backendValue;
+}
+
+/**
+ * Converte uma chave do enum ou uma label (sem diferenciar maiúsculas) para a chave do enum
+ * que o backend aceita (ResidueType.valueOf). Retorna undefined se não reconhecer.
+ */
+export function toResidueTypeKey(
+  value: string | null | undefined
+): string | undefined {
+  if (!value) return undefined;
+  if (value in RESIDUE_TYPE_LABELS) return value;
+
+  const normalized = value.trim().toLowerCase();
+  return Object.keys(RESIDUE_TYPE_LABELS).find(
+    (key) => RESIDUE_TYPE_LABELS[key].toLowerCase() === normalized
+  );
 }
 
 // ---------- UserRole ----------
