@@ -2,8 +2,8 @@ import { apiFetch } from "@/utils/apiFetch";
 import { RouteEntity } from "@/common/entities/route";
 import { PageEntity } from "@/common/entities/pagination";
 import {
-  RESIDUE_TYPE_LABELS,
-  getResidueTypeLabel
+  getResidueTypeLabel,
+  toResidueTypeKey
 } from "@/common/mappers/backendEnums";
 
 // Backend Types
@@ -81,10 +81,7 @@ export function mapEntityToRouteInput(entity: Partial<RouteEntity>) {
     period: entity.period?.toUpperCase(),
     days: entity.days ? daysSet : undefined,
     isSpecial: entity.isSpecial,
-    residueType:
-      Object.entries(RESIDUE_TYPE_LABELS).find(
-        ([key, val]) => val === entity.residueType
-      )?.[0] || entity.residueType,
+    residueType: toResidueTypeKey(entity.residueType) ?? entity.residueType,
     polyline: entity.polyline,
     polylinePoints: entity.polylinePoints ?? null,
     waypoints: entity.waypoints?.map((wp) => ({
