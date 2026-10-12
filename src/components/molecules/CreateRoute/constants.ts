@@ -9,12 +9,3 @@ export const weekDays = [
 ];
 
 export const initialDays = Array.from({ length: 7 }, () => false);
-
-export const residuesTypes = [
-  "Resíduo Comum",
-  "Resíduo de construção",
-  "Grandes volumes",
-  "Resíduos de podas",
-  "Recicláveis",
-  "Resíduos mistos (mix)"
-];
