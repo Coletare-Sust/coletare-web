@@ -19,7 +19,6 @@ import { errorToast, successToast } from "@/hooks/useAppToast";
 import useCity from "@/hooks/queries/useCity";
 import { wrapper } from "@/common/constants/wrapper";
 import { createUser, updateUser } from "@/store/services/user";
-import { deleteImage, uploadImage } from "@/store/services/firebaseStorage";
 import { queryClient } from "@/store/providers/queryClient";
 import { ColorsOptions } from "@/common/entities/colors";
 
@@ -88,7 +87,7 @@ const Cadastrar = () => {
       latitude: number | null;
       longitude: number | null;
     }) => {
-      const { error: errorUser } = await createUser(
+      await createUser(
         {
           name: data.name,
           role: "admin",
@@ -115,10 +114,6 @@ const Cadastrar = () => {
         } as any,
         imageFile
       );
-
-      if (errorUser) {
-        throw new Error(errorUser);
-      }
     },
     {
       onSuccess: () => {
@@ -127,8 +122,8 @@ const Cadastrar = () => {
         reset();
         router.push("/municipios");
       },
-      onError: (err: string) => {
-        errorToast(err ?? "Não foi possível cadastrar o município.");
+      onError: (err: Error) => {
+        errorToast(err?.message || "Não foi possível cadastrar o município.");
       },
       onSettled: () => {
         setLoading(false);
@@ -136,81 +131,22 @@ const Cadastrar = () => {
     }
   );
 
+  // PUT /user/{id} (UpdateUserInput) só altera nome e e-mail de uma cidade; o backend ainda
+  // não tem endpoint para imagem, cor, endereço, status, facilitador ou dados de cálculo.
   const mutationUpdate = useMutation(
-    async ({
-      data,
-      color,
-      imageFile,
-      fullAddress,
-      latitude,
-      longitude
-    }: {
-      data: AddCityForm;
-      color: ColorsOptions;
-      imageFile: File | undefined;
-      fullAddress: string;
-      latitude: number | null;
-      longitude: number | null;
-    }) => {
-      const objToUpdate = {
-        name: data.name,
-        facilitatorName: data.facilitatorName,
-        color,
-        supportEmail: data.supportEmail,
-        fullAddress: fullAddress || null,
-        latitude: latitude || null,
-        longitude: longitude || null,
-        calcData: {
-          initialDate: null as any,
-          landfillDelivery: parseFloat(data.landfillDelivery),
-          fuel: parseFloat(data.fuel)
-        },
-        status: data.status
-      };
-
-      if (imageFile) {
-        const { error: errorDelete } = await deleteImage(city?.image);
-        if (errorDelete) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          throw new Error(errorDelete as any);
-        }
-
-        const { image: imageUrl, error: errorUpload } =
-          await uploadImage(imageFile);
-        if (errorUpload) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          throw new Error(errorUpload as any);
-        }
-
-        const { error: errorUpdate } = await updateUser(
-          toEditCityId as string,
-          { ...objToUpdate, image: imageUrl }
-        );
-        if (errorUpdate) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          throw new Error(errorUpdate as any);
-        }
-      } else {
-        const { error: errorUpdate } = await updateUser(
-          toEditCityId as string,
-          objToUpdate
-        );
-        if (errorUpdate) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          throw new Error(errorUpdate as any);
-        }
-      }
+    async ({ data }: { data: AddCityForm }) => {
+      await updateUser(toEditCityId as string, { name: data.name });
     },
     {
       onSuccess: () => {
-        successToast("Município editado com sucesso!");
+        successToast("Nome do município atualizado com sucesso!");
         queryClient.invalidateQueries(["cities"]);
         queryClient.invalidateQueries(["city", toEditCityId]);
         router.back();
         setImageFile(undefined);
       },
-      onError: (err: string) => {
-        errorToast(err ?? "Não foi possível editar o município.");
+      onError: (err: Error) => {
+        errorToast(err?.message || "Não foi possível editar o município.");
       },
       onSettled: () => {
         setLoading(false);
@@ -231,7 +167,7 @@ const Cadastrar = () => {
       return;
     }
     if (type === "create" && imageFile) {
-      await mutationCreate.mutateAsync({
+      mutationCreate.mutate({
         data,
         color,
         imageFile,
@@ -241,14 +177,7 @@ const Cadastrar = () => {
       });
     }
     if (type === "edit") {
-      await mutationUpdate.mutateAsync({
-        data,
-        color,
-        imageFile,
-        fullAddress,
-        latitude,
-        longitude
-      });
+      mutationUpdate.mutate({ data });
     }
   };
 
@@ -392,6 +321,13 @@ const Cadastrar = () => {
                 })}
               </div>
             </div>
+            {city && (
+              <p className="max-w-[724px] text-center text-sm text-greenDark-800">
+                Por enquanto a edição salva apenas o nome do município. Imagem,
+                cor, endereço, status, facilitador e custos ainda não podem ser
+                alterados por aqui.
+              </p>
+            )}
             <Button loading={loading}>{city ? "Editar" : "Cadastrar"}</Button>
           </form>
         )}

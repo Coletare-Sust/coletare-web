@@ -91,18 +91,13 @@ export function mapEntityToRouteInput(entity: Partial<RouteEntity>) {
   };
 }
 
-export const createRoute = async (data: RouteEntity) => {
-  try {
-    const input = mapEntityToRouteInput(data);
-    await apiFetch(`/route/${data.cityId}/city`, {
-      method: "POST",
-      body: JSON.stringify(input)
-    });
-    return { error: null };
-  } catch (error: any) {
-    console.error(error);
-    return { error: error.message };
-  }
+/** Lança em erro HTTP para que a mutation caia em onError. */
+export const createRoute = async (data: RouteEntity): Promise<void> => {
+  const input = mapEntityToRouteInput(data);
+  await apiFetch(`/route/${data.cityId}/city`, {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
 };
 
 export const getRoutes = async (cityId: string) => {
@@ -156,16 +151,10 @@ export const getRoutesPage = async (
   }
 };
 
-export const deleteRoute = async (routeId: string) => {
-  try {
-    await apiFetch(`/route/${routeId}`, {
-      method: "DELETE"
-    });
-    return { error: null };
-  } catch (error: any) {
-    console.error(error);
-    return { error: error.message };
-  }
+export const deleteRoute = async (routeId: string): Promise<void> => {
+  await apiFetch(`/route/${routeId}`, {
+    method: "DELETE"
+  });
 };
 
 export const getRoute = async (routeId: string, init?: RequestInit) => {
@@ -181,16 +170,10 @@ export const getRoute = async (routeId: string, init?: RequestInit) => {
 export const updateRouteDoc = async (
   uid: string,
   data: Partial<RouteEntity>
-) => {
-  try {
-    const input = mapEntityToRouteInput(data);
-    await apiFetch(`/route/${uid}`, {
-      method: "PUT",
-      body: JSON.stringify(input)
-    });
-    return { error: null };
-  } catch (error: any) {
-    console.log(error);
-    return { error: error.message };
-  }
+): Promise<void> => {
+  const input = mapEntityToRouteInput(data);
+  await apiFetch(`/route/${uid}`, {
+    method: "PUT",
+    body: JSON.stringify(input)
+  });
 };

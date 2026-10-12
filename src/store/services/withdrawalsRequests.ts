@@ -196,16 +196,8 @@ export const updateWithdrawalRequest = async (
   return mapWithdrawalOutputToEntity(data);
 };
 
-export const deleteWithdrawalRequest = async (
-  id: string
-): Promise<{ error: string | null }> => {
-  try {
-    await apiFetch(`/withdrawal-request/${id}`, { method: "DELETE" });
-    return { error: null };
-  } catch (error: any) {
-    console.error(error);
-    return { error: error.message };
-  }
+export const deleteWithdrawalRequest = async (id: string): Promise<void> => {
+  await apiFetch(`/withdrawal-request/${id}`, { method: "DELETE" });
 };
 
 export const getWithdrawalRequestCount = async (

@@ -19,12 +19,11 @@ import useProfile from "@/hooks/queries/useProfile";
 import { UserEntity } from "@/common/entities/user";
 import { deleteUser } from "@/store/services/user";
 import { queryClient } from "@/store/providers/queryClient";
-import { deleteImage } from "@/store/services/firebaseStorage";
 import { hasPermission } from "@/common/accessControl/permissions";
 
 const Municipios = () => {
   const router = useRouter();
-  const { deleteUserAuth, userUid } = useAuth();
+  const { userUid } = useAuth();
   const { data: user } = useProfile(userUid);
   const [page, setPage] = useState(0);
   const [name, setName] = useState("");
@@ -44,19 +43,8 @@ const Municipios = () => {
 
   const mutationDelete = useMutation(
     async (data: UserEntity) => {
-      const { error: errorUser } = await deleteUser(data.id);
-      if (errorUser) {
-        throw new Error(errorUser);
-      }
-      const { error: errorAuth } = await deleteUserAuth(data.id);
-      if (errorAuth) {
-        throw new Error(errorAuth);
-      }
-      const { error: errorDeleteImage } = await deleteImage(data.image);
-      if (errorDeleteImage) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        throw new Error(errorDeleteImage as any);
-      }
+      // Um único DELETE /user/{id}; a imagem fica no storage do backend.
+      await deleteUser(data.id);
     },
     {
       onSuccess: () => {
@@ -76,7 +64,7 @@ const Municipios = () => {
     setOpenDeleteModal(false);
     if (!data) return;
     setLoading(true);
-    await mutationDelete.mutateAsync(data);
+    mutationDelete.mutate(data);
   };
 
   const canCreateCity = hasPermission(user, "CITY_CREATE");
