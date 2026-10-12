@@ -3,7 +3,8 @@ export const AUTHORIZATION_EXPIRED_EVENT = "coletare:authorization-expired";
 const publicAuthPaths = [
   "/auth/login",
   "/auth/logout",
-  "/auth/password-reset/request"
+  "/auth/password-reset/request",
+  "/auth/password-reset/confirm"
 ];
 
 function notifyAuthorizationExpired(path: string) {
