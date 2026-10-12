@@ -29,6 +29,7 @@ import {
   RoutePoint
 } from "@/utils/coordinates";
 import { RouteEntity } from "@/common/entities/route";
+import { getApiUrl } from "@/config/api";
 
 interface LiveTruck {
   id: string;
@@ -147,6 +148,15 @@ const RotasAndamento = () => {
     mapRef.current = map;
   };
 
+  // Guarda onde o usuário deixou o mapa, para qualquer re-render reaplicar essa posição.
+  const onMapDragEnd = () => {
+    const nextCenter = mapRef.current?.getCenter();
+
+    if (nextCenter) {
+      setCenter({ lat: nextCenter.lat(), lng: nextCenter.lng() });
+    }
+  };
+
   const onMapZoomChanged = () => {
     const nextZoom = mapRef.current?.getZoom();
 
@@ -225,14 +235,13 @@ const RotasAndamento = () => {
   useEffect(() => {
     if (!user?.cityId) return;
 
-    const apiUrl = (
-      process.env.NEXT_PUBLIC_API_URL || "https://api.coletapp.com"
-    ).replace(/\/$/, "");
-    const socketUrl = `${apiUrl}/ws`;
-    const socket = new SockJS(socketUrl);
+    const socketUrl = `${getApiUrl()}/ws`;
 
     const stompClient = new Client({
-      webSocketFactory: () => socket as any,
+      // Cria um SockJS novo a cada (re)conexão: reutilizar uma instância fechada
+      // impede o STOMP de reconectar depois de uma queda ou handshake recusado.
+      webSocketFactory: () => new SockJS(socketUrl) as any,
+      reconnectDelay: 3000,
       debug: () => {
         // console.log("STOMP debug");
       },
@@ -345,6 +354,9 @@ const RotasAndamento = () => {
       },
       onStompError: (frame) => {
         console.error("STOMP Error:", frame.headers.message);
+      },
+      onWebSocketError: (event) => {
+        console.error("WebSocket error:", event);
       }
     });
 
@@ -411,13 +423,19 @@ const RotasAndamento = () => {
     });
   }, [trucks]);
 
+  // Centraliza apenas quando o veículo selecionado muda. Reagir a cada posição nova
+  // (selectedTruck é recriado a cada mensagem) devolvia a câmera ao caminhão e
+  // descartava o pan/zoom que o usuário tinha escolhido.
   useEffect(() => {
-    if (!selectedTruck) return;
+    if (!selectedTruckId) return;
 
-    const position = { lat: selectedTruck.lat, lng: selectedTruck.lng };
+    const truck = trucksRef.current.find((item) => item.id === selectedTruckId);
+    if (!truck) return;
+
+    const position = { lat: truck.lat, lng: truck.lng };
     setCenter(position);
     mapRef.current?.panTo(position);
-  }, [selectedTruck]);
+  }, [selectedTruckId]);
 
   return (
     <div className="w-full">
@@ -436,6 +454,7 @@ const RotasAndamento = () => {
               <GoogleMap
                 onLoad={onMapLoad}
                 onZoomChanged={onMapZoomChanged}
+                onDragEnd={onMapDragEnd}
                 mapContainerStyle={{ width: "100%", height: "100%" }}
                 zoom={mapZoom}
                 center={center}

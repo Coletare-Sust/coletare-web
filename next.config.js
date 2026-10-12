@@ -5,7 +5,11 @@
  * quebrar telas. Acompanhe os relatorios no console do navegador e, quando limpo, troque a
  * chave para "Content-Security-Policy".
  */
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://api.coletapp.com";
+const apiUrl =
+  process.env.NEXT_PUBLIC_API_URL ??
+  (process.env.NODE_ENV === "production"
+    ? "https://api.coletapp.com"
+    : "http://localhost:8080");
 const apiOrigin = new URL(apiUrl).origin;
 const wsOrigin = apiOrigin.replace(/^http/, "ws");
 
