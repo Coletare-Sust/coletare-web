@@ -7,7 +7,7 @@ import {
 
 import type { UserEntity } from "@common/entities/user";
 import { getAllVehicles } from "@/store/services/user";
-import { DocumentData } from "firebase/firestore";
+import type { DocumentData } from "@/common/entities/documentData";
 
 export function getAllVehiclesQueryKey(cityId: string) {
   return ["vehicles", cityId];

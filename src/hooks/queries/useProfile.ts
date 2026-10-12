@@ -7,7 +7,7 @@ import {
 
 import type { UserEntity } from "@common/entities/user";
 import { getMe, getUser } from "@/store/services/user";
-import { DocumentData } from "firebase/firestore";
+import type { DocumentData } from "@/common/entities/documentData";
 import useAuth from "@/hooks/useAuth";
 
 export function getProfileQueryKey(uid: string) {

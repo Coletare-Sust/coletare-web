@@ -1,6 +1,4 @@
-import { Timestamp } from "firebase/firestore";
-
-import { Timestamp as TimestampEntity } from "./timestamp";
+import type { Timestamp } from "./timestamp";
 
 export interface CollectEntity {
   id: string;
@@ -25,6 +23,6 @@ export interface CollectEntity {
     latitude: number;
     longitude: number;
   }[];
-  createdAt: Timestamp | TimestampEntity;
+  createdAt: Timestamp;
   hasEnded: boolean;
 }

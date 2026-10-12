@@ -5,7 +5,7 @@ import {
   FORTY_FIVE_MINUTES_IN_MS
 } from "@common/constants/generic";
 
-import { DocumentData } from "firebase/firestore";
+import type { DocumentData } from "@/common/entities/documentData";
 import { CollectEntity } from "@/common/entities/Collect";
 import { getAllCollects } from "@/store/services/collect";
 
