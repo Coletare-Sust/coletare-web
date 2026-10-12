@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import MoreDropdown from "@atoms/MoreDropdown/moreDropdown";
 import ConfirmationModal from "@molecules/ConfirmationModal/confirmationModal";
-import { successToast } from "@/hooks/useAppToast";
+import { errorToast, successToast } from "@/hooks/useAppToast";
 import useAuth from "@/hooks/useAuth";
 
 import { InfoCardProps } from "./types";
@@ -18,8 +18,7 @@ const InfoCard = ({ title, values, id, type }: InfoCardProps) => {
 
   const mutationDelete = useMutation(
     async () => {
-      console.log("id", id);
-      return await deleteUserAuth(id);
+      await deleteUserAuth(id);
     },
     {
       onSuccess: () => {
@@ -30,12 +29,16 @@ const InfoCard = ({ title, values, id, type }: InfoCardProps) => {
         }
         setIsDeleteModalOpen(false);
         successToast("Usuário deletado com sucesso");
+      },
+      onError: (err: Error) => {
+        errorToast(err?.message || "Não foi possível excluir o usuário.");
       }
     }
   );
 
   const handleDelete = async () => {
-    await mutationDelete.mutateAsync();
+    // O erro já é exibido em onError.
+    await mutationDelete.mutateAsync().catch(() => undefined);
   };
 
   return (

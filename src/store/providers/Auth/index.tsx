@@ -99,8 +99,7 @@ const AuthProvider = ({ children }: Props) => {
   };
 
   const deleteUserAuth = async (userUid: string) => {
-    const { error } = await deleteUserDoc(userUid);
-    return { error };
+    await deleteUserDoc(userUid);
   };
 
   const logoutUser = async () => {
