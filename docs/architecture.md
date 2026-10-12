@@ -43,7 +43,7 @@ URL da API (`config/api.ts`): `NEXT_PUBLIC_API_URL`; sem ela, `http://localhost:
 - Resquício: alguns componentes (ex.: `templates/Administrator`) ainda checam `user.role`; a direção é migrar tudo para permissões.
 
 ## Cache
-`store/providers/queryClient.ts` persiste o cache do React Query no `localStorage` (`cacheTime` de 5 dias) via `createSyncStoragePersister`. Atenção: dados de negócio ficam legíveis no navegador enquanto o cache existir. Ao fazer logout ou receber 401, o cache e o persister são limpos (`clearClientSession`) para não vazar dados entre usuários.
+`store/providers/queryClient.ts` persiste o cache do React Query no `localStorage` via `createSyncStoragePersister`, com `maxAge` de 24 h e `buster` igual ao `NEXT_PUBLIC_BUILD_ID` (gerado em `next.config.js` a cada build), para que um deploy descarte dados no formato antigo. Atenção: dados de negócio ficam legíveis no navegador enquanto o cache existir. Ao fazer logout ou receber 401, o cache e o persister são limpos (`clearQueryCache` via `clearClientSession`) para não vazar dados entre usuários.
 
 ## Tempo real (`rotas-andamento`)
 1. Conecta em `${apiUrl}/ws` com `@stomp/stompjs` e `SockJS` (nova instância a cada reconexão, `reconnectDelay` 3 s).

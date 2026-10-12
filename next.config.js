@@ -22,6 +22,9 @@ const contentSecurityPolicy = [
   `connect-src 'self' ${apiOrigin} ${wsOrigin} https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com`
 ].join("; ");
 
+// Muda a cada build: invalida o cache do React Query persistido no navegador apos um deploy.
+const buildId = process.env.NEXT_PUBLIC_BUILD_ID || new Date().toISOString();
+
 const securityHeaders = [
   { key: "Content-Security-Policy-Report-Only", value: contentSecurityPolicy },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -53,6 +56,9 @@ const nextConfig = {
     ]
   },
   output: "standalone",
+  env: {
+    NEXT_PUBLIC_BUILD_ID: buildId
+  },
   async headers() {
     return [
       {
