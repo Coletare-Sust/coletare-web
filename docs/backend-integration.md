@@ -6,7 +6,7 @@ Referência de endpoints e permissões: `coletapp-backend/docs/api-reference.md`
 
 | Service | Endpoints do backend | Telas |
 | --- | --- | --- |
-| `auth.ts` | `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`, `POST /auth/password-reset/request`, `POST /auth/register/{vehicle,employee,city}` | login, cadastro de veículo/colaborador/município |
+| `auth.ts` | `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`, `POST /auth/password-reset/request`, `POST /auth/password-reset/confirm`, `POST /auth/register/{vehicle,employee,city}` | login, `/reset-password` (link do e-mail), cadastro de veículo/colaborador/município |
 | `user.ts` | `GET /user/all`, `GET /user/{id}`, `GET /user/{id}/city`, `GET /user/all-cities`, `POST /auth/register/*`, `PUT /user/{id}`, `DELETE /user/{id}` e listas por cidade (`vehicles`, `employees`, `citizens`, `.../page`) | municípios, veículos, colaboradores |
 | `route.ts` | `GET/POST /route/{cityId}/city`, `GET/PUT/DELETE /route/{id}`, `POST /route/calculate-polyline` | rotas, criar-rota |
 | `collect.ts`, `collects.ts` | `GET /collect/{cityId}/city`, `GET /collect/{id}`, `GET /collect/route/{routeId}`, `PUT /collect/{id}`, `GET /metrics/{cityId}/dashboard` | dashboard, rota, inserir-dados |
