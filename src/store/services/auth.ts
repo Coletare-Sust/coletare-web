@@ -76,6 +76,17 @@ export const recoverPassword = async (email: string) => {
   }
 };
 
+/** Define a nova senha com o token do link enviado por e-mail. Lança em erro HTTP. */
+export const confirmPasswordReset = async (
+  token: string,
+  newPassword: string
+): Promise<void> => {
+  await apiFetch("/auth/password-reset/confirm", {
+    method: "POST",
+    body: JSON.stringify({ token, newPassword })
+  });
+};
+
 export const deleteOwnAccount = async () => {
   return {
     error: "Deleção de conta não suportada diretamente via Service atualmente."
