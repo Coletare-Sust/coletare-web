@@ -22,10 +22,18 @@ import { WithdrawalsRequestEntity } from "@/common/entities/WithdrawalsRequest";
 import useProfile from "@/hooks/queries/useProfile";
 import useAuth from "@/hooks/useAuth";
 import RadioDropdown from "@atoms/RadioDropdown/radioDropdown";
+import {
+  DEFAULT_RESIDUE_TYPE,
+  RESIDUE_TYPE_LABELS,
+  getResidueTypeLabel,
+  toResidueTypeKey
+} from "@/common/mappers/backendEnums";
 
 import { CreateRouteProps } from "./types";
-import { initialDays, residuesTypes, weekDays } from "./constants";
+import { initialDays, weekDays } from "./constants";
 import InputField from "../InputField/inputField";
+
+const residueTypeLabels = Object.values(RESIDUE_TYPE_LABELS);
 
 const CreateRoute = ({
   className,
@@ -63,14 +71,15 @@ const CreateRoute = ({
   const [period, setPeriod] = useState<"morning" | "afternoon" | "night">(
     "morning"
   );
-  const [residueType, setResidueType] = useState("Resíduo Comum");
+  // Guarda a chave do enum do backend (ex.: "NORMAL"); a label é só para exibição.
+  const [residueType, setResidueType] = useState(DEFAULT_RESIDUE_TYPE);
   const [hasSecondaryCollection, setHasSecondaryCollection] = useState(false);
   const [daysSecondary, setDaysSecondary] = useState(initialDays);
   const [periodSecondary, setPeriodSecondary] = useState<
     "morning" | "afternoon" | "night"
   >("morning");
   const [residueTypeSecondary, setResidueTypeSecondary] =
-    useState("Resíduo Comum");
+    useState(DEFAULT_RESIDUE_TYPE);
 
   const [routeNameError, setRouteNameError] = useState("");
   const [daysError, setDaysError] = useState("");
@@ -104,7 +113,9 @@ const CreateRoute = ({
       setRouteName(route.name);
       setDays(route.days);
       setPeriod(route.period);
-      setResidueType(route.residueType);
+      setResidueType(
+        toResidueTypeKey(route.residueType) ?? DEFAULT_RESIDUE_TYPE
+      );
       setCount(route.waypoints.length);
       setWaypoints(route.waypoints);
 
@@ -143,17 +154,21 @@ const CreateRoute = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route, isLoadingRoute, isEdit]);
 
-  const dropdownOptions = residuesTypes.map((residueType) => ({
-    id: residueType,
-    label: residueType,
-    onClick: () => setResidueType(residueType)
-  }));
+  const dropdownOptions = Object.entries(RESIDUE_TYPE_LABELS).map(
+    ([key, label]) => ({
+      id: key,
+      label,
+      onClick: () => setResidueType(key)
+    })
+  );
 
-  const dropdownOptionsSecondary = residuesTypes.map((residueType) => ({
-    id: residueType,
-    label: residueType,
-    onClick: () => setResidueTypeSecondary(residueType)
-  }));
+  const dropdownOptionsSecondary = Object.entries(RESIDUE_TYPE_LABELS).map(
+    ([key, label]) => ({
+      id: key,
+      label,
+      onClick: () => setResidueTypeSecondary(key)
+    })
+  );
 
   const mutation = useMutation(
     async ({ route }: { route: RouteEntity }) => {
@@ -390,7 +405,7 @@ const CreateRoute = ({
         <Dropdown
           options={dropdownOptions}
           className="w-fit border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
-          value={residueType}
+          value={getResidueTypeLabel(residueType)}
         />
         {!isEdit && !isSpecial && (
           <div>
@@ -467,7 +482,7 @@ const CreateRoute = ({
                 <Dropdown
                   options={dropdownOptionsSecondary}
                   className="w-fit border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
-                  value={residueTypeSecondary}
+                  value={getResidueTypeLabel(residueTypeSecondary)}
                 />
               </div>
             )}
@@ -536,7 +551,7 @@ const CreateRoute = ({
                 Sugestão de pontos de retirada
               </p>
               <RadioDropdown
-                options={residuesTypes}
+                options={residueTypeLabels}
                 active={activeResidue}
                 setActive={setActiveResidue}
                 open={isFilterDropdownOpen}
