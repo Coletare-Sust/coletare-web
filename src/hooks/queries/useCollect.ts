@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { DocumentData } from "firebase/firestore";
+import type { DocumentData } from "@/common/entities/documentData";
 
 import {
   ONE_DAY_IN_MS,

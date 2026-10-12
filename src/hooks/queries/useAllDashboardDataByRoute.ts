@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { DocumentData } from "firebase/firestore";
+import type { DocumentData } from "@/common/entities/documentData";
 import { getDashboardData } from "@/store/services/collects";
 import { DashboardEntity } from "@/common/entities/dashboard";
 

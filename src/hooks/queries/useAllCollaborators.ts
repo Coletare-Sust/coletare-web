@@ -7,7 +7,7 @@ import {
 
 import type { UserEntity } from "@common/entities/user";
 import { getAllCollaborators } from "@/store/services/user";
-import { DocumentData } from "firebase/firestore";
+import type { DocumentData } from "@/common/entities/documentData";
 
 export function getAllCollaboratorsQueryKey(cityid: string) {
   return ["collaborators", cityid];
