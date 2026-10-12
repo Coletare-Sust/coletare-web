@@ -7,7 +7,7 @@ import {
 
 import type { UserEntity } from "@common/entities/user";
 import { getAllCities } from "@/store/services/user";
-import { DocumentData } from "firebase/firestore";
+import type { DocumentData } from "@/common/entities/documentData";
 
 // Get de todas as cidades (que no caso são users).
 
