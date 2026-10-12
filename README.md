@@ -62,41 +62,16 @@ No terminal, dentro da pasta do projeto, execute:
 yarn install
 ```
 
-**Passo 3: Configurar o Firebase**
+**Passo 3: Configurar as variáveis de ambiente**
 
-O projeto precisa dos dados de configuração do Firebase.
-
-**3.1 Criar um arquivo `.env.local` na raiz do projeto**
-
-Se estiver usando o Windows PowerShell, execute:
-
-```bash
-New-Item -Path . -Name ".env.local" -ItemType "file"
-```
-
-Ou crie manualmente via editor de texto.
-
-**3.2 Adicionar as chaves do Firebase no `.env.local`**
-
-Abra o arquivo `.env.local` e adicione as seguintes chaves:
+Crie um arquivo `.env.local` na raiz do projeto (nunca versionar) com:
 
 ```env
-NEXT_PUBLIC_FIREBASE_API_KEY=coloque-sua-api-key-aqui
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=coloque-seu-auth-domain-aqui
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=coloque-seu-project-id-aqui
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=coloque-seu-storage-bucket-aqui
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=coloque-seu-messaging-sender-id-aqui
-NEXT_PUBLIC_FIREBASE_APP_ID=coloque-seu-app-id-aqui
-NEXT_PUBLIC_FIREBASE_DATABASE_URL=coloque-sua-database-url-aqui
+NEXT_PUBLIC_API_URL=http://localhost:8080
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=coloque-sua-google-maps-api-key-aqui
 ```
 
-**3.3 Como obter as chaves do Firebase**
-
-* Acesse [https://console.firebase.google.com/](https://console.firebase.google.com/)
-* Selecione o projeto
-* Vá em **Configurações do Projeto** (ícone ⚙️)
-* Role até **SDK da Web** e copie os valores de configuração
+A lista completa está em [docs/development.md](docs/development.md). O app não usa mais o SDK do Firebase: os dados vêm do `coletapp-backend`.
 
 ⚠️ **Importante:**
 Nunca suba o `.env.local` para o Git.
