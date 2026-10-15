@@ -7,6 +7,7 @@ Painel web da prefeitura do Coletapp (Next.js 14). Orientações para agentes de
 | [architecture.md](architecture.md) | Estrutura do código, sessão, controle de acesso, cache, mapa em tempo real, rotas de servidor |
 | [backend-integration.md](backend-integration.md) | Mapa tela -> serviço -> endpoint do backend e pendências da migração do Firebase |
 | [development.md](development.md) | Setup, variáveis de ambiente, build/deploy, fluxo de branches |
+| [deploy.md](deploy.md) | Deploy (Docker e App Hosting), variáveis de build/runtime, verificação e rollback |
 
 ## Ecossistema e branches
 
