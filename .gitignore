@@ -46,3 +46,6 @@ next-env.d.ts
 # Firebase service account keys (never commit)
 *firebase-adminsdk*.json
 serviceAccountKey*.json
+
+# Firebase App Hosting (contem segredos; use apphosting.example.yaml)
+/apphosting.yaml
