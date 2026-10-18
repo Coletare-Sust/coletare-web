@@ -1,0 +1,76 @@
+name: Bug report
+description: Algo não funciona como esperado
+title: "bug: "
+labels: ["type:bug"]
+projects: ["Coletare-Sust/3"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Não cole senhas, tokens, chaves ou dados pessoais reais. Vulnerabilidades devem ser reportadas pelo canal descrito em SECURITY.md, não aqui.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Onde acontece?
+      options:
+        - Backend (API)
+        - Painel web
+        - App mobile
+        - Infra / pipeline
+    validations:
+      required: true
+  - type: dropdown
+    id: env
+    attributes:
+      label: Ambiente
+      options:
+        - Produção
+        - Desenvolvimento
+        - Local
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versão ou commit
+      description: Versão do app, tag do backend ou hash do commit
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos para reproduzir
+      placeholder: |
+        1. Entre em ...
+        2. Clique em ...
+        3. Veja o erro
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamento esperado
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Comportamento obtido
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severidade
+      options:
+        - P0 - sistema fora do ar ou perda de dados
+        - P1 - funcionalidade principal quebrada
+        - P2 - problema com contorno ou cosmético
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs, prints ou vídeo
+      description: Remova dados sensíveis antes de anexar.
+      render: shell
