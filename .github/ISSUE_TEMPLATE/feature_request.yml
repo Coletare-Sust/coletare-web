@@ -1,0 +1,59 @@
+name: Feature
+description: Proposta de funcionalidade ou melhoria
+title: "feat: "
+labels: ["type:feature"]
+projects: ["Coletare-Sust/3"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema ou necessidade
+      description: Quem precisa disso e por quê?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposta
+      description: O que deve passar a existir ou mudar?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Critérios de aceite
+      placeholder: |
+        - [ ] Dado ..., quando ..., então ...
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Escopo
+      options:
+        - label: Backend (API)
+        - label: Painel web
+        - label: App mobile
+        - label: Infra / pipeline
+  - type: dropdown
+    id: contract
+    attributes:
+      label: Muda o contrato da API?
+      options:
+        - Não
+        - Sim, compatível (novo campo/endpoint)
+        - Sim, quebra compatibilidade
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridade sugerida
+      options:
+        - P0
+        - P1
+        - P2
+  - type: textarea
+    id: notes
+    attributes:
+      label: Alternativas, referências e observações
