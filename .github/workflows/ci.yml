@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, development]
+    tags: ["v*"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  packages: write
+  pull-requests: read
+
+jobs:
+  ci:
+    # Sempre fixe tag ou SHA do pipeline.
+    uses: Coletare-Sust/coletapp-pipe/.github/workflows/node-service.yml@v1
+    with:
+      node-version: "20"
+      package-manager: yarn
+      dockerfile: Dockerfile
+      image-name: coletare-web
+      # Em PR só valida o build; a imagem é publicada em main e tags.
+      push: ${{ github.event_name != 'pull_request' }}
+
+  pr-title:
+    if: github.event_name == 'pull_request'
+    uses: Coletare-Sust/coletapp-pipe/.github/workflows/pr-title.yml@v1
+
+  commitlint:
+    if: github.event_name == 'pull_request'
+    uses: Coletare-Sust/coletapp-pipe/.github/workflows/commitlint.yml@v1
+
+  secret-scan:
+    uses: Coletare-Sust/coletapp-pipe/.github/workflows/secret-scan.yml@v1
+
+  vulnerability-scan:
+    uses: Coletare-Sust/coletapp-pipe/.github/workflows/vulnerability-scan.yml@v1
+
+  sast:
+    uses: Coletare-Sust/coletapp-pipe/.github/workflows/sast.yml@v1
