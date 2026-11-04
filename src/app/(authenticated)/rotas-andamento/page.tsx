@@ -28,6 +28,7 @@ import {
   normalizeRoutePoint,
   RoutePoint
 } from "@/utils/coordinates";
+import { isNewerFix, nextRoutePath, parseRecordedAt } from "@/utils/liveTrack";
 import { RouteEntity } from "@/common/entities/route";
 import { getApiUrl } from "@/config/api";
 import { apiFetch, AUTHORIZATION_EXPIRED_EVENT } from "@/utils/apiFetch";
@@ -42,6 +43,8 @@ interface LiveTruck {
   routePath: RoutePoint[];
   heading: number;
   lastSeenAt: number;
+  /** Horário (ms) do GPS do último fix aplicado; mensagens com fix mais antigo são ignoradas. */
+  lastRecordedAt: number | null;
 }
 
 interface LiveLocationPayload {
@@ -56,6 +59,7 @@ interface LiveLocationPayload {
     latitude: number;
     longitude: number;
   }[];
+  recordedAt?: string | null;
   hasEnded?: boolean | string;
   status?: string;
 }
@@ -308,7 +312,25 @@ const RotasAndamento = () => {
               return;
             }
 
+            const recordedAt = parseRecordedAt(payload.recordedAt);
+
             setTrucks((prevTrucks) => {
+              const knownTruck = prevTrucks.find(
+                (truck) => truck.id === payload.collectId
+              );
+
+              // Fix atrasado (entregue em lote depois de um fix mais novo): só renova o "visto por último".
+              if (
+                knownTruck &&
+                !isNewerFix(knownTruck.lastRecordedAt, recordedAt)
+              ) {
+                return prevTrucks.map((truck) =>
+                  truck.id === payload.collectId
+                    ? { ...truck, lastSeenAt: Date.now() }
+                    : truck
+                );
+              }
+
               const routePath =
                 payload.routePath
                   ?.map((position) =>
@@ -343,7 +365,9 @@ const RotasAndamento = () => {
                   currentPosition,
                   existingTruck?.heading
                 ),
-                lastSeenAt: Date.now()
+                lastSeenAt: Date.now(),
+                lastRecordedAt:
+                  recordedAt ?? existingTruck?.lastRecordedAt ?? null
               };
 
               const existingIndex = prevTrucks.findIndex(
@@ -359,10 +383,11 @@ const RotasAndamento = () => {
                     .filter(isRoutePoint) ?? [];
                 newTrucks[existingIndex] = {
                   ...newTruck,
-                  routePath:
-                    routePath.length > 0
-                      ? routePath
-                      : [...previousRoutePath, currentPosition]
+                  routePath: nextRoutePath(
+                    previousRoutePath,
+                    routePath,
+                    currentPosition
+                  )
                 };
                 return newTrucks;
               } else {
@@ -370,8 +395,7 @@ const RotasAndamento = () => {
                   ...prevTrucks,
                   {
                     ...newTruck,
-                    routePath:
-                      routePath.length > 0 ? routePath : [currentPosition]
+                    routePath: nextRoutePath([], routePath, currentPosition)
                   }
                 ];
               }
