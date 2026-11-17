@@ -41,10 +41,7 @@ Imagem multi-stage (Node 20 alpine, saída `standalone`, porta 3000). O `.docker
 firebase deploy --only apphosting   # ou push na branch ligada ao backend do App Hosting
 ```
 
-**Atenção (segurança):** o `apphosting.yaml` versionado contém valores sensíveis em texto (credencial SMTP, token do Expo e chave privada do Firebase Admin). Antes de usar esta opção:
-1. Rotacione essas credenciais (elas estão no histórico do git).
-2. Troque-as por segredos do Secret Manager (`secret:` em vez de `value:`) e remova-as do arquivo.
-3. Mantenha em `value:` apenas variáveis realmente públicas.
+**Atenção (segurança):** o `apphosting.yaml` real **não é versionado** (está no `.gitignore`, e foi removido do histórico). Copie `apphosting.example.yaml` para `apphosting.yaml` localmente e preencha. Para dados sensíveis, use `secret:` (Secret Manager) em vez de `value:`; mantenha em `value:` apenas variáveis públicas. As credenciais que estiveram no arquivo devem ser consideradas vazadas e rotacionadas.
 `NEXT_PUBLIC_FIREBASE_*` e `NEXT_PUBLIC_FIREBASE_ADMIN_PRIVATE_KEY` pertencem ao código legado da migração: remova-as quando nenhum código do painel as usar mais.
 
 > O README original menciona deploy automático na Vercel. Confirme qual alvo está ativo (Vercel, App Hosting ou Docker) e use só um; este doc cobre Docker e App Hosting.
