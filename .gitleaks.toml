@@ -1,0 +1,14 @@
+title = "Coletare gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Arquivos de exemplo e documentação com placeholders"
+paths = [
+  '''(^|/)\.env\.example$''',
+  '''(^|/)[^/]*\.example\.ya?ml$''',
+  '''(^|/)docs/threat-model/.*''',
+  '''package-lock\.json$''',
+  '''yarn\.lock$''',
+]
