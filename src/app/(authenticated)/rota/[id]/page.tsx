@@ -106,7 +106,7 @@ const Rota = () => {
 
   if (loadingCollect || !collect) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
+      <div className="flex min-h-[60dvh] w-full items-center justify-center">
         <LoadingComponent />
       </div>
     );
@@ -143,8 +143,8 @@ const Rota = () => {
   };
 
   return (
-    <div style={wrapper} className="py-14">
-      <Title className="mb-14 flex items-center gap-2">
+    <div style={wrapper} className="py-4 sm:py-14">
+      <Title className="mb-6 flex items-center gap-2 sm:mb-14">
         <Image
           src="/icon-left-arrow.svg"
           height={20}
@@ -156,9 +156,9 @@ const Rota = () => {
         {route?.name || "Carregando..."} - {collectDate}
       </Title>
 
-      <BackgroundWrapper className="mb-24">
-        <div className="mb-28 grid grid-cols-5 justify-center gap-28">
-          <div className="col-span-3 h-96 w-full">
+      <BackgroundWrapper className="mb-10 sm:mb-24">
+        <div className="mb-10 grid grid-cols-1 justify-center gap-6 lg:mb-28 lg:grid-cols-5 lg:gap-28">
+          <div className="h-72 w-full sm:h-96 lg:col-span-3">
             <>
               <GoogleMap
                 mapContainerStyle={{ width: "100%", height: "100%" }}
@@ -181,7 +181,7 @@ const Rota = () => {
               </GoogleMap>
             </>
           </div>
-          <div className="col-span-2 flex flex-col items-center gap-8">
+          <div className="flex flex-col items-center gap-8 lg:col-span-2">
             <p className="text-[24px] font-semibold text-greenBlue-1000">
               Informações
             </p>
@@ -211,12 +211,12 @@ const Rota = () => {
         </div>
 
         <div>
-          <p className="mb-14 text-[24px] font-semibold text-greenBlue-1000">
+          <p className="mb-6 text-xl font-semibold text-greenBlue-1000 sm:mb-14 sm:text-[24px]">
             Dados da coleta
           </p>
           <DataCarousel
             className="w-full"
-            itemClassName="basis-[26%]"
+            itemClassName="basis-full sm:basis-1/2 lg:basis-[26%]"
             cardsInfo={[
               { title: "Massa coletada (ton)", data: collect?.mass || 0 },
               {
