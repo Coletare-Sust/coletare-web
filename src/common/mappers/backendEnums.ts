@@ -26,6 +26,20 @@ export function normalizeWithdrawalRequestType(
     : "residence";
 }
 
+// ---------- DisposalSiteType ----------
+
+export const DISPOSAL_SITE_TYPE_LABELS: Record<string, string> = {
+  LANDFILL: "Aterro sanitário",
+  COMPOSTING: "Compostagem",
+  BIODIGESTER: "Biodigestor",
+  SORTING_CENTER: "Central de triagem",
+  OTHER: "Outro"
+};
+
+export function getDisposalSiteTypeLabel(backendValue: string): string {
+  return DISPOSAL_SITE_TYPE_LABELS[backendValue] ?? backendValue;
+}
+
 // ---------- ResidueType ----------
 
 export const RESIDUE_TYPE_LABELS: Record<string, string> = {
