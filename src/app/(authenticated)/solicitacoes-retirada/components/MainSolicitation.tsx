@@ -142,7 +142,7 @@ const Solicitations = () => {
 
   return (
     <section className="space-y-[40px] pt-2">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <Title> Solicitações de retirada de lixo </Title>
         {isAdmin ? (
           dropdownOptions && (
@@ -167,7 +167,7 @@ const Solicitations = () => {
           </Button>
         )}
       </div>
-      <BackgroundWrapper className="flex items-center justify-between bg-white-800 px-8 py-6">
+      <BackgroundWrapper className="flex flex-col items-stretch justify-between gap-8 bg-white-800 px-4 py-6 sm:px-8 lg:flex-row lg:items-center">
         {isLoadingSolicitationsData && (
           <div className="flex h-[200px] w-full items-center">
             <LoadingComponent />
@@ -176,7 +176,7 @@ const Solicitations = () => {
         {!isLoadingSolicitationsData &&
           (filteredData ? (
             <>
-              <div className="flex flex-col items-center justify-center">
+              <div className="flex min-w-0 flex-col items-center justify-center lg:flex-none">
                 {filteredData.image ? (
                   <div className="mb-4 flex w-full flex-row justify-evenly">
                     <Subtitle
@@ -196,7 +196,7 @@ const Solicitations = () => {
                     </Subtitle>
                   </div>
                 ) : null}
-                <div className="flex h-[518px] w-[752px] items-center justify-center">
+                <div className="flex h-[320px] w-full items-center justify-center sm:h-[420px] lg:h-[518px] lg:w-[752px]">
                   {!isViewingImage ? (
                     <>
                       <GoogleMap
@@ -228,11 +228,12 @@ const Solicitations = () => {
                       alt={filteredData.fullAddress}
                       width={518}
                       height={752}
+                      className="h-full w-auto max-w-full object-contain"
                     />
                   )}
                 </div>
               </div>
-              <div className="space-y-8">
+              <div className="min-w-0 space-y-8">
                 <Subtitle className="text-center">
                   Ponto de lixo em aberto{" "}
                 </Subtitle>
