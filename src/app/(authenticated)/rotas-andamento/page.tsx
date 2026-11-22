@@ -9,7 +9,7 @@ import {
   OverlayViewF
 } from "@react-google-maps/api";
 import { useEffect, useState, useMemo, useRef } from "react";
-import { ChevronRight, Radio, Truck } from "lucide-react";
+import { ChevronRight, Truck } from "lucide-react";
 import Title from "@/components/atoms/Title/title";
 
 import { Client, ReconnectionTimeMode } from "@stomp/stompjs";
@@ -495,8 +495,11 @@ const RotasAndamento = () => {
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-4">
         <header className="flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
           <Title>Monitoramento de Rotas</Title>
-          <p className="flex items-center gap-2 text-sm font-medium text-slate-500">
-            <Radio className="h-4 w-4 text-emerald-500" aria-hidden="true" />
+          <p className="flex items-center gap-2 text-sm font-medium text-brand-ink">
+            <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+              <span className="login-live absolute inline-flex h-full w-full rounded-full bg-brand-aqua" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-brand-aqua" />
+            </span>
             {trucks.length} veiculos ativos
           </p>
         </header>
@@ -545,7 +548,7 @@ const RotasAndamento = () => {
                           <Polyline
                             path={path}
                             options={{
-                              strokeColor: "#11A8A0",
+                              strokeColor: "#00ADB4",
                               strokeOpacity: 0.72,
                               strokeWeight: 5,
                               zIndex: 1
@@ -557,7 +560,7 @@ const RotasAndamento = () => {
                           <Polyline
                             path={truck.routePath}
                             options={{
-                              strokeColor: "#1D4ED8",
+                              strokeColor: "#004A55",
                               strokeOpacity: 0.95,
                               strokeWeight: 6,
                               zIndex: 2
@@ -620,17 +623,17 @@ const RotasAndamento = () => {
                             })}
                           >
                             <div className="pointer-events-none flex flex-col items-center">
-                              <div className="relative rounded-lg bg-slate-900 px-4 py-3 shadow-xl">
+                              <div className="relative rounded-lg bg-greenBlue-1000 px-4 py-3 shadow-xl">
                                 <div className="flex flex-col items-center gap-1">
                                   <span className="text-white whitespace-nowrap text-xs font-bold">
                                     {truck.vehicleName}
                                   </span>
-                                  <span className="whitespace-nowrap text-[10px] font-medium text-slate-300">
+                                  <span className="whitespace-nowrap text-[10px] font-medium text-greenAqua-200">
                                     {truck.carPlate}
                                   </span>
                                 </div>
 
-                                <div className="absolute -bottom-1 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-slate-900"></div>
+                                <div className="absolute -bottom-1 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-greenBlue-1000"></div>
                               </div>
                             </div>
                           </OverlayViewF>
@@ -648,14 +651,14 @@ const RotasAndamento = () => {
             >
               <aside className="bg-white/95 flex max-h-[45dvh] w-full flex-col overflow-hidden backdrop-blur lg:max-h-[calc(72vh-2rem)] lg:rounded-lg lg:border lg:border-slate-200 lg:shadow-lg">
                 <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-4">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-md bg-teal-50 text-teal-700">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-md bg-greenAqua-200 text-greenBlue-1000">
                     <Truck className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-greenBlue-1000">
                       Veiculos em rota
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-brand-ink">
                       Selecione um veiculo para acompanhar
                     </p>
                   </div>
@@ -673,13 +676,13 @@ const RotasAndamento = () => {
                           onClick={() => focusTruck(truck)}
                           className={`mb-1 flex w-full items-center gap-3 rounded-md px-3 py-3 text-left transition-colors last:mb-0 ${
                             isSelected
-                              ? "text-white bg-teal-700"
-                              : "text-slate-700 hover:bg-slate-100"
+                              ? "text-white bg-greenBlue-1000"
+                              : "text-brand-ink hover:bg-greenBebe-200"
                           }`}
                         >
                           <span
                             className={`h-2.5 w-2.5 shrink-0 rounded-full ${
-                              isSelected ? "bg-emerald-300" : "bg-emerald-500"
+                              isSelected ? "bg-brand-mint" : "bg-brand-aqua"
                             }`}
                           />
                           <span className="min-w-0 flex-1">
@@ -688,7 +691,9 @@ const RotasAndamento = () => {
                             </span>
                             <span
                               className={`block truncate text-xs ${
-                                isSelected ? "text-teal-100" : "text-slate-500"
+                                isSelected
+                                  ? "text-greenAqua-200"
+                                  : "text-brand-ink"
                               }`}
                             >
                               {truck.carPlate}
@@ -702,7 +707,7 @@ const RotasAndamento = () => {
                       );
                     })
                   ) : (
-                    <p className="px-3 py-6 text-center text-sm text-slate-500">
+                    <p className="px-3 py-6 text-center text-sm text-brand-ink">
                       Nenhuma coleta ativa agora.
                     </p>
                   )}
