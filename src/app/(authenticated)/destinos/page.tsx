@@ -24,6 +24,7 @@ import useDeleteDisposalSite from "@/hooks/queries/disposalSite/useDeleteDisposa
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import PaginationControls from "@/components/molecules/PaginationControls/paginationControls";
+import { Badge } from "@/components/ui/badge";
 import DisposalSiteDetail from "@/components/molecules/DisposalSiteDetail/DisposalSiteDetail";
 
 const PAGE_SIZE = 10;
@@ -143,7 +144,14 @@ const DestinosPage = () => {
               properties: [
                 { prop: "Endereço", answer: site.address || "N/A" },
                 { prop: "Tipo", answer: getDisposalSiteTypeLabel(site.type) },
-                { prop: "Situação", answer: site.active ? "Ativo" : "Inativo" }
+                {
+                  prop: "Situação",
+                  answer: (
+                    <Badge variant={site.active ? "success" : "neutral"}>
+                      {site.active ? "Ativo" : "Inativo"}
+                    </Badge>
+                  )
+                }
               ],
               children: (
                 <DisposalSiteDetail
@@ -162,7 +170,7 @@ const DestinosPage = () => {
             triggerClassName={`
               bg-white-1000 border border-greenBlue-400
               py-4 px-4
-              grid grid-cols-[1fr_2fr_1fr_auto] gap-4 items-center
+              grid grid-cols-[1fr_2fr_1fr_1fr_auto] gap-4 items-center
               rounded-lg
               data-[state=open]:rounded-b-none
               data-[state=open]:border-b-0
