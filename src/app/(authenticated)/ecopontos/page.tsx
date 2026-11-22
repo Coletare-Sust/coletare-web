@@ -22,7 +22,7 @@ import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import LoadingComponent from "@atoms/Loading/loading";
 import Input from "@atoms/Input/input";
-import EcopontoDetail from "@/components/molecules/EcopontoDetail/EcopontoDetail";
+import LocationDetail from "@/components/molecules/LocationDetail/LocationDetail";
 import PaginationControls from "@/components/molecules/PaginationControls/paginationControls";
 
 const PAGE_SIZE = 10;
@@ -194,7 +194,33 @@ const EcopontosPage = () => {
                 }
               ],
               children: (
-                <EcopontoDetail ecoponto={point} onDelete={handleDelete} />
+                <LocationDetail
+                  lat={point.lat}
+                  lng={point.lng}
+                  address={point.description}
+                  actions={
+                    <>
+                      <Button
+                        className="flex items-center gap-2 border border-greenBlue-800 bg-greenBebe-400 px-6 py-2 hover:bg-greenBebe-600"
+                        classNameText="text-greenBlue-1000 font-semibold"
+                        onClick={() =>
+                          router.push(
+                            `/ecopontos/criar-ecoponto?isEdit=true&ecopontoId=${point.id}`
+                          )
+                        }
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        className="flex items-center gap-2 border border-red-600 bg-red-500 px-6 py-2 hover:bg-red-600"
+                        classNameText="text-white font-semibold"
+                        onClick={() => handleDelete(point.id)}
+                      >
+                        Excluir
+                      </Button>
+                    </>
+                  }
+                />
               )
             }))}
             itemClassName="mb-4"
