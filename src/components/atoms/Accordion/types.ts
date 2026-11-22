@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 export interface AccordionChildrenProps {
   items: {
     title: string;
-    properties: { prop: string; answer: string }[];
+    properties: { prop: string; answer: ReactNode }[];
     children: ReactNode;
     contentClassName?: string;
     triggerClassName?: string;

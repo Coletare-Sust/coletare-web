@@ -3,6 +3,7 @@
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import Button from "@atoms/Button/button";
 import { getDisposalSiteTypeLabel } from "@/common/mappers/backendEnums";
+import { Badge } from "@/components/ui/badge";
 import type { DisposalSite } from "@/store/services/disposalSite";
 
 interface DisposalSiteDetailProps {
@@ -37,10 +38,13 @@ const DisposalSiteDetail = ({
           <h3 className="mb-2 text-lg font-bold text-greenBlue-1000">
             Localização
           </h3>
-          <p className="mb-4 text-greenDark-800">
-            <strong>Tipo:</strong> {getDisposalSiteTypeLabel(site.type)}
-            <br />
-            <strong>Situação:</strong> {site.active ? "Ativo" : "Inativo"}
+          <p className="mb-4 flex items-center gap-3 text-greenDark-800">
+            <span>
+              <strong>Tipo:</strong> {getDisposalSiteTypeLabel(site.type)}
+            </span>
+            <Badge variant={site.active ? "success" : "neutral"}>
+              {site.active ? "Ativo" : "Inativo"}
+            </Badge>
           </p>
           <p className="text-greenDark-800">{site.address}</p>
         </div>
