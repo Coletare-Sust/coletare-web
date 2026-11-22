@@ -47,7 +47,7 @@ const DatePicker = ({
   }, [date, endDate, isRange]);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex w-full items-center gap-2 sm:w-auto">
       <p className="font-medium text-greenBlue-1000">{label}</p>
       <Popover>
         <PopoverTrigger asChild>
@@ -55,9 +55,9 @@ const DatePicker = ({
             disabled={disabled}
             variant={"outline"}
             className={cn(
-              "w-[200px] items-center justify-center border border-greenDark-600 text-left font-normal text-greenDark-1000",
+              "flex-1 items-center justify-center border border-greenDark-600 text-left font-normal text-greenDark-1000 sm:w-[200px] sm:flex-none",
               !date && "",
-              isRange && "w-[260px]",
+              isRange && "sm:w-[260px]",
               classNameButton
             )}
           >

@@ -17,41 +17,30 @@ const Dropdown = ({
   options,
   disabled = false
 }: DropdownProps) => {
+  const isDisabled = options === undefined || options.length === 0 || disabled;
+
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger
+        disabled={isDisabled}
         className={twMerge(
-          `cursor-pointer rounded-[8px] bg-greenBlue-1000 py-[10px] pl-[16px] pr-[10px] tracking-wide text-white-1000 ${
-            (options === undefined || options.length === 0 || disabled) &&
-            "cursor-not-allowed opacity-60"
-          }`,
+          "min-h-11 flex cursor-pointer items-center justify-between gap-2 rounded-[8px] bg-greenBlue-1000 py-[10px] pl-[16px] pr-[10px] tracking-wide text-white-1000 outline-none focus-visible:ring-2 focus-visible:ring-brand-aqua focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60",
           className
         )}
-        asChild
       >
-        <span className="flex items-center gap-2">
-          {value}
-          <ChevronDown />
-        </span>
+        <span className="truncate">{value}</span>
+        <ChevronDown className="shrink-0" />
       </DropdownMenuTrigger>
       {options && !disabled && (
-        <DropdownMenuContent>
-          {options?.map((item, key) =>
-            options.indexOf(item) === options.length - 1 ? (
-              <div key={key} onClick={() => item.onClick()}>
-                <DropdownMenuItem className="cursor-pointer">
-                  {item.label}
-                </DropdownMenuItem>
-              </div>
-            ) : (
-              <div key={key} onClick={() => item.onClick()}>
-                <DropdownMenuItem className="cursor-pointer">
-                  {item.label}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-              </div>
-            )
-          )}
+        <DropdownMenuContent className="max-h-72 overflow-y-auto">
+          {options?.map((item, key) => (
+            <div key={key} onClick={() => item.onClick()}>
+              <DropdownMenuItem className="min-h-10 cursor-pointer">
+                {item.label}
+              </DropdownMenuItem>
+              {key < options.length - 1 && <DropdownMenuSeparator />}
+            </div>
+          ))}
         </DropdownMenuContent>
       )}
     </DropdownMenu>

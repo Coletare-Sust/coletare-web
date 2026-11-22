@@ -130,7 +130,7 @@ const FilterBar = ({
 
   return (
     <form
-      className="flex items-center justify-between"
+      className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
       onSubmit={(e) => handleSubmit(e)}
     >
       <SearchDropdown
@@ -139,7 +139,7 @@ const FilterBar = ({
         value={routeValue}
         setValue={setRouteValue}
       />
-      <div className="flex gap-16">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:gap-6 xl:gap-16">
         {pathname !== "/rotas" && (routeValue !== "" || alwaysOpen) && (
           <DatePicker date={date} setDate={setDate} activeDays={activeDays} />
         )}
@@ -154,7 +154,7 @@ const FilterBar = ({
         )}
         {(routeValue !== "" || alwaysOpen) && (
           <div className="flex items-center gap-5">
-            <Button> Pesquisar rota </Button>
+            <Button className="flex-1 sm:flex-none"> Pesquisar rota </Button>
             <Image
               src={"/icon-x.svg"}
               width={32}
@@ -166,14 +166,14 @@ const FilterBar = ({
           </div>
         )}
         {routeValue === "" && !alwaysOpen && (
-          <div className="flex gap-8">
+          <div className="flex w-full gap-8 sm:w-auto">
             <Button
               alertNumber={
                 numberCollectsWNoMassData && numberCollectsWNoMassData > 0
                   ? numberCollectsWNoMassData
                   : undefined
               }
-              className="mr-12"
+              className="w-full sm:w-auto lg:mr-12"
               buttonType="button"
               onClick={() => {
                 let finalQuery = "/dashboard/inserir-dados?";

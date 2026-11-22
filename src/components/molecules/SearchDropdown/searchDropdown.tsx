@@ -32,7 +32,7 @@ export function SearchDropdown({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[400px] justify-between border border-greenDark-400 font-normal text-greenDark-600"
+          className="w-full justify-between border border-greenDark-400 font-normal text-greenDark-600 sm:w-[400px]"
         >
           {value ? (
             options?.find((option) => option.value === value)?.label
@@ -41,7 +41,7 @@ export function SearchDropdown({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[2 00px]  p-0">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
         <Command className={""}>
           <CommandInput placeholder={placeholder} className="h-9" />
           <CommandEmpty>Sem resultados</CommandEmpty>
