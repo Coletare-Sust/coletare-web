@@ -4,7 +4,7 @@ import TrashIcon from "@atoms/Icons/TrashIcon";
 import TruckIcon from "@atoms/Icons/TruckIcon";
 import BellIcon from "@atoms/Icons/BellIcon";
 import { renderToString } from "react-dom/server";
-import { Factory, KeyRound, RecycleIcon } from "lucide-react";
+import { Factory, KeyRound, Plug, RecycleIcon } from "lucide-react";
 import ColaboratorIcon from "@/components/atoms/Icons/ColaboratorIcon";
 import type { PermissionRule } from "@/common/accessControl/permissions";
 
@@ -216,6 +216,19 @@ export const linksAdmin: NavigationLink[] = [
     alertNumber: -1,
     hiddenInSidebar: false,
     permissions: ["CITY_READ"]
+  },
+  {
+    label: "Integrações",
+    url: "/integracoes",
+    icon: (color?: string) => {
+      const svgString = renderToString(<Plug color={color} />);
+      return `data:image/svg+xml;base64,${Buffer.from(svgString).toString(
+        "base64"
+      )}`;
+    },
+    alertNumber: -1,
+    hiddenInSidebar: false,
+    permissions: ["INTEGRATION_CLIENT_READ"]
   },
   {
     label: "Permissoes",

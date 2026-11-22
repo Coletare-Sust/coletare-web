@@ -25,6 +25,7 @@ export const routeAccessRules: RouteAccessRule[] = [
   { path: "/cadastrar-colaborador", permissions: ["EMPLOYEE_CREATE"] },
   { path: "/avisos/cadastrar", permissions: ["WARNING_CREATE"] },
   { path: "/avisos", permissions: ["WARNING_READ"] },
+  { path: "/integracoes", permissions: ["INTEGRATION_CLIENT_READ"] },
   { path: "/municipios/cadastrar", permissions: ["CITY_CREATE"] },
   { path: "/municipios", permissions: ["CITY_READ"] },
   {

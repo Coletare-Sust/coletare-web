@@ -60,6 +60,8 @@ export type PermissionKey =
   | "DISPOSAL_SITE_DELETE"
   | "COLLECT_BIOMASS_READ"
   | "COLLECT_BIOMASS_UPDATE"
+  | "INTEGRATION_CLIENT_READ"
+  | "INTEGRATION_CLIENT_MANAGE"
   | "METRICS_DASHBOARD_READ";
 
 export type PermissionRule = PermissionKey | PermissionKey[];
