@@ -83,7 +83,7 @@ export default function LoginRouteMap() {
         preserveAspectRatio="xMidYMid meet"
         className="absolute inset-0 h-full w-full overflow-visible"
       >
-        <g stroke="#14999D" strokeOpacity="0.14" strokeWidth="1.5">
+        <g stroke="#00ADB4" strokeOpacity="0.14" strokeWidth="1.5">
           {STREETS_H.map((y) => (
             <line key={`h${y}`} x1="-400" x2="1400" y1={y} y2={y} />
           ))}
@@ -105,7 +105,7 @@ export default function LoginRouteMap() {
         <path
           d={ROUTE_PATH}
           fill="none"
-          stroke="#14999D"
+          stroke="#00ADB4"
           strokeOpacity="0.35"
           strokeWidth="6"
           strokeLinecap="round"
@@ -115,7 +115,7 @@ export default function LoginRouteMap() {
           ref={progressRef}
           d={ROUTE_PATH}
           fill="none"
-          stroke="#14999D"
+          stroke="#00ADB4"
           strokeWidth="8"
           strokeLinecap="round"
         />
@@ -131,15 +131,15 @@ export default function LoginRouteMap() {
                 <circle
                   r="16"
                   fill="none"
-                  stroke="#14999D"
+                  stroke="#00ADB4"
                   strokeWidth="2"
                   className="login-stop-pop"
                 />
               )}
               <circle
                 r="13"
-                fill={done ? "#14999D" : "#FDFDF9"}
-                stroke="#14999D"
+                fill={done ? "#00ADB4" : "#FAF7FA"}
+                stroke="#00ADB4"
                 strokeWidth="4"
                 style={{ transition: "fill 0.3s" }}
               />
@@ -147,7 +147,7 @@ export default function LoginRouteMap() {
                 <path
                   d="M-5 0 L-1.5 4 L5 -4"
                   fill="none"
-                  stroke="#FDFDF9"
+                  stroke="#FAF7FA"
                   strokeWidth="3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -161,7 +161,7 @@ export default function LoginRouteMap() {
         <g ref={truckRef}>
           <circle
             r="38"
-            fill="#14999D"
+            fill="#00ADB4"
             fillOpacity="0.18"
             className="login-truck-pulse"
           />
@@ -183,48 +183,48 @@ export default function LoginRouteMap() {
             <rect x="13" y="11" width="11" height="6" rx="2" />
           </g>
           {/* caçamba */}
-          <rect x="-34" y="-13" width="48" height="26" rx="6" fill="#14999D" />
+          <rect x="-34" y="-13" width="48" height="26" rx="6" fill="#00ADB4" />
           <path
             d="M-24 -13 V13 M-6 -13 V13"
-            stroke="#0C6B70"
+            stroke="#004A55"
             strokeOpacity="0.5"
             strokeWidth="2"
           />
           <path
             d="M-15 -6 V6 M-19.5 1.5 L-15 6 L-10.5 1.5"
             fill="none"
-            stroke="#FDFDF9"
+            stroke="#FAF7FA"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
           {/* cabine */}
-          <rect x="16" y="-12" width="22" height="24" rx="7" fill="#41524F" />
+          <rect x="16" y="-12" width="22" height="24" rx="7" fill="#4D534C" />
           <rect x="27" y="-9" width="8" height="18" rx="3" fill="#C4E7E8" />
-          <circle cx="38" cy="-7" r="2" fill="#FDFDF9" />
-          <circle cx="38" cy="7" r="2" fill="#FDFDF9" />
+          <circle cx="38" cy="-7" r="2" fill="#FAF7FA" />
+          <circle cx="38" cy="7" r="2" fill="#FAF7FA" />
         </g>
       </svg>
 
       {/* painel de status ao vivo */}
-      <div className="absolute right-10 top-0 w-64 rounded-2xl border border-[#14999D]/20 bg-[#FDFDF9]/90 p-4 shadow-[0_18px_40px_-20px_rgba(12,107,112,0.5)] backdrop-blur xl:right-16">
-        <div className="flex items-center gap-2 text-sm font-medium text-[#41524F]">
+      <div className="absolute right-10 top-0 w-64 rounded-2xl border border-brand-aqua/20 bg-brand-paper/90 p-4 shadow-[0_18px_40px_-20px_rgba(12,107,112,0.5)] backdrop-blur xl:right-16">
+        <div className="flex items-center gap-2 text-sm font-medium text-brand-ink">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="login-live absolute inline-flex h-full w-full rounded-full bg-[#14999D]" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#14999D]" />
+            <span className="login-live absolute inline-flex h-full w-full rounded-full bg-brand-aqua" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-brand-aqua" />
           </span>
           Coleta em andamento
         </div>
-        <p className="mt-2 font-unbounded text-2xl font-semibold text-[#0C6B70]">
+        <p className="mt-2 font-unbounded text-2xl font-semibold text-brand-deep">
           {collected}
-          <span className="text-base font-medium text-[#41524F]/70">
+          <span className="text-base font-medium text-brand-ink/70">
             {" "}
             de {STOP_POSITIONS.length} pontos
           </span>
         </p>
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#C4E7E8]">
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-brand-mint">
           <div
-            className="h-full rounded-full bg-[#14999D] transition-[width] duration-700"
+            className="h-full rounded-full bg-brand-aqua transition-[width] duration-700"
             style={{ width: `${(collected / STOP_POSITIONS.length) * 100}%` }}
           />
         </div>

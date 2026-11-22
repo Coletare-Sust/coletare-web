@@ -41,7 +41,7 @@ function Field({
 }: FieldProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-[15px] font-medium text-[#FDFDF9]">
+      <label htmlFor={id} className="text-[15px] font-medium text-brand-paper">
         {label}
       </label>
       <div className="relative">
@@ -53,13 +53,17 @@ function Field({
           inputMode={inputMode}
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : undefined}
-          className="h-14 w-full rounded-2xl border-2 border-transparent bg-[#FDFDF9] px-4 text-base text-[#2F3D3B] outline-none transition-colors placeholder:text-[#7C8C8A] focus:border-[#C4E7E8] focus:ring-4 focus:ring-[#C4E7E8]/40 aria-[invalid=true]:border-[#FFB4A6]"
+          className="h-14 w-full rounded-2xl border-2 border-transparent bg-brand-paper px-4 text-base text-brand-strong outline-none transition-colors placeholder:text-brand-muted focus:border-brand-mint focus:ring-4 focus:ring-brand-mint/40 aria-[invalid=true]:border-brand-alert"
           {...register}
         />
         {trailing}
       </div>
       {error && (
-        <p id={`${id}-error`} role="alert" className="text-sm text-[#FFD9D2]">
+        <p
+          id={`${id}-error`}
+          role="alert"
+          className="text-sm text-brand-alert-soft"
+        >
           {error}
         </p>
       )}
@@ -94,7 +98,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-[100dvh] w-full flex-col overflow-x-hidden bg-[#FDFDF9] lg:flex-row">
+    <main className="flex min-h-[100dvh] w-full flex-col overflow-x-hidden bg-brand-paper lg:flex-row">
       {/* Área clara: logo, mensagem e a gota que cai na onda */}
       <section className="relative flex flex-col px-6 pt-8 lg:flex-1 lg:overflow-hidden lg:px-14 lg:pt-12 xl:px-20">
         <Image
@@ -108,13 +112,13 @@ export default function LoginPage() {
 
         <div className="relative z-10 mt-8 flex-1 pb-10 lg:mt-14 lg:flex-none lg:pb-0">
           <h1
-            className="login-rise-lg max-w-[20ch] font-unbounded text-2xl font-semibold leading-[1.2] text-[#41524F] sm:text-3xl lg:max-w-[22ch] lg:text-4xl lg:leading-[1.15] xl:text-5xl"
+            className="login-rise-lg max-w-[20ch] font-unbounded text-2xl font-semibold leading-[1.2] text-brand-ink sm:text-3xl lg:max-w-[22ch] lg:text-4xl lg:leading-[1.15] xl:text-5xl"
             style={{ animationDelay: "0.15s" }}
           >
             Sistema inteligente de coleta de resíduos sólidos urbanos
           </h1>
           <p
-            className="login-rise-lg mt-3 max-w-[30ch] text-base leading-relaxed text-[#41524F]/80 lg:mt-5 lg:max-w-[40ch] lg:text-lg"
+            className="login-rise-lg mt-3 max-w-[30ch] text-base leading-relaxed text-brand-ink/80 lg:mt-5 lg:max-w-[40ch] lg:text-lg"
             style={{ animationDelay: "0.3s" }}
           >
             Entre para acompanhar rotas, avisos e pedidos de retirada.
@@ -122,7 +126,7 @@ export default function LoginPage() {
 
           <span
             aria-hidden="true"
-            className="login-drop absolute left-[80%] top-0 -z-10 h-5 w-5 -translate-x-1/2 rounded-full bg-[#14999D] lg:hidden"
+            className="login-drop absolute left-[80%] top-0 -z-10 h-5 w-5 -translate-x-1/2 rounded-full bg-brand-aqua lg:hidden"
           />
         </div>
 
@@ -143,11 +147,11 @@ export default function LoginPage() {
       >
         <path
           d="M0 20 C 80 44, 150 40, 210 22 S 330 -2, 400 18 V64 H0 Z"
-          fill="#14999D"
+          fill="#00ADB4"
         />
         <path
           d="M0 34 C 50 8, 120 8, 180 30 S 260 52, 320 36 S 380 14, 400 24 V64 H0 Z"
-          fill="#0C6B70"
+          fill="#004A55"
         />
         <ellipse
           className="login-ripple"
@@ -174,7 +178,7 @@ export default function LoginPage() {
       </svg>
 
       {/* Painel do formulário */}
-      <section className="login-panel-in relative flex flex-1 flex-col justify-start bg-[#0C6B70] px-6 pb-10 pt-2 lg:min-w-[480px] lg:max-w-[640px] lg:flex-none lg:basis-[42%] lg:items-center lg:justify-center lg:px-16 lg:py-16">
+      <section className="login-panel-in relative flex flex-1 flex-col justify-start bg-brand-deep px-6 pb-10 pt-2 lg:min-w-[480px] lg:max-w-[640px] lg:flex-none lg:basis-[42%] lg:items-center lg:justify-center lg:px-16 lg:py-16">
         {/* borda ondulada (desktop) */}
         <svg
           aria-hidden="true"
@@ -184,11 +188,11 @@ export default function LoginPage() {
         >
           <path
             d="M64 0 H38 C 6 130, 52 230, 24 360 S 2 580, 34 720 S 22 850, 30 900 H64 Z"
-            fill="#14999D"
+            fill="#00ADB4"
           />
           <path
             d="M64 0 H52 C 26 150, 58 250, 38 390 S 22 600, 46 740 S 40 860, 44 900 H64 Z"
-            fill="#0C6B70"
+            fill="#004A55"
           />
         </svg>
 
@@ -203,9 +207,9 @@ export default function LoginPage() {
           >
             <path
               d="M14 8 H146 L124 142 H36 Z"
-              fill="#FDFDF9"
+              fill="#FAF7FA"
               fillOpacity="0.07"
-              stroke="#FDFDF9"
+              stroke="#FAF7FA"
               strokeOpacity="0.07"
               strokeWidth="12"
               strokeLinejoin="round"
@@ -213,12 +217,12 @@ export default function LoginPage() {
             <path
               d="M80 30 V78 M62 62 L80 80 L98 62"
               fill="none"
-              stroke="#0C6B70"
+              stroke="#004A55"
               strokeWidth="9"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            <circle cx="80" cy="112" r="11" fill="#0C6B70" />
+            <circle cx="80" cy="112" r="11" fill="#004A55" />
           </svg>
         </div>
 
@@ -227,7 +231,7 @@ export default function LoginPage() {
           onSubmit={handleSubmit(handleSubmitForm)}
           className="login-form-in relative mx-auto flex w-full max-w-md flex-col gap-5 lg:max-w-sm xl:max-w-md"
         >
-          <h2 className="font-unbounded text-xl font-medium text-[#FDFDF9]">
+          <h2 className="font-unbounded text-xl font-medium text-brand-paper">
             Entrar no painel
           </h2>
 
@@ -256,7 +260,7 @@ export default function LoginPage() {
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                 aria-pressed={showPassword}
-                className="absolute right-1 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-xl text-[#41524F] outline-none focus-visible:ring-4 focus-visible:ring-[#14999D]/50"
+                className="absolute right-1 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-xl text-brand-ink outline-none focus-visible:ring-4 focus-visible:ring-brand-aqua/50"
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
@@ -272,7 +276,7 @@ export default function LoginPage() {
                 errorToast("Preencha o campo de e-mail.");
               }
             }}
-            className="hover:text-white -mt-2 self-start rounded text-[15px] text-[#C4E7E8] underline underline-offset-4 outline-none focus-visible:ring-4 focus-visible:ring-[#C4E7E8]/50"
+            className="hover:text-white -mt-2 self-start rounded text-[15px] text-brand-mint underline underline-offset-4 outline-none focus-visible:ring-4 focus-visible:ring-brand-mint/50"
           >
             Esqueci minha senha
           </button>
@@ -280,10 +284,10 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading.loginWithInternalService}
-            className="mt-2 flex h-14 w-full items-center justify-center rounded-2xl bg-[#FDFDF9] text-base font-semibold text-[#2F3D3B] outline-none transition-transform focus-visible:ring-4 focus-visible:ring-[#C4E7E8] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
+            className="mt-2 flex h-14 w-full items-center justify-center rounded-2xl bg-brand-paper text-base font-semibold text-brand-strong outline-none transition-transform focus-visible:ring-4 focus-visible:ring-brand-mint active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
           >
             {loading.loginWithInternalService ? (
-              <LoadingComponent color="#0C6B70" size={22} />
+              <LoadingComponent color="#004A55" size={22} />
             ) : (
               "Entrar"
             )}
