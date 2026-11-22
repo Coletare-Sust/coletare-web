@@ -22,6 +22,7 @@ import type {
   IntegrationEnvironment,
   IssuedApiKey
 } from "@/store/services/integrations";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,15 @@ const splitList = (value: string) =>
     .split(/[\s,;]+/)
     .map((item) => item.trim())
     .filter(Boolean);
+
+const KEY_STATUS: Record<
+  string,
+  { label: string; variant: "success" | "destructive" | "neutral" }
+> = {
+  ACTIVE: { label: "Ativa", variant: "success" },
+  EXPIRED: { label: "Expirada", variant: "neutral" },
+  REVOKED: { label: "Revogada", variant: "destructive" }
+};
 
 const formatDate = (iso?: string | null) =>
   iso ? new Date(iso).toLocaleString("pt-BR") : "—";
@@ -178,9 +188,9 @@ const ClientKeys = ({
               <div>
                 <p className="font-mono">
                   {key.prefix}…{key.last4}{" "}
-                  <span className="rounded bg-greenBebe-400 px-2 py-0.5 text-xs">
-                    {key.status}
-                  </span>
+                  <Badge variant={KEY_STATUS[key.status]?.variant ?? "neutral"}>
+                    {KEY_STATUS[key.status]?.label ?? key.status}
+                  </Badge>
                 </p>
                 <p>
                   Expira em {formatDate(key.expiresAt)} · último uso{" "}
@@ -393,12 +403,20 @@ const IntegracoesPage = () => {
                 <div>
                   <p className="text-lg font-semibold text-greenBlue-1000">
                     {client.name}{" "}
-                    <span className="rounded bg-greenBebe-400 px-2 py-0.5 text-xs">
+                    <Badge
+                      variant={
+                        client.environment === "LIVE" ? "default" : "warning"
+                      }
+                    >
                       {client.environment}
-                    </span>{" "}
-                    <span className="rounded bg-greenBebe-400 px-2 py-0.5 text-xs">
+                    </Badge>{" "}
+                    <Badge
+                      variant={
+                        client.status === "ACTIVE" ? "success" : "destructive"
+                      }
+                    >
                       {client.status === "ACTIVE" ? "Ativa" : "Suspensa"}
-                    </span>
+                    </Badge>
                   </p>
                   <p className="text-sm text-greenDark-800">
                     Responsáveis: {client.ownerEmails.join(", ")}
