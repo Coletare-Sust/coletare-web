@@ -140,7 +140,8 @@ const CriarEcopontoPage = () => {
       isNaN(lngNum) ||
       residueType.length === 0
     ) {
-      const msg = "Preencha todos os campos obrigatórios.";
+      const msg =
+        "Preencha o nome e escolha o local no mapa ou pela busca de endereço.";
       errorToast(msg);
       return setError(msg);
     }
@@ -239,8 +240,8 @@ const CriarEcopontoPage = () => {
                 }}
               >
                 <p className="text-sm text-gray-500">
-                  Clique no mapa para definir a localização ou preencha
-                  manualmente.
+                  Clique no mapa para definir a localização ou busque o
+                  endereço.
                 </p>
 
                 <InputField
@@ -258,35 +259,6 @@ const CriarEcopontoPage = () => {
                   onChange={(e) => setDescription(e.target.value)}
                   onLocationSelect={handleAddressSelect}
                 />
-
-                <div className="flex flex-col gap-4">
-                  <InputField
-                    label="Latitude"
-                    placeholder="-8.2826"
-                    name="lat"
-                    value={lat}
-                    onChange={(e) => {
-                      setLat(e.target.value);
-                      const l = parseFloat(e.target.value);
-                      const g = parseFloat(lng);
-                      if (!isNaN(l) && !isNaN(g))
-                        setMarkerPosition({ lat: l, lng: g });
-                    }}
-                  />
-                  <InputField
-                    label="Longitude"
-                    placeholder="-35.9753"
-                    name="lng"
-                    value={lng}
-                    onChange={(e) => {
-                      setLng(e.target.value);
-                      const l = parseFloat(lat);
-                      const g = parseFloat(e.target.value);
-                      if (!isNaN(l) && !isNaN(g))
-                        setMarkerPosition({ lat: l, lng: g });
-                    }}
-                  />
-                </div>
 
                 <div className="flex flex-col gap-2">
                   <label className="font-medium text-greenDark-800">
