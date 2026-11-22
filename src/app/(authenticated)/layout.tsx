@@ -65,7 +65,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     "/dashboard",
     "/rotas",
     "/ecopontos",
-    "C:/Program Files/Git/integracoes",
+    "/integracoes",
     "/solicitacoes-retirada",
     "/veiculos-colaboradores",
     "/avisos",
