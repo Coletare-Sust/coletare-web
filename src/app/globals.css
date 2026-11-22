@@ -173,21 +173,38 @@
   }
 }
 
-/* Para Chrome, Safari, Edge */
+/* Barra de rolagem da marca */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #93d8db transparent;
+}
+
 ::-webkit-scrollbar {
-  width: 6px; /* Largura da barra de rolagem */
-  height: 10px; /* Altura da barra de rolagem horizontal, se necessário */
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Cor de fundo da trilha da barra */
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888; /* Cor do indicador de rolagem */
-  border-radius: 5px; /* Arredonda as bordas do indicador de rolagem */
+  background: #93d8db;
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; /* Cor do indicador de rolagem ao passar o mouse */
+  background: #00adb4;
+}
+
+/* Toasts na paleta da marca */
+body {
+  --toastify-color-success: #00adb4;
+  --toastify-color-error: #ed3030;
+  --toastify-color-info: #004a55;
+  --toastify-font-family: inherit;
+}
+
+.Toastify__toast {
+  border-radius: 14px;
 }
