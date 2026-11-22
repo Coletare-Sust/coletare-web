@@ -214,8 +214,8 @@ const Cadastrar = () => {
             )}
             className="flex flex-col items-center justify-center gap-8"
           >
-            <div className="flex w-[724px] items-center justify-between">
-              <div className="w-1/2 space-y-[64px]">
+            <div className="flex w-full max-w-[724px] flex-col items-center gap-8 md:flex-row md:justify-between">
+              <div className="w-full space-y-[64px] md:w-1/2">
                 <div className="relative flex flex-col items-center gap-8">
                   <Image
                     src={image ?? "/random-img.svg"}
@@ -267,7 +267,7 @@ const Cadastrar = () => {
                   </div>
                 </div>
               </div>
-              <div className="w-1/2 space-y-8">
+              <div className="w-full space-y-8 md:w-1/2">
                 {(city
                   ? inputsData.filter(
                       (item) =>
