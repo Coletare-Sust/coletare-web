@@ -54,6 +54,10 @@ export type PermissionKey =
   | "ECOPOINT_CREATE"
   | "ECOPOINT_UPDATE"
   | "ECOPOINT_DELETE"
+  | "DISPOSAL_SITE_READ"
+  | "DISPOSAL_SITE_CREATE"
+  | "DISPOSAL_SITE_UPDATE"
+  | "DISPOSAL_SITE_DELETE"
   | "METRICS_DASHBOARD_READ";
 
 export type PermissionRule = PermissionKey | PermissionKey[];
