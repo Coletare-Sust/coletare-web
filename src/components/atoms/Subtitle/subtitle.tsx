@@ -5,7 +5,7 @@ const Subtitle = ({ children, className, onClick }: subtitleProps) => {
   return (
     <p
       className={twMerge(
-        "text-[24px] font-semibold text-greenBlue-1000",
+        "text-xl font-semibold text-greenBlue-1000 sm:text-[24px]",
         className
       )}
       onClick={onClick}

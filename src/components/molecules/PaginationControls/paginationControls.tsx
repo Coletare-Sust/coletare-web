@@ -27,9 +27,9 @@ export default function PaginationControls({
         onClick={() => onPageChange(Math.max(page - 1, 0))}
         className="px-3"
       >
-        <span className="flex items-center gap-2">
+        <span className="flex items-center gap-2" aria-label="Página anterior">
           <ChevronLeft size={18} />
-          Anterior
+          <span className="hidden sm:inline">Anterior</span>
         </span>
       </Button>
       <span className="text-sm font-medium text-greenBlue-1000">
@@ -41,8 +41,8 @@ export default function PaginationControls({
         onClick={() => onPageChange(Math.min(page + 1, totalPages - 1))}
         className="px-3"
       >
-        <span className="flex items-center gap-2">
-          Proxima
+        <span className="flex items-center gap-2" aria-label="Próxima página">
+          <span className="hidden sm:inline">Próxima</span>
           <ChevronRight size={18} />
         </span>
       </Button>
