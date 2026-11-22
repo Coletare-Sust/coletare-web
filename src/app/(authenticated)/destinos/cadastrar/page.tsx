@@ -19,6 +19,7 @@ import useCreateDisposalSite from "@/hooks/queries/disposalSite/useCreateDisposa
 import useUpdateDisposalSite from "@/hooks/queries/disposalSite/useUpdateDisposalSite";
 import useGetDisposalSiteById from "@/hooks/queries/disposalSite/useGetDisposalSiteById";
 import EcopontoAddressInput from "@/components/atoms/EcopontoAddressInput/EcopontoAddressInput";
+import MapPanel from "@/components/molecules/MapPanel/mapPanel";
 import {
   DISPOSAL_SITE_TYPE_LABELS,
   getDisposalSiteTypeLabel
@@ -159,7 +160,7 @@ const CadastrarDestinoPage = () => {
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
+    <div className="relative -m-4 h-[calc(100dvh-4rem)] overflow-hidden sm:-m-6">
       <div className="absolute inset-0 h-full w-full">
         <GoogleMap
           onLoad={setMap}
@@ -173,11 +174,14 @@ const CadastrarDestinoPage = () => {
         </GoogleMap>
       </div>
 
-      <div className="absolute left-8 top-8 z-10 w-full max-w-[420px]">
+      <MapPanel
+        label="formulário"
+        className="lg:left-8 lg:top-8 lg:max-w-[420px]"
+      >
         <div
           className={twMerge(
-            "max-h-[calc(100vh-64px)] w-full overflow-y-auto rounded-xl",
-            "bg-white-1000 p-6 font-medium shadow-2xl"
+            "max-h-[50dvh] w-full overflow-y-auto p-5 font-medium",
+            "lg:max-h-[calc(100dvh-8rem)] lg:rounded-xl lg:bg-white-1000 lg:p-6 lg:shadow-2xl"
           )}
         >
           <Title className="mb-6 flex items-center gap-2 text-2xl">
@@ -245,7 +249,7 @@ const CadastrarDestinoPage = () => {
             </form>
           )}
         </div>
-      </div>
+      </MapPanel>
     </div>
   );
 };

@@ -20,6 +20,7 @@ import useCreateEcoponto from "@/hooks/queries/ecoponto/useCreateEcoponto";
 import useUpdateEcoponto from "@/hooks/queries/ecoponto/useUpdateEcoponto";
 import useGetEcopontoById from "@/hooks/queries/ecoponto/useGetEcopontoById";
 import EcopontoAddressInput from "@/components/atoms/EcopontoAddressInput/EcopontoAddressInput";
+import MapPanel from "@/components/molecules/MapPanel/mapPanel";
 import {
   RESIDUE_TYPE_LABELS,
   getResidueTypeLabel
@@ -192,7 +193,7 @@ const CriarEcopontoPage = () => {
   };
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
+    <div className="relative -m-4 h-[calc(100dvh-4rem)] overflow-hidden sm:-m-6">
       <>
         <div className="absolute inset-0 h-full w-full">
           <GoogleMap
@@ -210,11 +211,14 @@ const CriarEcopontoPage = () => {
           </GoogleMap>
         </div>
 
-        <div className="absolute left-8 top-8 z-10 h-[calc(100vh-64px)] w-full max-w-[520px]">
+        <MapPanel
+          label="formulário"
+          className="lg:left-8 lg:top-8 lg:h-[calc(100dvh-8rem)] lg:max-w-[520px]"
+        >
           <div
             className={twMerge(
-              "h-full w-full overflow-y-auto rounded-xl",
-              "bg-white-1000 p-8 font-medium shadow-2xl"
+              "max-h-[50dvh] w-full overflow-y-auto p-5 font-medium",
+              "lg:h-full lg:max-h-none lg:rounded-xl lg:bg-white-1000 lg:p-8 lg:shadow-2xl"
             )}
           >
             <Title className="mb-8 flex items-center gap-2 text-2xl">
@@ -286,7 +290,7 @@ const CriarEcopontoPage = () => {
               </form>
             )}
           </div>
-        </div>
+        </MapPanel>
       </>
     </div>
   );

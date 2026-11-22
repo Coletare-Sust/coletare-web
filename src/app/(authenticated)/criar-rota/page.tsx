@@ -11,6 +11,7 @@ import {
 } from "@react-google-maps/api";
 
 import CreateRoute from "@/components/molecules/CreateRoute/createRoute";
+import MapPanel from "@/components/molecules/MapPanel/mapPanel";
 import { apiFetch } from "@/utils/apiFetch";
 import { useSearchParams } from "next/navigation";
 import { WithdrawalsRequestEntity } from "@/common/entities/WithdrawalsRequest";
@@ -264,7 +265,7 @@ const CriarRota = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-76px)] w-full">
+    <div className="relative -m-4 h-[calc(100dvh-4rem)] overflow-hidden sm:-m-6">
       <div className="h-full w-full">
         <>
           <GoogleMap
@@ -274,28 +275,33 @@ const CriarRota = () => {
             zoom={15}
             onClick={handleMapClick}
           >
-            <CreateRoute
-              className="absolute left-11 top-12 z-10"
-              waypoints={waypoints}
-              setWaypoints={setWaypoints}
-              setInitialCenter={setInitialCenter}
-              map={map}
-              count={count}
-              setCount={setCount}
-              adresses={adresses}
-              handleDeleteWaypoint={handleDeleteWaypoint}
-              polylineEncoded={polylineEncoded}
-              polylinePoints={decodedPath}
-              isCalculatingPolyline={isCalculatingPolyline}
-              polylineError={polylineError}
-              onCalculatePolyline={handleCalculatePolyline}
-              isEdit={isEdit === "true"}
-              routeId={routeId}
-              setAdresses={setAdresses}
-              isSpecial={isSpecial}
-              activeSuggestions={activeSuggestions}
-              setActiveSuggestions={setActiveSuggestions}
-            />
+            <MapPanel
+              label="painel da rota"
+              className="lg:left-11 lg:top-12 lg:h-[85%]"
+            >
+              <CreateRoute
+                className="h-auto max-h-[50dvh] rounded-none p-5 lg:h-full lg:max-h-none lg:rounded-lg lg:p-8"
+                waypoints={waypoints}
+                setWaypoints={setWaypoints}
+                setInitialCenter={setInitialCenter}
+                map={map}
+                count={count}
+                setCount={setCount}
+                adresses={adresses}
+                handleDeleteWaypoint={handleDeleteWaypoint}
+                polylineEncoded={polylineEncoded}
+                polylinePoints={decodedPath}
+                isCalculatingPolyline={isCalculatingPolyline}
+                polylineError={polylineError}
+                onCalculatePolyline={handleCalculatePolyline}
+                isEdit={isEdit === "true"}
+                routeId={routeId}
+                setAdresses={setAdresses}
+                isSpecial={isSpecial}
+                activeSuggestions={activeSuggestions}
+                setActiveSuggestions={setActiveSuggestions}
+              />
+            </MapPanel>
 
             {isRouteCalculated && (
               <Polyline
