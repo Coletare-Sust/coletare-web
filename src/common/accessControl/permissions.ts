@@ -54,6 +54,8 @@ export type PermissionKey =
   | "ECOPOINT_CREATE"
   | "ECOPOINT_UPDATE"
   | "ECOPOINT_DELETE"
+  | "INTEGRATION_CLIENT_READ"
+  | "INTEGRATION_CLIENT_MANAGE"
   | "METRICS_DASHBOARD_READ";
 
 export type PermissionRule = PermissionKey | PermissionKey[];
