@@ -3,6 +3,7 @@ import { ptBR } from "date-fns/locale";
 import React from "react";
 import { residuesTypesEn } from "@common/constants/residuesTypes";
 import useOneUser from "@hooks/queries/useOneUser";
+import { Badge } from "@/components/ui/badge";
 
 import { Extended } from "../types";
 
@@ -19,9 +20,11 @@ const InfoRow = ({ data }: { data: Extended }) => {
       }`}
       onClick={() => !data.isResolved && data.onClick()}
     >
-      <p className=" col-span-1 p-4  pr-10">
-        {!data.isResolved ? "Aberto" : "Fechado"}
-      </p>
+      <div className="col-span-1 p-4 pr-10">
+        <Badge variant={!data.isResolved ? "warning" : "neutral"}>
+          {!data.isResolved ? "Aberto" : "Fechado"}
+        </Badge>
+      </div>
 
       <div
         className={
