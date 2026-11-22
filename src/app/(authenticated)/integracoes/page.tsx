@@ -5,6 +5,11 @@ import React, { useState } from "react";
 import Title from "@atoms/Title/title";
 import Button from "@atoms/Button/button";
 import LoadingComponent from "@atoms/Loading/loading";
+import Dropdown from "@atoms/Dropdown/dropdown";
+import { AccordionChildren } from "@atoms/Accordion/accordion";
+import InputField from "@molecules/InputField/inputField";
+import ConfirmationModal from "@molecules/ConfirmationModal/confirmationModal";
+import TransitionModal from "@molecules/TransitionModal/transitionModal";
 import { wrapper } from "@/common/constants/wrapper";
 import { errorToast, successToast } from "@/hooks/useAppToast";
 import useAllCities from "@/hooks/queries/useAllCities";
@@ -23,22 +28,16 @@ import type {
   IssuedApiKey
 } from "@/store/services/integrations";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
-
-const inputClass =
-  "h-10 w-full rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-3 text-greenBlue-1000";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const splitList = (value: string) =>
   value
     .split(/[\s,;]+/)
     .map((item) => item.trim())
     .filter(Boolean);
+
+const formatDate = (iso?: string | null) =>
+  iso ? new Date(iso).toLocaleString("pt-BR") : "—";
 
 const KEY_STATUS: Record<
   string,
@@ -49,8 +48,17 @@ const KEY_STATUS: Record<
   REVOKED: { label: "Revogada", variant: "destructive" }
 };
 
-const formatDate = (iso?: string | null) =>
-  iso ? new Date(iso).toLocaleString("pt-BR") : "—";
+const ENVIRONMENT_LABELS: Record<IntegrationEnvironment, string> = {
+  LIVE: "LIVE (dados reais)",
+  TEST: "TEST (sandbox, dados fictícios)"
+};
+
+/** Pede confirmação antes de uma ação destrutiva (usa o ConfirmationModal da página). */
+type AskConfirm = (
+  title: string,
+  description: string,
+  onConfirm: () => Promise<void>
+) => void;
 
 // ---------- Modal "copie agora, não será exibida novamente" ----------
 
@@ -79,37 +87,30 @@ const RevealKeyDialog = ({
   }
 
   return (
-    <Dialog open={Boolean(issued)} onOpenChange={() => undefined}>
-      <DialogContent
-        // Fechar sem querer perderia a key para sempre: só o botão fecha.
-        onInteractOutside={(event) => event.preventDefault()}
-        onEscapeKeyDown={(event) => event.preventDefault()}
+    <TransitionModal
+      isOpen={Boolean(issued)}
+      setIsOpen={() => undefined}
+      // Fechar sem querer perderia a key para sempre: só o botão fecha.
+      dismissible={false}
+      title="Chave de API emitida"
+      description="Copie agora: esta chave não será exibida novamente. Se perdê-la, será preciso emitir outra."
+    >
+      <code
+        data-testid="issued-api-key"
+        className="mt-4 block break-all rounded-lg border border-greenBlue-800 bg-greenBebe-200 p-3 text-sm"
       >
-        <DialogHeader>
-          <DialogTitle>Chave de API emitida</DialogTitle>
-          <DialogDescription>
-            Copie agora: esta chave não será exibida novamente. Se perdê-la,
-            será preciso emitir outra.
-          </DialogDescription>
-        </DialogHeader>
+        {issued?.apiKey}
+      </code>
 
-        <code
-          data-testid="issued-api-key"
-          className="block break-all rounded-lg border border-greenBlue-800 bg-greenBebe-200 p-3 text-sm"
-        >
-          {issued?.apiKey}
-        </code>
-
-        <div className="flex gap-3">
-          <Button className="w-fit" onClick={copy}>
-            {copied ? "Copiada!" : "Copiar chave"}
-          </Button>
-          <Button className="w-fit" onClick={close}>
-            Já guardei a chave
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+      <div className="mt-4 flex gap-3">
+        <Button className="w-fit" onClick={copy}>
+          {copied ? "Copiada!" : "Copiar chave"}
+        </Button>
+        <Button className="w-fit" onClick={close}>
+          Já guardei a chave
+        </Button>
+      </div>
+    </TransitionModal>
   );
 };
 
@@ -117,10 +118,12 @@ const RevealKeyDialog = ({
 
 const ClientKeys = ({
   client,
-  onIssued
+  onIssued,
+  askConfirm
 }: {
   client: IntegrationClient;
   onIssued: (issued: IssuedApiKey) => void;
+  askConfirm: AskConfirm;
 }) => {
   const { data: keys, isLoading } = useApiKeys(client.id);
   const { mutateAsync: issue, isLoading: issuing } = useIssueApiKey(client.id);
@@ -135,33 +138,35 @@ const ClientKeys = ({
     }
   }
 
-  async function handleRotate(keyId: string) {
-    if (
-      !confirm(
-        "Rotacionar emite uma chave nova; a atual continua valendo só durante o período de transição. Continuar?"
-      )
-    ) {
-      return;
-    }
-    try {
-      onIssued(await rotate(keyId));
-    } catch (err: any) {
-      errorToast(err?.message || "Não foi possível rotacionar a chave.");
-    }
-  }
+  const handleRotate = (keyId: string) =>
+    askConfirm(
+      "Rotacionar chave",
+      "Rotacionar emite uma chave nova; a atual continua valendo só durante o período de transição.",
+      async () => {
+        try {
+          onIssued(await rotate(keyId));
+        } catch (err: any) {
+          errorToast(err?.message || "Não foi possível rotacionar a chave.");
+        }
+      }
+    );
 
-  async function handleRevoke(keyId: string) {
-    if (!confirm("Revogar agora? Quem usa esta chave perde o acesso.")) return;
-    try {
-      await revoke(keyId);
-      successToast("Chave revogada.");
-    } catch (err: any) {
-      errorToast(err?.message || "Não foi possível revogar a chave.");
-    }
-  }
+  const handleRevoke = (keyId: string) =>
+    askConfirm(
+      "Revogar chave",
+      "A revogação é imediata: quem usa esta chave perde o acesso.",
+      async () => {
+        try {
+          await revoke(keyId);
+          successToast("Chave revogada.");
+        } catch (err: any) {
+          errorToast(err?.message || "Não foi possível revogar a chave.");
+        }
+      }
+    );
 
   return (
-    <div className="mt-4 space-y-3">
+    <div className="mt-6 space-y-3">
       <div className="flex items-center justify-between">
         <p className="font-semibold text-greenDark-800">Chaves de API</p>
         <Button
@@ -185,9 +190,9 @@ const ClientKeys = ({
               key={key.keyId}
               className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-greenBlue-400 bg-white-1000 p-3 text-sm text-greenDark-800"
             >
-              <div>
-                <p className="font-mono">
-                  {key.prefix}…{key.last4}{" "}
+              <div className="space-y-1">
+                <p className="flex items-center gap-2 font-mono">
+                  {key.prefix}…{key.last4}
                   <Badge variant={KEY_STATUS[key.status]?.variant ?? "neutral"}>
                     {KEY_STATUS[key.status]?.label ?? key.status}
                   </Badge>
@@ -234,9 +239,9 @@ const NewClientForm = ({ onDone }: { onDone: () => void }) => {
     useState<IntegrationEnvironment>("LIVE");
   const [cityIds, setCityIds] = useState<string[]>([]);
 
-  function toggleCity(id: string) {
+  function toggleCity(id: string, checked: boolean) {
     setCityIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      checked ? [...prev, id] : prev.filter((item) => item !== id)
     );
   }
 
@@ -267,64 +272,74 @@ const NewClientForm = ({ onDone }: { onDone: () => void }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mb-10 space-y-4 rounded-lg border border-greenBlue-400 bg-white-1000 p-6"
+      className="mb-10 flex max-w-2xl flex-col gap-4 rounded-lg border border-greenBlue-400 bg-white-1000 p-6"
     >
-      <label className="block text-sm text-greenDark-800">
-        Nome do parceiro
-        <input
-          className={inputClass}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+      <InputField
+        label="Nome do parceiro"
+        placeholder="Digite o nome do parceiro"
+        name="name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <InputField
+        label="E-mails dos responsáveis (recebem os avisos de expiração)"
+        placeholder="a@parceiro.com, b@parceiro.com"
+        name="ownerEmails"
+        value={emails}
+        onChange={(e) => setEmails(e.target.value)}
+      />
+      <InputField
+        label="IPs ou CIDRs permitidos (opcional, IPv4)"
+        placeholder="203.0.113.10, 198.51.100.0/24"
+        name="ipAllowlist"
+        value={ips}
+        onChange={(e) => setIps(e.target.value)}
+      />
+
+      <div className="flex flex-col gap-2">
+        <label className="font-medium text-greenDark-800">
+          Ambiente (não muda depois)
+        </label>
+        <Dropdown
+          className="w-full border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
+          value={ENVIRONMENT_LABELS[environment]}
+          options={(
+            Object.entries(ENVIRONMENT_LABELS) as [
+              IntegrationEnvironment,
+              string
+            ][]
+          ).map(([value, label]) => ({
+            label,
+            onClick: () => setEnvironment(value)
+          }))}
         />
-      </label>
-      <label className="block text-sm text-greenDark-800">
-        E-mails dos responsáveis (recebem os avisos de expiração)
-        <input
-          className={inputClass}
-          value={emails}
-          placeholder="a@parceiro.com, b@parceiro.com"
-          onChange={(e) => setEmails(e.target.value)}
-        />
-      </label>
-      <label className="block text-sm text-greenDark-800">
-        IPs ou CIDRs permitidos (opcional, IPv4)
-        <input
-          className={inputClass}
-          value={ips}
-          placeholder="203.0.113.10, 198.51.100.0/24"
-          onChange={(e) => setIps(e.target.value)}
-        />
-      </label>
-      <label className="block text-sm text-greenDark-800">
-        Ambiente (não muda depois)
-        <select
-          className={inputClass}
-          value={environment}
-          onChange={(e) =>
-            setEnvironment(e.target.value as IntegrationEnvironment)
-          }
-        >
-          <option value="LIVE">LIVE (dados reais)</option>
-          <option value="TEST">TEST (sandbox, dados fictícios)</option>
-        </select>
-      </label>
+      </div>
+
       <fieldset>
-        <legend className="mb-1 text-sm text-greenDark-800">
+        <legend className="mb-2 font-medium text-greenDark-800">
           Cidades liberadas
         </legend>
-        <div className="grid max-h-48 grid-cols-2 gap-1 overflow-y-auto">
+        <div className="grid max-h-48 grid-cols-2 gap-2 overflow-y-auto">
           {(cities ?? []).map((city) => (
-            <label key={city.id} className="text-sm text-greenDark-800">
-              <input
-                type="checkbox"
+            <div key={city.id} className="flex items-center gap-2">
+              <Checkbox
+                id={`city-${city.id}`}
                 checked={cityIds.includes(city.id)}
-                onChange={() => toggleCity(city.id)}
-              />{" "}
-              {city.name}
-            </label>
+                onCheckedChange={(checked) =>
+                  toggleCity(city.id, checked === true)
+                }
+              />
+              <label
+                htmlFor={`city-${city.id}`}
+                className="cursor-pointer text-greenDark-800"
+              >
+                {city.name}
+              </label>
+            </div>
           ))}
         </div>
       </fieldset>
+
       <div className="flex gap-3">
         <Button buttonType="submit" className="w-fit" loading={isLoading}>
           Cadastrar integração
@@ -345,21 +360,35 @@ const IntegracoesPage = () => {
   const { mutateAsync: updateClient } = useUpdateIntegrationClient();
 
   const [showForm, setShowForm] = useState(false);
-  const [openId, setOpenId] = useState("");
+  const [openItem, setOpenItem] = useState("");
   // A key completa fica só neste estado local (nunca no cache persistido).
   const [issued, setIssued] = useState<IssuedApiKey | null>(null);
+  const [pending, setPending] = useState<{
+    title: string;
+    description: string;
+    onConfirm: () => Promise<void>;
+  } | null>(null);
+  const [confirming, setConfirming] = useState(false);
+
+  const askConfirm: AskConfirm = (title, description, onConfirm) =>
+    setPending({ title, description, onConfirm });
+
+  async function runPending() {
+    if (!pending) return;
+    setConfirming(true);
+    try {
+      await pending.onConfirm();
+    } finally {
+      setConfirming(false);
+      setPending(null);
+    }
+  }
 
   const cityName = (id: string) =>
     cities?.find((city) => city.id === id)?.name ?? id;
 
-  async function toggleStatus(client: IntegrationClient) {
+  async function changeStatus(client: IntegrationClient) {
     const suspending = client.status === "ACTIVE";
-    if (
-      suspending &&
-      !confirm("Suspender bloqueia todas as chaves deste parceiro. Continuar?")
-    ) {
-      return;
-    }
     try {
       await updateClient({
         clientId: client.id,
@@ -370,6 +399,18 @@ const IntegracoesPage = () => {
       );
     } catch (err: any) {
       errorToast(err?.message || "Não foi possível alterar o status.");
+    }
+  }
+
+  function toggleStatus(client: IntegrationClient) {
+    if (client.status === "ACTIVE") {
+      askConfirm(
+        "Suspender integração",
+        "Suspender bloqueia todas as chaves deste parceiro.",
+        () => changeStatus(client)
+      );
+    } else {
+      changeStatus(client);
     }
   }
 
@@ -393,71 +434,96 @@ const IntegracoesPage = () => {
           Nenhuma integração cadastrada.
         </p>
       ) : (
-        <ul className="space-y-4">
-          {clients.map((client) => (
-            <li
-              key={client.id}
-              className="rounded-lg border border-greenBlue-400 bg-white-1000 p-5"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-lg font-semibold text-greenBlue-1000">
-                    {client.name}{" "}
-                    <Badge
-                      variant={
-                        client.environment === "LIVE" ? "default" : "warning"
-                      }
-                    >
-                      {client.environment}
-                    </Badge>{" "}
-                    <Badge
-                      variant={
-                        client.status === "ACTIVE" ? "success" : "destructive"
-                      }
-                    >
-                      {client.status === "ACTIVE" ? "Ativa" : "Suspensa"}
-                    </Badge>
-                  </p>
-                  <p className="text-sm text-greenDark-800">
-                    Responsáveis: {client.ownerEmails.join(", ")}
-                  </p>
-                  <p className="text-sm text-greenDark-800">
-                    Cidades: {client.allowedCityIds.map(cityName).join(", ")}
-                  </p>
-                  <p className="text-sm text-greenDark-800">
-                    IPs permitidos:{" "}
-                    {client.ipAllowlist.length
-                      ? client.ipAllowlist.join(", ")
-                      : "qualquer"}
-                  </p>
-                </div>
-                <div className="flex gap-2">
+        <AccordionChildren
+          openItem={openItem}
+          setOpenItem={setOpenItem}
+          items={clients.map((client) => ({
+            title: client.name,
+            properties: [
+              {
+                prop: "Ambiente",
+                answer: (
+                  <Badge
+                    variant={
+                      client.environment === "LIVE" ? "default" : "warning"
+                    }
+                  >
+                    {client.environment}
+                  </Badge>
+                )
+              },
+              {
+                prop: "Situação",
+                answer: (
+                  <Badge
+                    variant={
+                      client.status === "ACTIVE" ? "success" : "destructive"
+                    }
+                  >
+                    {client.status === "ACTIVE" ? "Ativa" : "Suspensa"}
+                  </Badge>
+                )
+              }
+            ],
+            children: (
+              <div>
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="space-y-1 text-greenDark-800">
+                    <p>
+                      <strong>Responsáveis:</strong>{" "}
+                      {client.ownerEmails.join(", ")}
+                    </p>
+                    <p>
+                      <strong>Cidades:</strong>{" "}
+                      {client.allowedCityIds.map(cityName).join(", ")}
+                    </p>
+                    <p>
+                      <strong>IPs permitidos:</strong>{" "}
+                      {client.ipAllowlist.length
+                        ? client.ipAllowlist.join(", ")
+                        : "qualquer"}
+                    </p>
+                  </div>
                   <Button
                     className="h-fit w-fit"
                     onClick={() => toggleStatus(client)}
                   >
                     {client.status === "ACTIVE" ? "Suspender" : "Reativar"}
                   </Button>
-                  <Button
-                    className="h-fit w-fit"
-                    onClick={() =>
-                      setOpenId((prev) => (prev === client.id ? "" : client.id))
-                    }
-                  >
-                    {openId === client.id ? "Ocultar chaves" : "Chaves"}
-                  </Button>
                 </div>
-              </div>
 
-              {openId === client.id && (
-                <ClientKeys client={client} onIssued={setIssued} />
-              )}
-            </li>
-          ))}
-        </ul>
+                <ClientKeys
+                  client={client}
+                  onIssued={setIssued}
+                  askConfirm={askConfirm}
+                />
+              </div>
+            )
+          }))}
+          itemClassName="mb-4"
+          triggerClassName={`
+            bg-white-1000 border border-greenBlue-400
+            py-4 px-4
+            grid grid-cols-[1fr_1fr_1fr_auto] gap-4 items-center
+            rounded-lg
+            data-[state=open]:rounded-b-none
+            data-[state=open]:border-b-0
+            transition-all
+          `}
+          contentClassName="bg-white-800 border border-greenBlue-400 border-t-0 py-8 px-6 rounded-b-lg"
+        />
       )}
 
       <RevealKeyDialog issued={issued} onClose={() => setIssued(null)} />
+
+      <ConfirmationModal
+        isOpen={Boolean(pending)}
+        onOpenChange={(open) => !open && setPending(null)}
+        onConfirm={runPending}
+        confirmIsLoading={confirming}
+        title={pending?.title ?? ""}
+        description={pending?.description ?? ""}
+      />
     </div>
   );
 };
