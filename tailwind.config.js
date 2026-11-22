@@ -20,9 +20,21 @@ module.exports = {
       fontFamily: {
         barlow: "var(--font-family-barlow)",
         workSans: "var(--font-family-workSans)",
-        unbounded: "var(--font-family-unbounded)"
+        unbounded: "var(--font-family-unbounded)",
+        display: "var(--font-family-unbounded)"
       },
       colors: {
+        brand: {
+          aqua: "#00ADB4",
+          deep: "#004A55",
+          ink: "#4D534C",
+          strong: "#232B22",
+          muted: "#6A6F69",
+          paper: "#FAF7FA",
+          mint: "#C4E7E8",
+          alert: "#FFB4A6",
+          "alert-soft": "#FFD9D2"
+        },
         greenAqua: {
           1000: "#00ADB4",
           800: "#31BBC1",

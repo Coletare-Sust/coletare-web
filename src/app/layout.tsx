@@ -13,7 +13,7 @@ const barlow = Barlow({
 });
 const unbounded = Unbounded({
   subsets: ["latin"],
-  weight: ["500", "600"],
+  weight: ["500", "600", "700"],
   fallback: ["system-ui", "arial"],
   variable: "--font-family-unbounded"
 });
@@ -23,6 +23,11 @@ const workSans = WorkSans({
   adjustFontFallback: false,
   variable: "--font-family-workSans"
 });
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1
+};
 
 export const metadata = {
   title: "Coletapp",
