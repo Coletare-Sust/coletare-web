@@ -16,7 +16,11 @@ interface UserResponseDTO {
   color?: string | null;
   // Vehicle fields
   carPlate?: string | null;
-  efficiency?: { consume: number; emission: number } | null;
+  efficiency?: {
+    consume: number;
+    emission: number;
+    fuelType?: string | null;
+  } | null;
   // Employee / Citizen fields
   cpf?: string | null;
   // City / general fields
@@ -42,6 +46,7 @@ interface UserResponseDTO {
 interface VehicleEfficiencyDTO {
   consume: number;
   emission: number;
+  fuelType?: string | null;
 }
 
 interface VehicleOutputDTO {
@@ -121,6 +126,7 @@ export interface CreateVehicleInput {
   carPlate: string;
   consume: string;
   emission: string;
+  fuelType?: string;
   cityId: string;
   email?: string;
   password?: string;
@@ -133,6 +139,7 @@ export interface UpdateUserInput {
   carPlate?: string;
   consume?: number;
   emission?: number;
+  fuelType?: string;
 }
 
 // normalizeRole usa o mapper centralizado de enums do backend
@@ -167,6 +174,7 @@ function mapUserResponseToEntity(dto: UserResponseDTO): UserEntity {
     cpf: dto.cpf ?? null,
     consume: dto.efficiency?.consume?.toString() ?? null,
     emission: dto.efficiency?.emission?.toString() ?? null,
+    fuelType: dto.efficiency?.fuelType ?? null,
     fullAddress: dto.address?.fullAddress ?? null,
     latitude: dto.address?.location?.latitude ?? null,
     longitude: dto.address?.location?.longitude ?? null,
@@ -204,6 +212,7 @@ function mapVehicleOutputToEntity(dto: VehicleOutputDTO): UserEntity {
     cpf: null,
     consume: dto.efficiency?.consume?.toString() ?? null,
     emission: dto.efficiency?.emission?.toString() ?? null,
+    fuelType: dto.efficiency?.fuelType ?? null,
     fullAddress: null,
     latitude: null,
     longitude: null,
@@ -567,7 +576,8 @@ export const updateUser = async (
     cpf: data.cpf ?? undefined,
     carPlate: data.carPlate ?? undefined,
     consume: data.consume ? parseFloat(data.consume) : undefined,
-    emission: data.emission ? parseFloat(data.emission) : undefined
+    emission: data.emission ? parseFloat(data.emission) : undefined,
+    fuelType: data.fuelType || undefined
   };
   await apiFetch(`/user/${id}`, {
     method: "PUT",

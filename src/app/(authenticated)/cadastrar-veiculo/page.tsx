@@ -17,6 +17,7 @@ import { successToast, errorToast } from "@/hooks/useAppToast";
 import { updateUserDoc } from "@/store/services/user";
 import { registerVehicle } from "@/store/services/auth";
 import EditVehicleFormSchema from "@/validations/editVehicle";
+import { FUEL_TYPE_LABELS } from "@/common/mappers/backendEnums";
 
 type RegisterVehicleForm = z.infer<typeof RegisterVehicleFormSchema>;
 type EditVehicleForm = z.infer<typeof EditVehicleFormSchema>;
@@ -53,13 +54,15 @@ const CadastrarVeiculoPage = () => {
           name: data?.name || "",
           carPlate: data?.carPlate || "",
           emission: data?.emission || "",
-          consume: data?.consume || ""
+          consume: data?.consume || "",
+          fuelType: data?.fuelType || ""
         }
       : {
           name: "",
           carPlate: "",
           emission: "",
-          consume: ""
+          consume: "",
+          fuelType: ""
         }
   });
 
@@ -78,7 +81,8 @@ const CadastrarVeiculoPage = () => {
         cityId: user?.id as string,
         carPlate: formData.carPlate,
         consume: parseFloat(formData.consume),
-        emission: parseFloat(formData.emission)
+        emission: parseFloat(formData.emission),
+        fuelType: formData.fuelType || undefined
       };
       return await registerVehicle(payload);
     },
@@ -162,6 +166,26 @@ const CadastrarVeiculoPage = () => {
             formRegister={formRegister}
             formErrors={formErrors}
           />
+          <div className="flex flex-col gap-1">
+            <label
+              htmlFor="fuelType"
+              className="font-medium text-greenDark-800"
+            >
+              Combustível
+            </label>
+            <select
+              id="fuelType"
+              className="h-11 rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-4 text-greenBlue-1000"
+              {...(isEdit ? registerEdit("fuelType") : register("fuelType"))}
+            >
+              <option value="">Não informado</option>
+              {Object.entries(FUEL_TYPE_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
           {!isEdit && (
             <>
               <InputField

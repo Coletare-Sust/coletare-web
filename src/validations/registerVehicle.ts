@@ -14,6 +14,7 @@ export default z
       .min(7, { message: "A placa deve ter no mínimo 7 caracteres" }),
     emission: number,
     consume: number,
+    fuelType: z.string().optional(),
     password,
     confirmPassword: z.string()
   })
