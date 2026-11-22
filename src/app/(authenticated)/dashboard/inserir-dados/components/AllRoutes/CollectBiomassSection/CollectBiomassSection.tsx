@@ -178,7 +178,7 @@ const CollectBiomassSection = ({
 
   return (
     <div className="space-y-6 border-t border-greenBlue-400 p-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <Subtitle className="text-[20px]">Biomassa da coleta</Subtitle>
         {canUpdate && !isOpen && (
           <div className="flex gap-3">
@@ -214,7 +214,7 @@ const CollectBiomassSection = ({
             <p className="mb-2 font-medium text-greenDark-800">
               Composição (kg) — total: {totalKg.toLocaleString("pt-BR")} kg
             </p>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               {MATERIALS.map((material) => (
                 <label key={material} className="text-sm text-greenDark-800">
                   {BIOMASS_MATERIAL_LABELS[material]}
@@ -236,7 +236,7 @@ const CollectBiomassSection = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <label className="col-span-3 text-sm text-greenDark-800">
               Origem (endereço)
               <input
@@ -286,7 +286,7 @@ const CollectBiomassSection = ({
             </select>
           </label>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="text-sm text-greenDark-800">
               Coletado em
               <input
@@ -307,7 +307,7 @@ const CollectBiomassSection = ({
             </label>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="text-sm text-greenDark-800">
               Combustível (opcional)
               <select

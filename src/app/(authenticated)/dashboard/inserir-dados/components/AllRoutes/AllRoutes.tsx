@@ -23,7 +23,7 @@ const AllRoutes = ({ isAdmin }: AllRoutesProps) => {
     );
 
   return (
-    <section className="space-y-8 px-36">
+    <section className="space-y-8 px-0 lg:px-12 xl:px-36">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         {isAdmin && <Title>Todas as rotas </Title>}
         <div className="flex w-full max-w-[360px] flex-col gap-2">

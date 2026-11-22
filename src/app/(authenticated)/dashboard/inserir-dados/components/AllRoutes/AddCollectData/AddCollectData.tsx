@@ -143,13 +143,13 @@ const AddCollectData = ({ collectData, isAdmin }: AddCollectDataProps) => {
             />
           )}
         </div>
-        <div className="grid grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
           <LateralInputField
             label={<>Km rodados (km)</>}
             name="kmRun"
             placeholder=""
             formRegister={register}
-            className="w-[100px] text-center"
+            className="w-full text-center sm:w-[100px]"
             disabled={true}
           />
           {collectData.mass?.toString() && (
@@ -161,7 +161,7 @@ const AddCollectData = ({ collectData, isAdmin }: AddCollectDataProps) => {
               }
               name="landfillDelivery"
               placeholder=""
-              className="w-[100px] text-center"
+              className="w-full text-center sm:w-[100px]"
               disabled={collectData.mass?.toString() ? !isEdit : false}
               formRegister={register}
               formErrors={errors}
@@ -176,7 +176,7 @@ const AddCollectData = ({ collectData, isAdmin }: AddCollectDataProps) => {
               }
               name="fuel"
               placeholder=""
-              className="w-[100px] text-center"
+              className="w-full text-center sm:w-[100px]"
               disabled={collectData.mass?.toString() ? !isEdit : false}
               formRegister={register}
               formErrors={errors}
@@ -194,7 +194,7 @@ const AddCollectData = ({ collectData, isAdmin }: AddCollectDataProps) => {
               label={<>Massa coletada (ton)</>}
               name="mass"
               placeholder=""
-              className={`w-[100px] text-center ${
+              className={`w-full text-center sm:w-[100px] ${
                 !collectData.mass && "border-[1.5px] border-error"
               }`}
               disabled={collectData.mass?.toString() ? !isEdit : false}
@@ -212,7 +212,7 @@ const AddCollectData = ({ collectData, isAdmin }: AddCollectDataProps) => {
               }
               name="consume"
               placeholder=""
-              className="w-[100px] text-center"
+              className="w-full text-center sm:w-[100px]"
               disabled={!isAdmin || !isEdit}
               formRegister={register}
               formErrors={errors}
@@ -228,7 +228,7 @@ const AddCollectData = ({ collectData, isAdmin }: AddCollectDataProps) => {
               }
               name="emission"
               placeholder=""
-              className="w-[100px] text-center"
+              className="w-full text-center sm:w-[100px]"
               disabled={!isAdmin || !isEdit}
               formRegister={register}
               formErrors={errors}
