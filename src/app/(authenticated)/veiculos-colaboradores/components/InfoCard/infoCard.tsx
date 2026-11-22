@@ -42,21 +42,24 @@ const InfoCard = ({ title, values, id, type }: InfoCardProps) => {
   };
 
   return (
-    <div className="relative flex w-full items-center gap-10 rounded-lg border border-greenBlue-600 p-4">
-      <p className="mr-10 w-44 text-xl font-medium text-greenBlue-1000">
+    <div className="relative flex w-full flex-col gap-4 rounded-lg border border-greenBlue-600 p-4 pr-14 lg:flex-row lg:items-center lg:gap-10 lg:pr-4">
+      <p className="text-lg font-medium text-greenBlue-1000 lg:mr-10 lg:w-44 lg:text-xl">
         {title}
       </p>
-      <div className=" flex w-2/3 gap-10">
+      <div className="grid grid-cols-2 gap-4 lg:flex lg:w-2/3 lg:gap-10">
         {values.map((value, index) => {
           return (
-            <div className="flex flex-1 flex-col gap-6" key={index}>
+            <div
+              className="flex min-w-0 flex-1 flex-col gap-1 lg:gap-6"
+              key={index}
+            >
               <p className="font-medium text-greenDark-1000">{value.label}</p>
               <p className="text-sm text-greenDark-1000">{value.content}</p>
             </div>
           );
         })}
       </div>
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer">
+      <div className="absolute right-4 top-4 cursor-pointer lg:top-1/2 lg:-translate-y-1/2">
         <MoreDropdown
           options={[
             {
