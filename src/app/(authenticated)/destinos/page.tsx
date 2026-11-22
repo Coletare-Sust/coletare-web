@@ -24,6 +24,7 @@ import useDeleteDisposalSite from "@/hooks/queries/disposalSite/useDeleteDisposa
 import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import PaginationControls from "@/components/molecules/PaginationControls/paginationControls";
+import DisposalSiteDetail from "@/components/molecules/DisposalSiteDetail/DisposalSiteDetail";
 
 const PAGE_SIZE = 10;
 
@@ -145,39 +146,16 @@ const DestinosPage = () => {
                 { prop: "Situação", answer: site.active ? "Ativo" : "Inativo" }
               ],
               children: (
-                <div className="flex gap-4">
-                  {canUpdate && (
-                    <>
-                      <Button
-                        className="border border-greenBlue-800 bg-greenBebe-400 px-6 py-2 hover:bg-greenBebe-600"
-                        classNameText="text-greenBlue-1000 font-semibold"
-                        onClick={() =>
-                          router.push(
-                            `/destinos/cadastrar?isEdit=true&siteId=${site.id}`
-                          )
-                        }
-                      >
-                        Editar
-                      </Button>
-                      <Button
-                        className="border border-greenBlue-800 bg-greenBebe-400 px-6 py-2 hover:bg-greenBebe-600"
-                        classNameText="text-greenBlue-1000 font-semibold"
-                        onClick={() => handleToggleActive(site.id, site.active)}
-                      >
-                        {site.active ? "Desativar" : "Ativar"}
-                      </Button>
-                    </>
-                  )}
-                  {canDelete && (
-                    <Button
-                      className="border border-red-600 bg-red-500 px-6 py-2 hover:bg-red-600"
-                      classNameText="text-white font-semibold"
-                      onClick={() => handleDelete(site.id)}
-                    >
-                      Excluir
-                    </Button>
-                  )}
-                </div>
+                <DisposalSiteDetail
+                  site={site}
+                  canUpdate={canUpdate}
+                  canDelete={canDelete}
+                  onEdit={(id) =>
+                    router.push(`/destinos/cadastrar?isEdit=true&siteId=${id}`)
+                  }
+                  onToggleActive={handleToggleActive}
+                  onDelete={handleDelete}
+                />
               )
             }))}
             itemClassName="mb-4"
