@@ -53,7 +53,7 @@ const ImageUploadInput = ({ onImageCropped, defaultImage }: Props) => {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="relative h-48 w-48 overflow-hidden rounded-full border-2 border-dashed border-gray-300">
+      <div className="relative h-36 w-36 overflow-hidden rounded-full border-2 border-dashed border-greenBlue-400 sm:h-48 sm:w-48">
         <Image
           src={preview || defaultImage || "/collaborator.png"}
           fill
@@ -73,12 +73,12 @@ const ImageUploadInput = ({ onImageCropped, defaultImage }: Props) => {
 
       {showModal && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 p-4">
-          <div className="relative h-[600px] w-full max-w-xl rounded-lg bg-white-900 p-6 shadow-xl">
+          <div className="relative max-h-[calc(100dvh-2rem)] w-full max-w-xl overflow-y-auto rounded-2xl bg-white-900 p-6 shadow-xl">
             <Subtitle className="mb-4 text-greenBlue-1000">
               Ajustar foto de perfil
             </Subtitle>
 
-            <div className="relative h-80 w-full overflow-hidden rounded-md bg-gray-200">
+            <div className="relative h-64 w-full overflow-hidden rounded-md bg-greenBebe-200 sm:h-80">
               <Cropper
                 image={image!}
                 crop={crop}
