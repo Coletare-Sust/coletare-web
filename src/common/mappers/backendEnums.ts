@@ -49,7 +49,8 @@ export const RESIDUE_TYPE_LABELS: Record<string, string> = {
   NORMAL: "Resíduo Comum",
   PRUNING: "Resíduos de Podas",
   HIGH_VOLUMES: "Grandes Volumes",
-  ELECTRONICS: "Eletroeletrônicos"
+  ELECTRONICS: "Eletroeletrônicos",
+  ORGANIC: "Resíduos Orgânicos"
 };
 
 export const DEFAULT_RESIDUE_TYPE = "NORMAL";
@@ -96,4 +97,33 @@ export function normalizeUserRole(
     citizen: "citizen"
   };
   return map[backendRole] ?? "citizen";
+}
+
+// ---------- BiomassMaterial ----------
+
+export const BIOMASS_MATERIAL_LABELS: Record<string, string> = {
+  FOOD: "Alimentos",
+  GARDEN: "Resíduos de jardim",
+  PAPER: "Papel",
+  WOOD: "Madeira",
+  TEXTILE: "Têxteis",
+  OTHER: "Outros"
+};
+
+export function getBiomassMaterialLabel(backendValue: string): string {
+  return BIOMASS_MATERIAL_LABELS[backendValue] ?? backendValue;
+}
+
+// ---------- FuelType ----------
+
+export const FUEL_TYPE_LABELS: Record<string, string> = {
+  DIESEL: "Diesel",
+  DIESEL_S10: "Diesel S10",
+  GASOLINE: "Gasolina",
+  ETHANOL: "Etanol",
+  BIODIESEL: "Biodiesel"
+};
+
+export function getFuelTypeLabel(backendValue: string): string {
+  return FUEL_TYPE_LABELS[backendValue] ?? backendValue;
 }
