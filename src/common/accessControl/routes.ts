@@ -14,6 +14,8 @@ export const routeAccessRules: RouteAccessRule[] = [
   { path: "/criar-rota", permissions: ["ROUTE_CREATE"] },
   { path: "/ecopontos/criar-ecoponto", permissions: ["ECOPOINT_CREATE"] },
   { path: "/ecopontos", permissions: ["ECOPOINT_READ"] },
+  { path: "/destinos/cadastrar", permissions: ["DISPOSAL_SITE_CREATE"] },
+  { path: "/destinos", permissions: ["DISPOSAL_SITE_READ"] },
   { path: "/solicitacoes-retirada", permissions: ["WITHDRAWAL_REQUEST_READ"] },
   {
     path: "/veiculos-colaboradores",

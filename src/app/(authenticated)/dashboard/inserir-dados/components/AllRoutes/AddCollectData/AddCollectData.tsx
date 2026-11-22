@@ -17,6 +17,7 @@ import { updateCollect } from "@/store/services/collects";
 import { CollectEntity } from "@/common/entities/Collect";
 import { queryClient } from "@/store/providers/queryClient";
 import { AddCollectDataProps } from "./types";
+import CollectBiomassSection from "../CollectBiomassSection/CollectBiomassSection";
 
 type EditCollectForm = z.infer<typeof EditCollectDataSchema>;
 
@@ -121,130 +122,140 @@ const AddCollectData = ({ collectData, isAdmin }: AddCollectDataProps) => {
   };
 
   return (
-    <form className="space-y-8 p-5" onSubmit={handleSubmit(handleUpdateRoute)}>
-      <div className="flex gap-4">
-        <Subtitle className="text-[20px]">Dados da coleta</Subtitle>
-        {collectData.mass?.toString() && (
-          <MdEdit
-            color="#004A55"
-            size={20}
-            className="cursor-pointer opacity-70 transition-all hover:scale-[103%] hover:opacity-100"
-            onClick={() => {
-              if (isEdit) {
-                reset();
-              }
-              setIsEdit((prev) => !prev);
-            }}
-          />
-        )}
-      </div>
-      <div className="grid grid-cols-3 gap-8">
-        <LateralInputField
-          label={<>Km rodados (km)</>}
-          name="kmRun"
-          placeholder=""
-          formRegister={register}
-          className="w-[100px] text-center"
-          disabled={true}
-        />
-        {collectData.mass?.toString() && (
-          <LateralInputField
-            label={
-              <>
-                Custo de entrega <br /> no aterro (R$/ton)
-              </>
-            }
-            name="landfillDelivery"
-            placeholder=""
-            className="w-[100px] text-center"
-            disabled={collectData.mass?.toString() ? !isEdit : false}
-            formRegister={register}
-            formErrors={errors}
-          />
-        )}
-        {collectData.mass?.toString() && (
-          <LateralInputField
-            label={
-              <>
-                Custo de <br /> combustível (R$/L)
-              </>
-            }
-            name="fuel"
-            placeholder=""
-            className="w-[100px] text-center"
-            disabled={collectData.mass?.toString() ? !isEdit : false}
-            formRegister={register}
-            formErrors={errors}
-          />
-        )}
-        <div className="relative">
-          <span
-            className={`absolute -top-5 left-[125px] text-[10px] text-greenDark-1000/80 ${
-              (collectData.mass?.toString() || !isAdmin) && "hidden"
-            }`}
-          >
-            Não preenchido pela prefeitura
-          </span>
-          <LateralInputField
-            label={<>Massa coletada (ton)</>}
-            name="mass"
-            placeholder=""
-            className={`w-[100px] text-center ${
-              !collectData.mass && "border-[1.5px] border-error"
-            }`}
-            disabled={collectData.mass?.toString() ? !isEdit : false}
-            formRegister={register}
-            formErrors={errors}
-          />
+    <>
+      <form
+        className="space-y-8 p-5"
+        onSubmit={handleSubmit(handleUpdateRoute)}
+      >
+        <div className="flex gap-4">
+          <Subtitle className="text-[20px]">Dados da coleta</Subtitle>
+          {collectData.mass?.toString() && (
+            <MdEdit
+              color="#004A55"
+              size={20}
+              className="cursor-pointer opacity-70 transition-all hover:scale-[103%] hover:opacity-100"
+              onClick={() => {
+                if (isEdit) {
+                  reset();
+                }
+                setIsEdit((prev) => !prev);
+              }}
+            />
+          )}
         </div>
-        {collectData.mass?.toString() && (
+        <div className="grid grid-cols-3 gap-8">
           <LateralInputField
-            label={
-              <>
-                Consumo <br />
-                específico (L/km)
-              </>
-            }
-            name="consume"
+            label={<>Km rodados (km)</>}
+            name="kmRun"
             placeholder=""
-            className="w-[100px] text-center"
-            disabled={!isAdmin || !isEdit}
             formRegister={register}
-            formErrors={errors}
-          />
-        )}
-        {collectData.mass?.toString() && (
-          <LateralInputField
-            label={
-              <>
-                Emissão <br />
-                específica (kgCO2eq/L)
-              </>
-            }
-            name="emission"
-            placeholder=""
             className="w-[100px] text-center"
-            disabled={!isAdmin || !isEdit}
-            formRegister={register}
-            formErrors={errors}
+            disabled={true}
           />
-        )}
-        {!collectData.mass?.toString() && !isEdit && (
-          <Button className="h-fit w-fit" loading={loading}>
-            Finalizar
-          </Button>
-        )}
-        <span
-          className={`w-full ${
-            !isEdit ? "hidden" : "flex"
-          } items-center justify-between`}
-        >
-          <Button className="w-fit" buttonType="submit" loading={loading}>
-            Editar rota
-          </Button>
-        </span>
-      </div>
-    </form>
+          {collectData.mass?.toString() && (
+            <LateralInputField
+              label={
+                <>
+                  Custo de entrega <br /> no aterro (R$/ton)
+                </>
+              }
+              name="landfillDelivery"
+              placeholder=""
+              className="w-[100px] text-center"
+              disabled={collectData.mass?.toString() ? !isEdit : false}
+              formRegister={register}
+              formErrors={errors}
+            />
+          )}
+          {collectData.mass?.toString() && (
+            <LateralInputField
+              label={
+                <>
+                  Custo de <br /> combustível (R$/L)
+                </>
+              }
+              name="fuel"
+              placeholder=""
+              className="w-[100px] text-center"
+              disabled={collectData.mass?.toString() ? !isEdit : false}
+              formRegister={register}
+              formErrors={errors}
+            />
+          )}
+          <div className="relative">
+            <span
+              className={`absolute -top-5 left-[125px] text-[10px] text-greenDark-1000/80 ${
+                (collectData.mass?.toString() || !isAdmin) && "hidden"
+              }`}
+            >
+              Não preenchido pela prefeitura
+            </span>
+            <LateralInputField
+              label={<>Massa coletada (ton)</>}
+              name="mass"
+              placeholder=""
+              className={`w-[100px] text-center ${
+                !collectData.mass && "border-[1.5px] border-error"
+              }`}
+              disabled={collectData.mass?.toString() ? !isEdit : false}
+              formRegister={register}
+              formErrors={errors}
+            />
+          </div>
+          {collectData.mass?.toString() && (
+            <LateralInputField
+              label={
+                <>
+                  Consumo <br />
+                  específico (L/km)
+                </>
+              }
+              name="consume"
+              placeholder=""
+              className="w-[100px] text-center"
+              disabled={!isAdmin || !isEdit}
+              formRegister={register}
+              formErrors={errors}
+            />
+          )}
+          {collectData.mass?.toString() && (
+            <LateralInputField
+              label={
+                <>
+                  Emissão <br />
+                  específica (kgCO2eq/L)
+                </>
+              }
+              name="emission"
+              placeholder=""
+              className="w-[100px] text-center"
+              disabled={!isAdmin || !isEdit}
+              formRegister={register}
+              formErrors={errors}
+            />
+          )}
+          {!collectData.mass?.toString() && !isEdit && (
+            <Button className="h-fit w-fit" loading={loading}>
+              Finalizar
+            </Button>
+          )}
+          <span
+            className={`w-full ${
+              !isEdit ? "hidden" : "flex"
+            } items-center justify-between`}
+          >
+            <Button className="w-fit" buttonType="submit" loading={loading}>
+              Editar rota
+            </Button>
+          </span>
+        </div>
+      </form>
+      <CollectBiomassSection
+        collectId={collectData.id}
+        cityId={collectData.cityId}
+        hasEnded={collectData.hasEnded}
+      />
+    </>
   );
 };
 

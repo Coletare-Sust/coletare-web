@@ -19,6 +19,7 @@ import MoreDropdown from "@atoms/MoreDropdown/moreDropdown";
 import ChartComponent from "@molecules/ChartComponent/ChartComponent";
 import useCity from "@/hooks/queries/useCity";
 import useProfile from "@/hooks/queries/useProfile";
+import useAuth from "@/hooks/useAuth";
 import { formatFloatToMMSS } from "./utils";
 import { exportExcel } from "@/store/services/exportExcel";
 import LoadingComponent from "@/components/atoms/Loading/loading";
@@ -35,6 +36,9 @@ import {
 import useAllDashboardByRoutes from "@/hooks/queries/useAllDashboardDataByRoute";
 import useAllCollectsByRoute from "@/hooks/queries/useAllCollectsByRoute";
 import { formatTime } from "@/utils/formatTime";
+import useCollectBiomass from "@/hooks/queries/biomass/useCollectBiomass";
+import BiomassSummary from "@/components/molecules/BiomassSummary/BiomassSummary";
+import { hasPermission } from "@/common/accessControl/permissions";
 
 const Rota = () => {
   const router = useRouter();
@@ -46,6 +50,13 @@ const Rota = () => {
   const { data: city } = useCity(route?.cityId as string);
   const { data: employee } = useProfile(collect?.employeeId as string);
   const { data: routeCollects } = useAllCollectsByRoute(route?.id as string);
+  const { userUid } = useAuth();
+  const { data: viewer } = useProfile(userUid);
+  const canReadBiomass = hasPermission(viewer, "COLLECT_BIOMASS_READ");
+  const { data: biomass } = useCollectBiomass(
+    id as string,
+    Boolean(collect?.hasEnded) && canReadBiomass
+  );
 
   const { data: dashboardData, isLoading: loadingDash } =
     useAllDashboardByRoutes(route?.cityId as string, route?.id as string);
@@ -223,6 +234,15 @@ const Rota = () => {
             ]}
           />
         </div>
+
+        {biomass && (
+          <div>
+            <p className="mb-8 text-[24px] font-semibold text-greenBlue-1000">
+              Biomassa da coleta
+            </p>
+            <BiomassSummary biomass={biomass} />
+          </div>
+        )}
       </BackgroundWrapper>
 
       <div>
