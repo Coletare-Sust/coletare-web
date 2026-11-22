@@ -58,6 +58,8 @@ export type PermissionKey =
   | "DISPOSAL_SITE_CREATE"
   | "DISPOSAL_SITE_UPDATE"
   | "DISPOSAL_SITE_DELETE"
+  | "COLLECT_BIOMASS_READ"
+  | "COLLECT_BIOMASS_UPDATE"
   | "METRICS_DASHBOARD_READ";
 
 export type PermissionRule = PermissionKey | PermissionKey[];
