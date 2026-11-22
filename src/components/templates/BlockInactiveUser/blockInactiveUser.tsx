@@ -38,7 +38,7 @@ function BlockInactiveUser({ children }: Props): JSX.Element {
       {children}
       {isBlocked && (
         <div
-          className="fixed inset-0 top-[9%] z-50 bg-black/30"
+          className="fixed inset-0 top-16 z-50 bg-black/30"
           onClick={handleClick}
         />
       )}

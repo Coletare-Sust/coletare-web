@@ -1,115 +1,159 @@
 "use client";
 
-import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { renderToString } from "react-dom/server";
-import { LogOutIcon } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { LogOut, Menu } from "lucide-react";
 
 import LoadingComponent from "@atoms/Loading/loading";
 import useProfile from "@/hooks/queries/useProfile";
 import useAuth from "@/hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 import { colors, linksAdmin, linksCity } from "./constants";
-import { useQueryClient } from "@tanstack/react-query";
 
 type Props = {
-  isOpen: boolean;
-  hideSidebar?: boolean;
+  /** Quando informado, mostra o botão de menu (apenas abaixo de `lg`). */
+  onOpenMenu?: () => void;
 };
 
-const MainHeader = ({ isOpen, hideSidebar }: Props) => {
+const allLinks = [...linksCity, ...linksAdmin];
+
+function getDetailLabel(pathname: string, baseUrl: string) {
+  const rest = pathname.slice(baseUrl.length).replace(/^\//, "");
+  if (!rest) return null;
+  if (/cadastrar|criar/.test(rest)) return "Novo cadastro";
+  return "Detalhes";
+}
+
+const MainHeader = ({ onOpenMenu }: Props) => {
   const { logoutUser, userUid } = useAuth();
-  const currentPathname = usePathname();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
   const { data: user } = useProfile(userUid);
 
   const isCity = user?.role === "admin";
-  const links = isCity ? linksCity : linksAdmin;
-
-  const headerColor = isCity
+  const cityColor = isCity
     ? colors.find((color) => color.name === user?.color)?.hex
-    : "#004A55";
+    : undefined;
 
-  const svgLogoutString = renderToString(<LogOutIcon color={headerColor} />);
-  const logoutSrc = `data:image/svg+xml;base64,${Buffer.from(
-    svgLogoutString
-  ).toString("base64")}`;
+  const currentPage = allLinks
+    .filter(
+      (link) => pathname === link.url || pathname.startsWith(`${link.url}/`)
+    )
+    .sort((a, b) => b.url.length - a.url.length)[0];
+  const detailLabel = currentPage
+    ? getDetailLabel(pathname, currentPage.url)
+    : null;
 
-  const currentPage = links.find((link) =>
-    currentPathname.startsWith(link.url)
-  );
-  const currentPageIcon = currentPage?.icon(headerColor);
+  const initials = (user?.name ?? "C")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
 
   return (
-    <header
-      style={{
-        width: hideSidebar
-          ? "100%"
-          : isOpen
-          ? "calc(100% - 288px)"
-          : "calc(100% - 80px)",
-        transition: "all 0.3s ease-in-out"
-      }}
-      className="fixed right-0 top-0 z-50 bg-white-800 p-4"
-    >
-      <div className="flex items-center justify-between px-4">
-        <div className="flex items-center gap-6">
-          {!user ? (
-            <LoadingComponent />
-          ) : (
-            <div className="flex items-center gap-2">
-              {currentPageIcon && (
-                <Image
-                  src={currentPageIcon}
-                  alt="page-icon"
-                  width={24}
-                  height={24}
-                />
-              )}
-              <span
-                className="text-base font-medium"
-                style={{ color: headerColor }}
-              >
-                {currentPage?.label || "Página"}
-              </span>
-            </div>
-          )}
-        </div>
+    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-3 border-b border-greenBlue-200/60 bg-brand-paper/90 px-4 backdrop-blur sm:px-6">
+      {onOpenMenu && (
+        <button
+          type="button"
+          onClick={onOpenMenu}
+          aria-label="Abrir menu"
+          className="-ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-brand-deep outline-none transition-colors hover:bg-greenBebe-200 focus-visible:ring-2 focus-visible:ring-brand-aqua lg:hidden"
+        >
+          <Menu size={22} />
+        </button>
+      )}
 
-        <div className="flex items-center gap-8">
+      <Breadcrumb className="min-w-0 flex-1">
+        <BreadcrumbList>
           {!user ? (
             <LoadingComponent />
           ) : (
-            <Image
-              src={
-                isCity && user.image
-                  ? (user.image as string)
-                  : "/sicol-logo.svg"
-              }
-              alt="logo"
-              width={40}
-              height={40}
-              className={`
-                rounded-full border border-gray-100 object-cover
-                ${isCity ? "h-[40px] w-[40px]" : "h-[40px] w-[40px]"}
-              `}
-              unoptimized={isCity}
-              priority
-            />
+            <>
+              <BreadcrumbItem className="hidden sm:inline-flex">
+                <BreadcrumbLink asChild>
+                  <Link href="/dashboard">Coletapp</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden sm:block" />
+              <BreadcrumbItem>
+                {detailLabel ? (
+                  <BreadcrumbLink asChild>
+                    <Link href={currentPage?.url ?? "/dashboard"}>
+                      {currentPage?.label}
+                    </Link>
+                  </BreadcrumbLink>
+                ) : (
+                  <BreadcrumbPage className="font-display text-base">
+                    {currentPage?.label || "Página"}
+                  </BreadcrumbPage>
+                )}
+              </BreadcrumbItem>
+              {detailLabel && (
+                <>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>{detailLabel}</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </>
+              )}
+            </>
           )}
-          <div
-            className="flex cursor-pointer items-center gap-2 transition-all hover:opacity-80"
-            style={{ color: headerColor }}
-            onClick={() => {
-              queryClient.clear();
-              logoutUser();
-            }}
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {user && (
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            aria-label="Menu da conta"
+            className="flex shrink-0 items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-brand-aqua"
           >
-            <p className="text-base font-medium">Sair</p>
-            <Image src={logoutSrc} alt="logout" width={24} height={24} />
-          </div>
-        </div>
-      </div>
+            <Avatar
+              className="h-10 w-10 border-2 border-brand-paper ring-2"
+              style={{ ["--tw-ring-color" as string]: cityColor ?? "#00ADB4" }}
+            >
+              {isCity && user.image ? (
+                <AvatarImage src={user.image as string} alt={user.name} />
+              ) : null}
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel className="truncate">
+              {user.name}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="min-h-11 cursor-pointer gap-2 text-brand-deep"
+              onSelect={() => {
+                queryClient.clear();
+                logoutUser();
+              }}
+            >
+              <LogOut size={18} />
+              Sair
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </header>
   );
 };

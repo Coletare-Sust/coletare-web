@@ -14,7 +14,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <section>
       {isNotInOneRoutePage && (
-        <div className="bg-white-800 pb-10 pt-16">
+        <div className="bg-white-800 pb-6 pt-2">
           <div style={wrapper}>
             <FilterBar
               isAdmin={user?.role === "platformAdmin"}

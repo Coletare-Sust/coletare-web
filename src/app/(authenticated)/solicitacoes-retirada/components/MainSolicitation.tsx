@@ -141,7 +141,7 @@ const Solicitations = () => {
   }, [filteredData]);
 
   return (
-    <section className="space-y-[40px] pt-[76px]">
+    <section className="space-y-[40px] pt-2">
       <div className="flex items-center justify-between">
         <Title> Solicitações de retirada de lixo </Title>
         {isAdmin ? (
