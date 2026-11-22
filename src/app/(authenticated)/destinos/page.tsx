@@ -16,7 +16,10 @@ import {
   DISPOSAL_SITE_TYPE_LABELS,
   getDisposalSiteTypeLabel
 } from "@/common/mappers/backendEnums";
-import type { DisposalSiteType } from "@/store/services/disposalSite";
+import type {
+  DisposalSite,
+  DisposalSiteType
+} from "@/store/services/disposalSite";
 
 import usePaginatedDisposalSites from "@/hooks/queries/disposalSite/usePaginatedDisposalSites";
 import useUpdateDisposalSite from "@/hooks/queries/disposalSite/useUpdateDisposalSite";
@@ -25,7 +28,9 @@ import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import PaginationControls from "@/components/molecules/PaginationControls/paginationControls";
 import { Badge } from "@/components/ui/badge";
-import DisposalSiteDetail from "@/components/molecules/DisposalSiteDetail/DisposalSiteDetail";
+import LocationDetail from "@/components/molecules/LocationDetail/LocationDetail";
+import ConfirmationModal from "@molecules/ConfirmationModal/confirmationModal";
+import Dropdown from "@atoms/Dropdown/dropdown";
 
 const PAGE_SIZE = 10;
 
@@ -35,13 +40,15 @@ const DestinosPage = () => {
   const { data: user } = useProfile(userUid);
   const cityId = user?.id as string;
 
-  const { mutateAsync: deleteSite } = useDeleteDisposalSite(cityId);
+  const { mutateAsync: deleteSite, isLoading: deleting } =
+    useDeleteDisposalSite(cityId);
   const { mutateAsync: updateSite } = useUpdateDisposalSite(cityId);
 
   const [nameFilter, setNameFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState<DisposalSiteType | "">("");
   const [page, setPage] = useState(0);
   const [openItem, setOpenItem] = useState("");
+  const [siteToDelete, setSiteToDelete] = useState<DisposalSite | null>(null);
 
   const filters = useMemo(
     () => ({ name: nameFilter, type: typeFilter || undefined }),
@@ -60,13 +67,15 @@ const DestinosPage = () => {
     setPage(0);
   }, [nameFilter, typeFilter]);
 
-  async function handleDelete(id: string) {
-    if (!confirm("Tem certeza que deseja excluir este destino?")) return;
+  async function handleConfirmDelete() {
+    if (!siteToDelete) return;
     try {
-      await deleteSite(id);
+      await deleteSite(siteToDelete.id);
       successToast("Destino excluído com sucesso!");
     } catch (err: any) {
       errorToast(err?.message || "Erro ao excluir destino.");
+    } finally {
+      setSiteToDelete(null);
     }
   }
 
@@ -112,20 +121,21 @@ const DestinosPage = () => {
           name="nameFilter"
           className="w-72"
         />
-        <select
-          value={typeFilter}
-          onChange={(event) =>
-            setTypeFilter(event.target.value as DisposalSiteType | "")
+        <Dropdown
+          className="h-11 w-64 justify-between border border-greenBlue-800 bg-greenBebe-200 px-4 py-0 text-greenBlue-1000"
+          value={
+            typeFilter ? getDisposalSiteTypeLabel(typeFilter) : "Todos os tipos"
           }
-          className="h-11 w-64 rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-4 text-greenBlue-1000"
-        >
-          <option value="">Todos os tipos</option>
-          {Object.entries(DISPOSAL_SITE_TYPE_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
+          options={[
+            { label: "Todos os tipos", onClick: () => setTypeFilter("") },
+            ...Object.entries(DISPOSAL_SITE_TYPE_LABELS).map(
+              ([value, label]) => ({
+                label,
+                onClick: () => setTypeFilter(value as DisposalSiteType)
+              })
+            )
+          ]}
+        />
       </div>
 
       {isLoading ? (
@@ -154,15 +164,61 @@ const DestinosPage = () => {
                 }
               ],
               children: (
-                <DisposalSiteDetail
-                  site={site}
-                  canUpdate={canUpdate}
-                  canDelete={canDelete}
-                  onEdit={(id) =>
-                    router.push(`/destinos/cadastrar?isEdit=true&siteId=${id}`)
+                <LocationDetail
+                  lat={site.lat}
+                  lng={site.lng}
+                  address={site.address}
+                  showCoordinates={false}
+                  info={
+                    <p className="mb-4 flex items-center gap-3 text-greenDark-800">
+                      <span>
+                        <strong>Tipo:</strong>{" "}
+                        {getDisposalSiteTypeLabel(site.type)}
+                      </span>
+                      <Badge variant={site.active ? "success" : "neutral"}>
+                        {site.active ? "Ativo" : "Inativo"}
+                      </Badge>
+                    </p>
                   }
-                  onToggleActive={handleToggleActive}
-                  onDelete={handleDelete}
+                  actions={
+                    (canUpdate || canDelete) && (
+                      <>
+                        {canUpdate && (
+                          <>
+                            <Button
+                              className="flex items-center gap-2 border border-greenBlue-800 bg-greenBebe-400 px-6 py-2 hover:bg-greenBebe-600"
+                              classNameText="text-greenBlue-1000 font-semibold"
+                              onClick={() =>
+                                router.push(
+                                  `/destinos/cadastrar?isEdit=true&siteId=${site.id}`
+                                )
+                              }
+                            >
+                              Editar
+                            </Button>
+                            <Button
+                              className="flex items-center gap-2 border border-greenBlue-800 bg-greenBebe-400 px-6 py-2 hover:bg-greenBebe-600"
+                              classNameText="text-greenBlue-1000 font-semibold"
+                              onClick={() =>
+                                handleToggleActive(site.id, site.active)
+                              }
+                            >
+                              {site.active ? "Desativar" : "Ativar"}
+                            </Button>
+                          </>
+                        )}
+                        {canDelete && (
+                          <Button
+                            className="flex items-center gap-2 border border-red-600 bg-red-500 px-6 py-2 hover:bg-red-600"
+                            classNameText="text-white font-semibold"
+                            onClick={() => setSiteToDelete(site)}
+                          >
+                            Excluir
+                          </Button>
+                        )}
+                      </>
+                    )
+                  }
                 />
               )
             }))}
@@ -189,6 +245,15 @@ const DestinosPage = () => {
           </div>
         </>
       )}
+
+      <ConfirmationModal
+        isOpen={Boolean(siteToDelete)}
+        onOpenChange={(open) => !open && setSiteToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        confirmIsLoading={deleting}
+        title="Excluir destino"
+        description={`Tem certeza que deseja excluir "${siteToDelete?.name}"? As coletas já registradas mantêm o histórico.`}
+      />
     </div>
   );
 };
