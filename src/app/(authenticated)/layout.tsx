@@ -137,7 +137,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               }
             />
 
-            <main className="flex-1 p-4 sm:p-6">{renderContent()}</main>
+            <main className="flex-1 p-4 sm:p-6 lg:px-8">{renderContent()}</main>
           </div>
         </div>
       </BlockInactiveUserWrapper>
