@@ -32,7 +32,7 @@ const LocationDetail = ({
   const center = { lat, lng };
 
   return (
-    <div className="flex w-full gap-8">
+    <div className="flex w-full flex-col gap-6 lg:flex-row lg:gap-8">
       <div className="flex flex-1 flex-col justify-between">
         <div>
           <h3 className="mb-2 text-lg font-bold text-greenBlue-1000">
@@ -51,7 +51,7 @@ const LocationDetail = ({
         {actions && <div className="mt-8 flex gap-4">{actions}</div>}
       </div>
 
-      <div className="h-[300px] w-[500px] overflow-hidden rounded-xl border border-greenBlue-200 shadow-md">
+      <div className="h-[240px] w-full overflow-hidden rounded-xl border border-greenBlue-200 shadow-md sm:h-[300px] lg:w-[500px] lg:shrink-0">
         <GoogleMap
           mapContainerStyle={{ width: "100%", height: "100%" }}
           center={center}

@@ -32,15 +32,15 @@ export function AccordionChildren({
         >
           <AccordionTrigger
             className={twMerge(
-              "my-0 flex items-center justify-between rounded-[8px] bg-greenAqua-200 p-4 text-greenDark-1000 data-[state=open]:rounded-b-none",
+              "my-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-[8px] bg-greenAqua-200 p-4 text-greenDark-1000 data-[state=open]:rounded-b-none",
               triggerClassName,
               item.triggerClassName
             )}
           >
             <h2
               className={`${
-                isRoute ? "w-[90%]" : "w-[300px]"
-              } text-left text-[24px] font-bold`}
+                isRoute ? "w-[90%]" : "w-full sm:w-[300px]"
+              } text-left text-xl font-bold sm:text-[24px]`}
             >
               {item.title}
             </h2>

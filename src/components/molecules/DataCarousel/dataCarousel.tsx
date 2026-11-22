@@ -16,21 +16,24 @@ const DataCarousel = ({
   itemClassName
 }: DataCarouselProps) => {
   return (
-    <Carousel className={twMerge("w-[75%]", className)}>
+    <Carousel className={twMerge("w-full px-0 sm:px-12 lg:w-[75%]", className)}>
       <CarouselContent>
         {cardsInfo.map((card, index) => {
           return (
             <CarouselItem
               key={index}
-              className={twMerge("basis-1/3", itemClassName)}
+              className={twMerge(
+                "basis-full sm:basis-1/2 lg:basis-1/3",
+                itemClassName
+              )}
             >
               <DataCard title={card.title} data={card.data} />
             </CarouselItem>
           );
         })}
       </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
+      <CarouselPrevious className="hidden sm:inline-flex" />
+      <CarouselNext className="hidden sm:inline-flex" />
     </Carousel>
   );
 };
