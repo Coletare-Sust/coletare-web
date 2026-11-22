@@ -27,6 +27,12 @@ import type { DisposalSiteType } from "@/store/services/disposalSite";
 
 const initialCenter = { lat: -8.05224, lng: -34.928612 };
 
+// Fora do componente: um objeto novo a cada render faria o GoogleMap chamar setOptions sempre.
+const mapOptions: google.maps.MapOptions = {
+  disableDefaultUI: true,
+  zoomControl: true
+};
+
 const CadastrarDestinoPage = () => {
   const router = useRouter();
   const params = useSearchParams();
@@ -40,14 +46,14 @@ const CadastrarDestinoPage = () => {
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [lat, setLat] = useState("");
-  const [lng, setLng] = useState("");
   const [type, setType] = useState<DisposalSiteType>("LANDFILL");
   const [error, setError] = useState("");
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [markerPosition, setMarkerPosition] =
-    useState<google.maps.LatLngLiteral | null>(null);
+  // Posição escolhida (clique no mapa ou busca). O usuário não digita coordenadas.
+  const [position, setPosition] = useState<google.maps.LatLngLiteral | null>(
+    null
+  );
 
   const { data: siteToEdit, isLoading: loadingSite } = useGetDisposalSiteById(
     siteId ?? "",
@@ -63,10 +69,8 @@ const CadastrarDestinoPage = () => {
     if (isEdit && siteToEdit) {
       setName(siteToEdit.name);
       setAddress(siteToEdit.address);
-      setLat(String(siteToEdit.lat));
-      setLng(String(siteToEdit.lng));
       setType(siteToEdit.type);
-      setMarkerPosition({ lat: siteToEdit.lat, lng: siteToEdit.lng });
+      setPosition({ lat: siteToEdit.lat, lng: siteToEdit.lng });
     }
   }, [isEdit, siteToEdit]);
 
@@ -75,9 +79,7 @@ const CadastrarDestinoPage = () => {
     const clickedLat = event.latLng.lat();
     const clickedLng = event.latLng.lng();
 
-    setLat(String(clickedLat));
-    setLng(String(clickedLng));
-    setMarkerPosition({ lat: clickedLat, lng: clickedLng });
+    setPosition({ lat: clickedLat, lng: clickedLng });
 
     new window.google.maps.Geocoder().geocode(
       { location: { lat: clickedLat, lng: clickedLng } },
@@ -100,11 +102,9 @@ const CadastrarDestinoPage = () => {
     newLng: number,
     newAddress: string
   ) => {
-    setLat(String(newLat));
-    setLng(String(newLng));
     setAddress(newAddress);
     const newPos = { lat: newLat, lng: newLng };
-    setMarkerPosition(newPos);
+    setPosition(newPos);
     map?.panTo(newPos);
     map?.setZoom(17);
   };
@@ -119,16 +119,15 @@ const CadastrarDestinoPage = () => {
 
   async function handleSubmit() {
     setError("");
-    const latNum = parseFloat(lat);
-    const lngNum = parseFloat(lng);
 
     if (!cityId) {
       const msg = "Município não identificado — não é possível salvar.";
       errorToast(msg);
       return setError(msg);
     }
-    if (!name.trim() || !address.trim() || isNaN(latNum) || isNaN(lngNum)) {
-      const msg = "Preencha todos os campos obrigatórios.";
+    if (!name.trim() || !address.trim() || !position) {
+      const msg =
+        "Informe o nome e escolha o local no mapa ou pela busca de endereço.";
       errorToast(msg);
       return setError(msg);
     }
@@ -139,7 +138,7 @@ const CadastrarDestinoPage = () => {
       active: isEdit ? siteToEdit?.active ?? true : true,
       address: {
         fullAddress: address.trim(),
-        location: { latitude: latNum, longitude: lngNum }
+        location: { latitude: position.lat, longitude: position.lng }
       }
     };
 
@@ -168,20 +167,20 @@ const CadastrarDestinoPage = () => {
           center={initialCenter}
           zoom={15}
           onClick={handleMapClick}
-          options={{ disableDefaultUI: true, zoomControl: true }}
+          options={mapOptions}
         >
-          {markerPosition && <Marker position={markerPosition} />}
+          {position && <Marker position={position} />}
         </GoogleMap>
       </div>
 
-      <div className="absolute left-8 top-8 z-10 h-[calc(100vh-64px)] w-full max-w-[520px]">
+      <div className="absolute left-8 top-8 z-10 w-full max-w-[420px]">
         <div
           className={twMerge(
-            "h-full w-full overflow-y-auto rounded-xl",
-            "bg-white-1000 p-8 font-medium shadow-2xl"
+            "max-h-[calc(100vh-64px)] w-full overflow-y-auto rounded-xl",
+            "bg-white-1000 p-6 font-medium shadow-2xl"
           )}
         >
-          <Title className="mb-8 flex items-center gap-2 text-2xl">
+          <Title className="mb-6 flex items-center gap-2 text-2xl">
             <Image
               src="/icon-left-arrow.svg"
               height={20}
@@ -204,7 +203,7 @@ const CadastrarDestinoPage = () => {
               }}
             >
               <p className="text-sm text-gray-500">
-                Clique no mapa para definir a localização ou busque o endereço.
+                Clique no mapa para definir o local ou busque o endereço.
               </p>
 
               <InputField
@@ -221,35 +220,6 @@ const CadastrarDestinoPage = () => {
                 onChange={(e) => setAddress(e.target.value)}
                 onLocationSelect={handleAddressSelect}
               />
-
-              <div className="flex flex-col gap-4">
-                <InputField
-                  label="Latitude"
-                  placeholder="-8.2826"
-                  name="lat"
-                  value={lat}
-                  onChange={(e) => {
-                    setLat(e.target.value);
-                    const l = parseFloat(e.target.value);
-                    const g = parseFloat(lng);
-                    if (!isNaN(l) && !isNaN(g))
-                      setMarkerPosition({ lat: l, lng: g });
-                  }}
-                />
-                <InputField
-                  label="Longitude"
-                  placeholder="-35.9753"
-                  name="lng"
-                  value={lng}
-                  onChange={(e) => {
-                    setLng(e.target.value);
-                    const l = parseFloat(lat);
-                    const g = parseFloat(e.target.value);
-                    if (!isNaN(l) && !isNaN(g))
-                      setMarkerPosition({ lat: l, lng: g });
-                  }}
-                />
-              </div>
 
               <div className="flex flex-col gap-2">
                 <label className="font-medium text-greenDark-800">
