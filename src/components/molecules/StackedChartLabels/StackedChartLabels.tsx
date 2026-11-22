@@ -9,8 +9,8 @@ const StackedChartLabels = ({
   barThickness
 }: StackedChartProps) => {
   return (
-    <div className="flex h-full w-full gap-8">
-      <div className="w-[75%]">
+    <div className="flex h-full w-full flex-col gap-4 lg:flex-row lg:gap-8">
+      <div className="min-h-0 flex-1 lg:w-[75%] lg:flex-none">
         <StackedChart
           chartData={chartData}
           labelsX={labelsX}
@@ -18,11 +18,11 @@ const StackedChartLabels = ({
           barThickness={barThickness}
         />
       </div>
-      <div className="w-[25%] space-y-[30px] font-barlow">
+      <div className="flex flex-wrap gap-x-6 gap-y-2 font-barlow lg:w-[25%] lg:flex-col lg:flex-nowrap lg:gap-0 lg:space-y-[30px]">
         {chartData.map((data, key) => (
           <div
             key={key}
-            className="mt-8 flex flex-shrink-0 items-center gap-3 text-[20px] font-medium text-greenBlue-1000"
+            className="flex flex-shrink-0 items-center gap-3 text-base font-medium text-greenBlue-1000 sm:text-lg lg:mt-8 lg:text-[20px]"
           >
             <span
               className="h-[29px] w-[34px]"
