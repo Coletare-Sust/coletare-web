@@ -19,7 +19,7 @@ export default function Button({
       type={buttonType}
       disabled={disabled || loading}
       className={twMerge(
-        "relative select-none rounded-[8px] border bg-greenBlue-1000 px-[16px] py-[10px] text-[14px] font-medium tracking-wider text-white-1000 shadow-sm transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60	",
+        "min-h-11 relative select-none rounded-[8px] border bg-greenBlue-1000 px-[16px] py-[10px] text-[14px] font-medium tracking-wider text-white-1000 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-aqua focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 lg:hover:scale-105",
         className
       )}
     >
