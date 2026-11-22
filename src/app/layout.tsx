@@ -1,7 +1,7 @@
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import { Work_Sans as WorkSans, Barlow } from "next/font/google";
+import { Work_Sans as WorkSans, Barlow, Unbounded } from "next/font/google";
 import AuthProvider from "@providers/Auth";
 import QueryClientProviderApp from "@providers/QueryClientApp";
 
@@ -10,6 +10,12 @@ const barlow = Barlow({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   fallback: ["system-ui", "arial"],
   variable: "--font-family-barlow"
+});
+const unbounded = Unbounded({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  fallback: ["system-ui", "arial"],
+  variable: "--font-family-unbounded"
 });
 const workSans = WorkSans({
   subsets: ["latin"],
@@ -29,7 +35,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-br" className={`${workSans.variable} ${barlow.variable}`}>
+    <html
+      lang="pt-br"
+      className={`${workSans.variable} ${barlow.variable} ${unbounded.variable}`}
+    >
       <QueryClientProviderApp>
         <head>
           <link

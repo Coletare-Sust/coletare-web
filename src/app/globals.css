@@ -2,6 +2,177 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Login: a gota cai na onda e forma uma ondulação (uma única vez, ao carregar) */
+@keyframes login-drop {
+  0% {
+    top: 0;
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    top: calc(100% + 26px);
+    opacity: 1;
+  }
+}
+
+@keyframes login-ripple {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes login-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-drop {
+  animation: login-drop 1.1s both;
+  animation-delay: 0.25s;
+}
+
+.login-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: login-ripple 1.4s ease-out both;
+  animation-delay: 1.3s;
+}
+
+.login-ripple-late {
+  animation-delay: 1.55s;
+}
+
+.login-form-in {
+  animation: login-rise 0.6s ease-out both;
+  animation-delay: 0.15s;
+}
+
+@keyframes login-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(64px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes login-stop-pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes login-pulse {
+  0%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 0.3;
+  }
+}
+
+@keyframes login-live {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes login-bin-float {
+  0%,
+  100% {
+    transform: rotate(8deg) translateY(0);
+  }
+  50% {
+    transform: rotate(5deg) translateY(-14px);
+  }
+}
+
+.login-stop-pop {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: login-stop-pop 0.9s ease-out both;
+}
+
+.login-truck-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: login-pulse 1.8s ease-in-out infinite;
+}
+
+.login-live {
+  animation: login-live 1.6s ease-out infinite;
+}
+
+@media (min-width: 1024px) {
+  .login-panel-in {
+    animation: login-panel-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .login-rise-lg {
+    animation: login-rise 0.7s ease-out both;
+  }
+
+  .login-bin {
+    animation: login-bin-float 9s ease-in-out infinite;
+  }
+
+  .login-form-in {
+    animation-delay: 0.5s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-panel-in,
+  .login-rise-lg,
+  .login-bin,
+  .login-stop-pop,
+  .login-truck-pulse,
+  .login-live {
+    animation: none !important;
+  }
+
+  .login-drop,
+  .login-ripple,
+  .login-form-in {
+    animation: none;
+  }
+
+  .login-drop,
+  .login-ripple {
+    display: none;
+  }
+}
+
 /* Para Chrome, Safari, Edge */
 ::-webkit-scrollbar {
   width: 6px; /* Largura da barra de rolagem */
