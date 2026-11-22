@@ -1,5 +1,6 @@
 "use client";
 
+import MapPanel from "@/components/molecules/MapPanel/mapPanel";
 import {
   GoogleMap,
   Marker,
@@ -501,7 +502,7 @@ const RotasAndamento = () => {
         </header>
 
         <main>
-          <div className="relative h-[72vh] min-h-[540px] w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm">
+          <div className="relative h-[calc(100dvh-15rem)] min-h-[420px] w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm lg:h-[72vh] lg:min-h-[540px]">
             <div className="absolute inset-0">
               <GoogleMap
                 onLoad={onMapLoad}
@@ -640,68 +641,74 @@ const RotasAndamento = () => {
               </GoogleMap>
             </div>
 
-            <aside className="bg-white/95 absolute left-4 top-4 z-10 flex max-h-[calc(100%-2rem)] w-[min(21rem,calc(100%-2rem))] flex-col overflow-hidden rounded-lg border border-slate-200 shadow-lg backdrop-blur">
-              <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-4">
-                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-teal-50 text-teal-700">
-                  <Truck className="h-5 w-5" aria-hidden="true" />
+            <MapPanel
+              label="lista de veículos"
+              defaultExpanded={false}
+              className="lg:left-4 lg:top-4 lg:max-w-[21rem]"
+            >
+              <aside className="bg-white/95 flex max-h-[45dvh] w-full flex-col overflow-hidden backdrop-blur lg:max-h-[calc(72vh-2rem)] lg:rounded-lg lg:border lg:border-slate-200 lg:shadow-lg">
+                <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-4">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-md bg-teal-50 text-teal-700">
+                    <Truck className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">
+                      Veiculos em rota
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Selecione um veiculo para acompanhar
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    Veiculos em rota
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    Selecione um veiculo para acompanhar
-                  </p>
-                </div>
-              </div>
 
-              <div className="overflow-y-auto p-2">
-                {trucks.length ? (
-                  trucks.map((truck) => {
-                    const isSelected = truck.id === selectedTruckId;
+                <div className="overflow-y-auto p-2">
+                  {trucks.length ? (
+                    trucks.map((truck) => {
+                      const isSelected = truck.id === selectedTruckId;
 
-                    return (
-                      <button
-                        key={truck.id}
-                        type="button"
-                        onClick={() => focusTruck(truck)}
-                        className={`mb-1 flex w-full items-center gap-3 rounded-md px-3 py-3 text-left transition-colors last:mb-0 ${
-                          isSelected
-                            ? "text-white bg-teal-700"
-                            : "text-slate-700 hover:bg-slate-100"
-                        }`}
-                      >
-                        <span
-                          className={`h-2.5 w-2.5 shrink-0 rounded-full ${
-                            isSelected ? "bg-emerald-300" : "bg-emerald-500"
+                      return (
+                        <button
+                          key={truck.id}
+                          type="button"
+                          onClick={() => focusTruck(truck)}
+                          className={`mb-1 flex w-full items-center gap-3 rounded-md px-3 py-3 text-left transition-colors last:mb-0 ${
+                            isSelected
+                              ? "text-white bg-teal-700"
+                              : "text-slate-700 hover:bg-slate-100"
                           }`}
-                        />
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-semibold">
-                            {truck.vehicleName}
-                          </span>
+                        >
                           <span
-                            className={`block truncate text-xs ${
-                              isSelected ? "text-teal-100" : "text-slate-500"
+                            className={`h-2.5 w-2.5 shrink-0 rounded-full ${
+                              isSelected ? "bg-emerald-300" : "bg-emerald-500"
                             }`}
-                          >
-                            {truck.carPlate}
+                          />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-semibold">
+                              {truck.vehicleName}
+                            </span>
+                            <span
+                              className={`block truncate text-xs ${
+                                isSelected ? "text-teal-100" : "text-slate-500"
+                              }`}
+                            >
+                              {truck.carPlate}
+                            </span>
                           </span>
-                        </span>
-                        <ChevronRight
-                          className="h-4 w-4 shrink-0"
-                          aria-hidden="true"
-                        />
-                      </button>
-                    );
-                  })
-                ) : (
-                  <p className="px-3 py-6 text-center text-sm text-slate-500">
-                    Nenhuma coleta ativa agora.
-                  </p>
-                )}
-              </div>
-            </aside>
+                          <ChevronRight
+                            className="h-4 w-4 shrink-0"
+                            aria-hidden="true"
+                          />
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <p className="px-3 py-6 text-center text-sm text-slate-500">
+                      Nenhuma coleta ativa agora.
+                    </p>
+                  )}
+                </div>
+              </aside>
+            </MapPanel>
           </div>
         </main>
       </div>
