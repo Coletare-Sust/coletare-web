@@ -62,7 +62,7 @@ const Rotas = () => {
 
   return (
     <div style={wrapper} className="py-14">
-      <div className="mb-14 flex items-center justify-between">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 sm:mb-14">
         <Title>Todas as rotas</Title>
         {canCreateRoute && (
           <Button

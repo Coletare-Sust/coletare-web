@@ -167,7 +167,7 @@ const ClientKeys = ({
 
   return (
     <div className="mt-6 space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="font-semibold text-greenDark-800">Chaves de API</p>
         <Button
           className="h-fit w-fit"
@@ -319,7 +319,7 @@ const NewClientForm = ({ onDone }: { onDone: () => void }) => {
         <legend className="mb-2 font-medium text-greenDark-800">
           Cidades liberadas
         </legend>
-        <div className="grid max-h-48 grid-cols-2 gap-2 overflow-y-auto">
+        <div className="grid max-h-48 grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2">
           {(cities ?? []).map((city) => (
             <div key={city.id} className="flex items-center gap-2">
               <Checkbox
@@ -416,7 +416,7 @@ const IntegracoesPage = () => {
 
   return (
     <div style={wrapper} className="py-14">
-      <div className="mb-14 flex items-center justify-between">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3 sm:mb-14">
         <Title>Integrações</Title>
         {!showForm && (
           <Button className="w-fit" onClick={() => setShowForm(true)}>

@@ -94,7 +94,7 @@ const DestinosPage = () => {
 
   return (
     <div style={wrapper} className="py-14">
-      <div className="mb-14 flex items-center justify-between">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 sm:mb-14">
         <Title>Destinos de resíduos</Title>
 
         {canCreate && (
@@ -113,16 +113,16 @@ const DestinosPage = () => {
         )}
       </div>
 
-      <div className="mb-14 flex flex-col gap-4 md:flex-row md:items-end">
+      <div className="mb-8 flex flex-col gap-4 sm:mb-14 md:flex-row md:items-end">
         <Input
           value={nameFilter}
           onChange={(event) => setNameFilter(event.target.value)}
           placeholder="Buscar por nome"
           name="nameFilter"
-          className="w-72"
+          className="w-full sm:w-72"
         />
         <Dropdown
-          className="h-11 w-64 justify-between border border-greenBlue-800 bg-greenBebe-200 px-4 py-0 text-greenBlue-1000"
+          className="h-11 w-full justify-between border border-greenBlue-800 bg-greenBebe-200 px-4 py-0 text-greenBlue-1000 sm:w-64"
           value={
             typeFilter ? getDisposalSiteTypeLabel(typeFilter) : "Todos os tipos"
           }

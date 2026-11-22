@@ -87,7 +87,7 @@ const EcopontosPage = () => {
 
   return (
     <div style={wrapper} className="py-14">
-      <div className="mb-14 flex items-center justify-between">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 sm:mb-14">
         <Title>Ecopontos</Title>
 
         <Button
@@ -115,13 +115,13 @@ const EcopontosPage = () => {
             onChange={(event) => setNameFilter(event.target.value)}
             placeholder="Buscar por nome"
             name="nameFilter"
-            className="w-72"
+            className="w-full sm:w-72"
           />
 
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen((prev) => !prev)}
-              className="flex h-11 w-64 items-center justify-between rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-4 py-2 text-greenBlue-1000"
+              className="flex h-11 w-full items-center justify-between rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-4 py-2 text-greenBlue-1000 sm:w-64"
             >
               {filter === "Todos" ? "Todos os tipos" : filter}
               <ChevronDown
@@ -133,7 +133,7 @@ const EcopontosPage = () => {
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute z-10 mt-2 w-64 rounded-lg border border-greenBlue-800 bg-white-1000 shadow-md">
+              <div className="absolute z-10 mt-2 w-full rounded-lg border  border-greenBlue-800 bg-white-1000 shadow-md sm:w-64">
                 <p
                   className={`cursor-pointer px-4 py-2 hover:bg-greenBebe-200 ${
                     filter === "Todos"
