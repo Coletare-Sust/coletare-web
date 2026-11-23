@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import Select from "@atoms/Select/select";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import RegisterVehicleFormSchema from "@/validations/registerVehicle";
@@ -34,6 +35,8 @@ const CadastrarVeiculoPage = () => {
     handleSubmit,
     register,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting }
   } = useForm<RegisterVehicleForm>({
     mode: "all",
@@ -44,6 +47,8 @@ const CadastrarVeiculoPage = () => {
   const {
     handleSubmit: handleSubmitEdit,
     register: registerEdit,
+    setValue: setValueEdit,
+    watch: watchEdit,
     formState: { errors: errorsEdit, isSubmitting: isSubmittingEdit }
   } = useForm<EditVehicleForm>({
     mode: "all",
@@ -173,18 +178,22 @@ const CadastrarVeiculoPage = () => {
             >
               Combustível
             </label>
-            <select
+            <Select
               id="fuelType"
-              className="h-11 rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-4 text-greenBlue-1000"
-              {...(isEdit ? registerEdit("fuelType") : register("fuelType"))}
-            >
-              <option value="">Não informado</option>
-              {Object.entries(FUEL_TYPE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
+              value={(isEdit ? watchEdit("fuelType") : watch("fuelType")) ?? ""}
+              onChange={(value) =>
+                isEdit
+                  ? setValueEdit("fuelType", value, { shouldDirty: true })
+                  : setValue("fuelType", value, { shouldDirty: true })
+              }
+              options={[
+                { value: "", label: "Não informado" },
+                ...Object.entries(FUEL_TYPE_LABELS).map(([value, label]) => ({
+                  value,
+                  label
+                }))
+              ]}
+            />
           </div>
           {!isEdit && (
             <>

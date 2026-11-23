@@ -1,9 +1,9 @@
 "use client";
 
+import Select from "@atoms/Select/select";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown } from "lucide-react";
 import { successToast, errorToast } from "@/hooks/useAppToast";
 
 import Button from "@atoms/Button/button";
@@ -44,7 +44,6 @@ const EcopontosPage = () => {
   const [nameFilter, setNameFilter] = useState("");
   const [page, setPage] = useState(0);
   const [openItem, setOpenItem] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const selectedResidueType =
     filter === "Todos"
@@ -118,55 +117,19 @@ const EcopontosPage = () => {
             className="w-full sm:w-72"
           />
 
-          <div className="relative">
-            <button
-              onClick={() => setIsDropdownOpen((prev) => !prev)}
-              className="flex h-11 w-full items-center justify-between rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-4 py-2 text-greenBlue-1000 sm:w-64"
-            >
-              {filter === "Todos" ? "Todos os tipos" : filter}
-              <ChevronDown
-                size={18}
-                className={`transition-transform ${
-                  isDropdownOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {isDropdownOpen && (
-              <div className="absolute z-10 mt-2 w-full rounded-lg border  border-greenBlue-800 bg-white-1000 shadow-md sm:w-64">
-                <p
-                  className={`cursor-pointer px-4 py-2 hover:bg-greenBebe-200 ${
-                    filter === "Todos"
-                      ? "font-semibold text-greenBlue-1000"
-                      : "text-greenDark-800"
-                  }`}
-                  onClick={() => {
-                    setFilter("Todos");
-                    setIsDropdownOpen(false);
-                  }}
-                >
-                  Todos
-                </p>
-
-                {residuesTypesOptions.map((item) => (
-                  <p
-                    key={item.value}
-                    onClick={() => {
-                      setFilter(item.label);
-                      setIsDropdownOpen(false);
-                    }}
-                    className={`cursor-pointer px-4 py-2 hover:bg-greenBebe-200 ${
-                      filter === item.label
-                        ? "font-semibold text-greenBlue-1000"
-                        : "text-greenDark-800"
-                    }`}
-                  >
-                    {item.label}
-                  </p>
-                ))}
-              </div>
-            )}
-          </div>
+          <Select
+            aria-label="Filtrar por tipo de resíduo"
+            className="sm:w-64"
+            value={filter === "Todos" ? "" : filter}
+            onChange={(value) => setFilter(value === "" ? "Todos" : value)}
+            options={[
+              { value: "", label: "Todos os tipos" },
+              ...residuesTypesOptions.map((item) => ({
+                value: item.label,
+                label: item.label
+              }))
+            ]}
+          />
         </div>
       </div>
 

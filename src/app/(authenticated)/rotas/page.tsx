@@ -1,5 +1,6 @@
 "use client";
 
+import Select from "@atoms/Select/select";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -95,18 +96,17 @@ const Rotas = () => {
           <label className="text-sm font-medium text-greenBlue-1000">
             Filtrar por tipo de residuo
           </label>
-          <select
-            className="rounded-lg border border-greenBlue-400 bg-white-1000 px-4 py-3 outline-none focus:border-greenBlue-1000"
+          <Select
             value={routeResidueType}
-            onChange={(event) => setRouteResidueType(event.target.value)}
-          >
-            <option value="">Todos os tipos</option>
-            {Object.entries(RESIDUE_TYPE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+            onChange={setRouteResidueType}
+            options={[
+              { value: "", label: "Todos os tipos" },
+              ...Object.entries(RESIDUE_TYPE_LABELS).map(([value, label]) => ({
+                value,
+                label
+              }))
+            ]}
+          />
         </div>
       </div>
       {isLoading ? (

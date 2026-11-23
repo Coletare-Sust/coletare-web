@@ -1,5 +1,6 @@
 "use client";
 
+import Select from "@atoms/Select/select";
 import React, { useEffect, useState } from "react";
 import Subtitle from "@atoms/Subtitle/subtitle";
 import Button from "@atoms/Button/button";
@@ -270,20 +271,17 @@ const CollectBiomassSection = ({
 
           <label className="block text-sm text-greenDark-800">
             Destino
-            <select
-              className={inputClass}
+            <Select
+              className="mt-1"
               value={siteId}
-              onChange={(e) => setSiteId(e.target.value)}
-            >
-              <option value="">Selecione o destino</option>
-              {(sites ?? [])
-                .filter((site) => site.active || site.id === siteId)
-                .map((site) => (
-                  <option key={site.id} value={site.id}>
-                    {site.name}
-                  </option>
-                ))}
-            </select>
+              onChange={setSiteId}
+              options={[
+                { value: "", label: "Selecione o destino" },
+                ...(sites ?? [])
+                  .filter((site) => site.active || site.id === siteId)
+                  .map((site) => ({ value: site.id, label: site.name }))
+              ]}
+            />
           </label>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -310,18 +308,18 @@ const CollectBiomassSection = ({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="text-sm text-greenDark-800">
               Combustível (opcional)
-              <select
-                className={inputClass}
+              <Select
+                className="mt-1"
                 value={fuelType}
-                onChange={(e) => setFuelType(e.target.value as FuelType | "")}
-              >
-                <option value="">Não informar</option>
-                {Object.entries(FUEL_TYPE_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => setFuelType(value as FuelType | "")}
+                options={[
+                  { value: "", label: "Não informar" },
+                  ...Object.entries(FUEL_TYPE_LABELS).map(([value, label]) => ({
+                    value,
+                    label
+                  }))
+                ]}
+              />
             </label>
             <label className="text-sm text-greenDark-800">
               Litros (vazio = estimar por consumo × km)

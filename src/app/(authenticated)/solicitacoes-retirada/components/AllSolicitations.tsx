@@ -1,5 +1,6 @@
 "use client";
 
+import Select from "@atoms/Select/select";
 import React, { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -62,31 +63,30 @@ const AllSolicitations = () => {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <Subtitle>Todas as solicitacoes</Subtitle>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <select
+          <Select
             aria-label="Filtrar por tipo de residuo"
+            className="sm:w-56"
             value={residueType}
-            onChange={(event) => setResidueType(event.target.value)}
-            className="h-11 rounded-lg border border-greenBlue-800 bg-white-1000 px-4 text-greenBlue-1000 outline-none"
-          >
-            <option value="">Todos os residuos</option>
-            {Object.entries(RESIDUE_TYPE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-          <select
+            onChange={setResidueType}
+            options={[
+              { value: "", label: "Todos os residuos" },
+              ...Object.entries(RESIDUE_TYPE_LABELS).map(([value, label]) => ({
+                value,
+                label
+              }))
+            ]}
+          />
+          <Select
             aria-label="Filtrar por status da solicitacao"
+            className="sm:w-56"
             value={status}
-            onChange={(event) =>
-              setStatus(event.target.value as "" | "open" | "closed")
-            }
-            className="h-11 rounded-lg border border-greenBlue-800 bg-white-1000 px-4 text-greenBlue-1000 outline-none"
-          >
-            <option value="">Todas as solicitacoes</option>
-            <option value="open">Abertas</option>
-            <option value="closed">Fechadas</option>
-          </select>
+            onChange={(value) => setStatus(value as "" | "open" | "closed")}
+            options={[
+              { value: "", label: "Todas as solicitacoes" },
+              { value: "open", label: "Abertas" },
+              { value: "closed", label: "Fechadas" }
+            ]}
+          />
         </div>
       </div>
 
