@@ -7,7 +7,10 @@ import { useJsApiLoader, Libraries } from "@react-google-maps/api";
 import BlockInactiveUserWrapper from "@/components/templates/BlockInactiveUser/blockInactiveUser";
 import AuthenticatedOnlyFeatureWrapper from "@/components/templates/Authenticated/authenticated";
 import MainHeader from "@molecules/MainHeader/mainHeader";
-import Sidebar, { MobileSidebar } from "@molecules/Sidebar/sidebar";
+import Sidebar, {
+  MobileSidebar,
+  SidebarToggle
+} from "@molecules/Sidebar/sidebar";
 import LoadingComponent from "@/components/atoms/Loading/loading";
 
 import useAuth from "@/hooks/useAuth";
@@ -118,10 +121,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="h-dvh flex overflow-hidden bg-white-800">
           {deveMostrarSidebar && (
             <>
-              <Sidebar
+              <Sidebar isOpen={isSidebarOpen} links={linksComNotificacao} />
+              <SidebarToggle
                 isOpen={isSidebarOpen}
-                toggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
-                links={linksComNotificacao}
+                onToggle={() => setIsSidebarOpen((prev) => !prev)}
               />
               <MobileSidebar
                 open={isMobileMenuOpen}

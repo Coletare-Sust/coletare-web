@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronsLeft, ChevronsRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { NavigationLink } from "@molecules/MainHeader/constants";
 import { brandColors } from "@/common/constants/brandColors";
@@ -118,9 +118,35 @@ export function SidebarNav({ links, collapsed, onNavigate }: NavProps) {
 
 type SidebarProps = {
   isOpen: boolean;
-  toggleSidebar: () => void;
   links: NavigationLink[];
 };
+
+type SidebarToggleProps = {
+  isOpen: boolean;
+  onToggle: () => void;
+};
+
+/**
+ * Bolinha que sai da borda da sidebar, na altura do header/breadcrumb, para
+ * recolher ou expandir o menu. Fica fora da sidebar (que corta o que passa da
+ * borda) e acima do header.
+ */
+export function SidebarToggle({ isOpen, onToggle }: SidebarToggleProps) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={isOpen ? "Recolher menu" : "Expandir menu"}
+      aria-expanded={isOpen}
+      className={cn(
+        "fixed top-[18px] z-50 hidden h-7 w-7 items-center justify-center rounded-full border border-greenBlue-200 bg-brand-paper text-brand-deep shadow-md outline-none transition-[left,background-color] duration-300 ease-in-out hover:bg-greenAqua-200 focus-visible:ring-2 focus-visible:ring-brand-aqua lg:flex",
+        isOpen ? "left-[calc(18rem-14px)]" : "left-[calc(5rem-14px)]"
+      )}
+    >
+      {isOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+    </button>
+  );
+}
 
 /**
  * Sidebar fixa na viewport (sempre com a altura da tela, independente do scroll
@@ -128,11 +154,7 @@ type SidebarProps = {
  * margem esquerda igual à largura dela (`lg:ml-20` recolhida, `lg:ml-72` aberta).
  * No celular use MobileSidebar.
  */
-export default function Sidebar({
-  isOpen,
-  toggleSidebar,
-  links
-}: SidebarProps) {
+export default function Sidebar({ isOpen, links }: SidebarProps) {
   return (
     <aside
       className={cn(
@@ -142,20 +164,11 @@ export default function Sidebar({
     >
       <div
         className={cn(
-          "flex shrink-0 items-center py-4",
-          isOpen ? "justify-between" : "flex-col gap-3"
+          "flex h-16 shrink-0 items-center",
+          isOpen ? "justify-start" : "justify-center"
         )}
       >
         <Brand collapsed={!isOpen} />
-        <button
-          type="button"
-          onClick={toggleSidebar}
-          aria-label={isOpen ? "Recolher menu" : "Expandir menu"}
-          aria-expanded={isOpen}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-brand-deep outline-none transition-colors hover:bg-greenBebe-200 focus-visible:ring-2 focus-visible:ring-brand-aqua"
-        >
-          {isOpen ? <ChevronsLeft size={20} /> : <ChevronsRight size={20} />}
-        </button>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-1 pb-4 pt-3">
