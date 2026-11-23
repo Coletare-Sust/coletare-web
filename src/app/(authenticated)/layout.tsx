@@ -7,6 +7,7 @@ import { useJsApiLoader, Libraries } from "@react-google-maps/api";
 import BlockInactiveUserWrapper from "@/components/templates/BlockInactiveUser/blockInactiveUser";
 import AuthenticatedOnlyFeatureWrapper from "@/components/templates/Authenticated/authenticated";
 import MainHeader from "@molecules/MainHeader/mainHeader";
+import Footer from "@molecules/Footer/footer";
 import Sidebar, {
   MobileSidebar,
   SidebarToggle
@@ -136,7 +137,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           <div
             className={cn(
-              "relative flex min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden transition-[margin] duration-300 ease-in-out",
+              "relative flex min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white-800 transition-[margin] duration-300 ease-in-out",
               deveMostrarSidebar && (isSidebarOpen ? "lg:ml-72" : "lg:ml-20")
             )}
           >
@@ -147,7 +148,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               showAccount={!deveMostrarSidebar}
             />
 
-            <main className="flex-1 p-4 sm:p-6 lg:px-8">{renderContent()}</main>
+            <main className="flex-1 p-4 sm:p-6 lg:px-8">
+              {renderContent()}
+            </main>
+
+            <Footer />
           </div>
         </div>
       </BlockInactiveUserWrapper>
