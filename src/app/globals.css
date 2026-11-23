@@ -199,6 +199,7 @@
 
 /* Toasts na paleta da marca */
 body {
+  background-color: #f9f7f9;
   --toastify-color-success: #00adb4;
   --toastify-color-error: #ed3030;
   --toastify-color-info: #004a55;
