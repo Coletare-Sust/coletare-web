@@ -29,9 +29,8 @@ export default function Button({
         <div className={`${classNameText}`}>{children}</div>
       )}
       {alertNumber && (
-        <span className="absolute -top-2 right-[2px] h-[22px] w-[22px] rounded-full bg-error font-normal text-white-1000">
-          {" "}
-          {alertNumber}{" "}
+        <span className="absolute -right-2 -top-3 flex h-[24px] min-w-[24px] items-center justify-center rounded-full bg-error px-1.5 text-xs font-bold leading-none text-white-900 ring-2 ring-white-1000">
+          {alertNumber > 99 ? "99+" : alertNumber}
         </span>
       )}
     </button>
