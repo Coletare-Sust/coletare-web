@@ -32,6 +32,7 @@ As escalas `greenAqua`, `greenBlue`, `greenDark`, `greenBebe` e `white` continua
 - `MapPanel`: painel sobre mapa. No desktop é flutuante; no celular fica acoplado à base do mapa e pode ser recolhido para liberar toques no mapa.
 - `InfoTable`/`InfoRow`: grade de 10 colunas em `lg+`, cartões empilhados abaixo disso.
 - `ui/*` (shadcn): `sheet`, `table`, `tabs`, `select`, `tooltip`, `avatar`, `breadcrumb`, `skeleton`, `separator`. `ui/dialog` rola quando o conteúdo é alto.
+- `atoms/Button` tem `variant`: `primary` (ação principal da tela/formulário), `secondary` (ação de apoio, ex.: calcular, ativar/desativar), `outline` (cancelar, copiar, editar, rotacionar), `destructive` (excluir, revogar, suspender) e `ghost`. Use uma só `primary` por grupo de ações. `ConfirmationModal` aceita `destructive` para pintar o botão de confirmar de vermelho.
 - Alvos de toque com no mínimo 44px (`min-h-11`); efeitos de hover com `scale` só em `lg:`.
 
 ## Animações
