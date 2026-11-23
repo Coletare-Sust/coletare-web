@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -32,16 +33,17 @@ export function SearchDropdown({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between border border-greenDark-400 font-normal text-greenDark-600 sm:w-[400px]"
+          className="h-11 w-full justify-between gap-2 rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-4 font-normal text-greenBlue-1000 hover:bg-greenBebe-200 sm:w-[400px] [&[aria-expanded=true]>svg]:rotate-180"
         >
-          {value ? (
-            options?.find((option) => option.value === value)?.label
-          ) : (
-            <span>{placeholder}</span>
-          )}
+          <span className={value ? "truncate" : "truncate text-greenDark-600"}>
+            {value
+              ? options?.find((option) => option.value === value)?.label
+              : placeholder}
+          </span>
+          <ChevronDown size={18} className="shrink-0 transition-transform" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] rounded-lg border-greenBlue-800 bg-white-1000 p-0 shadow-md">
         <Command className={""}>
           <CommandInput placeholder={placeholder} className="h-9" />
           <CommandEmpty>Sem resultados</CommandEmpty>
