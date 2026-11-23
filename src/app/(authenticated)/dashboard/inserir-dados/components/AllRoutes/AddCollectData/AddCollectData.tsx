@@ -254,6 +254,7 @@ const AddCollectData = ({ collectData, isAdmin }: AddCollectDataProps) => {
         collectId={collectData.id}
         cityId={collectData.cityId}
         hasEnded={collectData.hasEnded}
+        collectMassTons={collectData.mass || undefined}
       />
     </>
   );

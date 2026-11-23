@@ -26,6 +26,8 @@ interface CollectBiomassSectionProps {
   collectId: string;
   cityId: string;
   hasEnded: boolean;
+  /** Massa da coleta em toneladas, informada à parte (a biomassa só a detalha). */
+  collectMassTons?: number;
 }
 
 const MATERIALS = Object.keys(BIOMASS_MATERIAL_LABELS) as BiomassMaterial[];
@@ -49,7 +51,8 @@ function toIso(localValue: string) {
 const CollectBiomassSection = ({
   collectId,
   cityId,
-  hasEnded
+  hasEnded,
+  collectMassTons
 }: CollectBiomassSectionProps) => {
   const { userUid } = useAuth();
   const { data: user } = useProfile(userUid);
@@ -113,6 +116,12 @@ const CollectBiomassSection = ({
     (sum, material) => sum + (parseFloat(masses[material]) || 0),
     0
   );
+
+  const informedKg = (collectMassTons ?? 0) * 1000;
+  const differsFromMass =
+    informedKg > 0 &&
+    totalKg > 0 &&
+    Math.abs(totalKg - informedKg) / informedKg > 0.01;
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -204,7 +213,8 @@ const CollectBiomassSection = ({
 
       {!isOpen && !isLoading && !biomass && (
         <p className="text-greenDark-800">
-          Nenhuma biomassa registrada para esta coleta.
+          Nenhum detalhamento registrado. É opcional: a massa da coleta já vale
+          sem ele.
         </p>
       )}
 
@@ -216,6 +226,20 @@ const CollectBiomassSection = ({
             <p className="mb-2 font-medium text-greenDark-800">
               Composição (kg) — total: {totalKg.toLocaleString("pt-BR")} kg
             </p>
+            {informedKg > 0 && (
+              <p className="mb-2 text-sm text-greenDark-800">
+                Massa da coleta informada:{" "}
+                {(collectMassTons ?? 0).toLocaleString("pt-BR")} t (
+                {informedKg.toLocaleString("pt-BR")} kg). O detalhamento não
+                altera esse valor.
+              </p>
+            )}
+            {differsFromMass && (
+              <p className="mb-2 text-sm font-medium text-amber-700">
+                O total do detalhamento difere da massa informada em mais de 1%.
+                Confira os valores, ou salve assim se for intencional.
+              </p>
+            )}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               {MATERIALS.map((material) => (
                 <label key={material} className="text-sm text-greenDark-800">
