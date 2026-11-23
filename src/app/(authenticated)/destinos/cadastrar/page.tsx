@@ -231,7 +231,7 @@ const CadastrarDestinoPage = () => {
                 </label>
                 <Dropdown
                   options={typeOptions}
-                  className="w-full border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
+                  className="w-full sm:w-full"
                   value={getDisposalSiteTypeLabel(type)}
                 />
               </div>

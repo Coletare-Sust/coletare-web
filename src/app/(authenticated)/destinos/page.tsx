@@ -122,7 +122,7 @@ const DestinosPage = () => {
           className="w-full sm:w-72"
         />
         <Dropdown
-          className="h-11 w-full justify-between border border-greenBlue-800 bg-greenBebe-200 px-4 py-0 text-greenBlue-1000 sm:w-64"
+          className="sm:w-64"
           value={
             typeFilter ? getDisposalSiteTypeLabel(typeFilter) : "Todos os tipos"
           }

@@ -301,7 +301,7 @@ const NewClientForm = ({ onDone }: { onDone: () => void }) => {
           Ambiente (não muda depois)
         </label>
         <Dropdown
-          className="w-full border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
+          className="w-full sm:w-full"
           value={ENVIRONMENT_LABELS[environment]}
           options={(
             Object.entries(ENVIRONMENT_LABELS) as [

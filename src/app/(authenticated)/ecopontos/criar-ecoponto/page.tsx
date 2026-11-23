@@ -270,7 +270,7 @@ const CriarEcopontoPage = () => {
                   </label>
                   <Dropdown
                     options={dropdownOptions}
-                    className="w-full border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
+                    className="w-full sm:w-full"
                     value={
                       getResidueTypeLabel(residueType[0]) || residueType[0]
                     }

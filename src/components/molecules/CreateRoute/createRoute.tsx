@@ -407,7 +407,7 @@ const CreateRoute = ({
         </div>
         <Dropdown
           options={dropdownOptions}
-          className="w-fit border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
+          className="w-fit"
           value={getResidueTypeLabel(residueType)}
         />
         {!isEdit && !isSpecial && (
@@ -484,7 +484,7 @@ const CreateRoute = ({
                 </div>
                 <Dropdown
                   options={dropdownOptionsSecondary}
-                  className="w-fit border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
+                  className="w-fit"
                   value={getResidueTypeLabel(residueTypeSecondary)}
                 />
               </div>
