@@ -164,8 +164,9 @@ const EcopontosPage = () => {
                   actions={
                     <>
                       <Button
-                        className="flex items-center gap-2 border border-greenBlue-800 bg-greenBebe-400 px-6 py-2 hover:bg-greenBebe-600"
-                        classNameText="text-greenBlue-1000 font-semibold"
+                        variant="outline"
+                        className="flex items-center gap-2 px-6 py-2"
+                        classNameText="font-semibold"
                         onClick={() =>
                           router.push(
                             `/ecopontos/criar-ecoponto?isEdit=true&ecopontoId=${point.id}`
@@ -175,8 +176,9 @@ const EcopontosPage = () => {
                         Editar
                       </Button>
                       <Button
-                        className="flex items-center gap-2 border border-red-600 bg-red-500 px-6 py-2 hover:bg-red-600"
-                        classNameText="text-white-900 font-semibold"
+                        variant="destructive"
+                        className="flex items-center gap-2 px-6 py-2"
+                        classNameText="font-semibold"
                         onClick={() => handleDelete(point.id)}
                       >
                         Excluir

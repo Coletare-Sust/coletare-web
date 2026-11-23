@@ -80,6 +80,7 @@ const InfoCard = ({ title, values, id, type }: InfoCardProps) => {
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
         onOpenChange={setIsDeleteModalOpen}
+        destructive
         title={`Tem certeza que deseja excluir esse ${
           type === "collaborator" ? "colaborador" : "veiculo"
         }?`}

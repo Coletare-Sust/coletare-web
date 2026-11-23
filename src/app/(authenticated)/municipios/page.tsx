@@ -194,6 +194,7 @@ const Municipios = () => {
         onPageChange={setPage}
       />
       <ConfirmationModal
+        destructive
         title="Excluir município"
         description="Tem certeza de deseja excluir esse município? Todos os dados relativos a ele serão excluídos e não poderão ser recuperados."
         isOpen={openDeleteModal}

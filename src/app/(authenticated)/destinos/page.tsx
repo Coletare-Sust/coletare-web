@@ -186,8 +186,9 @@ const DestinosPage = () => {
                         {canUpdate && (
                           <>
                             <Button
-                              className="flex items-center gap-2 border border-greenBlue-800 bg-greenBebe-400 px-6 py-2 hover:bg-greenBebe-600"
-                              classNameText="text-greenBlue-1000 font-semibold"
+                              variant="outline"
+                              className="flex items-center gap-2 px-6 py-2"
+                              classNameText="font-semibold"
                               onClick={() =>
                                 router.push(
                                   `/destinos/cadastrar?isEdit=true&siteId=${site.id}`
@@ -197,8 +198,9 @@ const DestinosPage = () => {
                               Editar
                             </Button>
                             <Button
-                              className="flex items-center gap-2 border border-greenBlue-800 bg-greenBebe-400 px-6 py-2 hover:bg-greenBebe-600"
-                              classNameText="text-greenBlue-1000 font-semibold"
+                              variant="secondary"
+                              className="flex items-center gap-2 px-6 py-2"
+                              classNameText="font-semibold"
                               onClick={() =>
                                 handleToggleActive(site.id, site.active)
                               }
@@ -209,8 +211,9 @@ const DestinosPage = () => {
                         )}
                         {canDelete && (
                           <Button
-                            className="flex items-center gap-2 border border-red-600 bg-red-500 px-6 py-2 hover:bg-red-600"
-                            classNameText="text-white-900 font-semibold"
+                            variant="destructive"
+                            className="flex items-center gap-2 px-6 py-2"
+                            classNameText="font-semibold"
                             onClick={() => setSiteToDelete(site)}
                           >
                             Excluir
@@ -251,6 +254,7 @@ const DestinosPage = () => {
         onOpenChange={(open) => !open && setSiteToDelete(null)}
         onConfirm={handleConfirmDelete}
         confirmIsLoading={deleting}
+        destructive
         title="Excluir destino"
         description={`Tem certeza que deseja excluir "${siteToDelete?.name}"? As coletas já registradas mantêm o histórico.`}
       />

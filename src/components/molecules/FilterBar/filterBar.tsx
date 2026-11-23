@@ -168,6 +168,7 @@ const FilterBar = ({
         {routeValue === "" && !alwaysOpen && (
           <div className="flex w-full gap-8 sm:w-auto">
             <Button
+              variant="secondary"
               alertNumber={
                 numberCollectsWNoMassData && numberCollectsWNoMassData > 0
                   ? numberCollectsWNoMassData

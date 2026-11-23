@@ -105,9 +105,9 @@ const ImageUploadInput = ({ onImageCropped, defaultImage }: Props) => {
 
             <div className="mt-6 flex justify-end gap-2">
               <Button
+                variant="outline"
                 buttonType="button"
                 onClick={() => setShowModal(false)}
-                className="border-gray-300 bg-transparent text-gray-700 hover:bg-gray-100"
               >
                 Cancelar
               </Button>

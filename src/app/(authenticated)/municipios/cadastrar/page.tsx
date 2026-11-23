@@ -226,6 +226,7 @@ const Cadastrar = () => {
                   />
 
                   <Button
+                    variant="outline"
                     className="relative"
                     buttonType="button"
                     onClick={() => downloadInput.current?.click()}

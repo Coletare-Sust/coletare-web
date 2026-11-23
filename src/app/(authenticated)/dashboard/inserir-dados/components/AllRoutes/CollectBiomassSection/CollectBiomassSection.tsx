@@ -188,6 +188,7 @@ const CollectBiomassSection = ({
             </Button>
             {biomass && (
               <Button
+                variant="destructive"
                 className="h-fit w-fit"
                 loading={removing}
                 onClick={handleRemove}
@@ -345,6 +346,7 @@ const CollectBiomassSection = ({
               Salvar biomassa
             </Button>
             <Button
+              variant="outline"
               buttonType="button"
               className="w-fit"
               onClick={() => setIsOpen(false)}

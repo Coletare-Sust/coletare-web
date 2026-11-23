@@ -171,9 +171,14 @@ export default function ListaDeAvisosPag() {
                         {new Date(e.createdAt).toLocaleDateString("pt-BR")}
                       </p>
 
-                      <Button onClick={() => handleEdit(e.id)}>Editar</Button>
                       <Button
-                        className="bg-red-500"
+                        variant="outline"
+                        onClick={() => handleEdit(e.id)}
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        variant="destructive"
                         onClick={() => {
                           setOpenDeleteModal(true);
                           setClickedWarning(e);
@@ -202,6 +207,7 @@ export default function ListaDeAvisosPag() {
       </div>
 
       <ConfirmationModal
+        destructive
         title="Excluir aviso"
         description="Tem certeza de que deseja excluir este aviso? A imagem associada também será removida e a ação não poderá ser desfeita."
         isOpen={openDeleteModal}

@@ -40,8 +40,8 @@ const VeiculosColaboradoresPage = () => {
         <Title>Veículos</Title>
         <div className="flex flex-wrap gap-3 sm:gap-6">
           <Button
+            variant="outline"
             onClick={() => router.push("/rotas-andamento")}
-            className="border-greenBlue-1000 bg-transparent text-greenBlue-1000"
           >
             Visualizar rotas
           </Button>

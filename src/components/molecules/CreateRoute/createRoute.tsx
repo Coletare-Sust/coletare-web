@@ -535,6 +535,7 @@ const CreateRoute = ({
           <FormErrorLabel className="mt-2">{routeError}</FormErrorLabel>
           <FormErrorLabel className="mt-2">{polylineError}</FormErrorLabel>
           <Button
+            variant="secondary"
             className="mt-4 w-full"
             buttonType="button"
             loading={isCalculatingPolyline}

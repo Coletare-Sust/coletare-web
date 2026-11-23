@@ -22,6 +22,7 @@ export default function PaginationControls({
   return (
     <div className="flex items-center justify-center gap-4">
       <Button
+        variant="outline"
         buttonType="button"
         disabled={page === 0 || isLoading}
         onClick={() => onPageChange(Math.max(page - 1, 0))}
@@ -36,6 +37,7 @@ export default function PaginationControls({
         {page + 1} de {totalPages}
       </span>
       <Button
+        variant="outline"
         buttonType="button"
         disabled={page >= totalPages - 1 || isLoading}
         onClick={() => onPageChange(Math.min(page + 1, totalPages - 1))}

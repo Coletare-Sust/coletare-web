@@ -78,8 +78,7 @@ const RouteComponent = ({
         ) : (
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Button
-              className="border border-greenDark-1000 bg-greenBebe-400 px-6 py-2"
-              classNameText="text-greenDark-1000"
+              variant="outline"
               onClick={() =>
                 router.push(`/criar-rota?isEdit=true&routeId=${route.id}`)
               }
@@ -87,7 +86,7 @@ const RouteComponent = ({
               Editar rota
             </Button>
             <Button
-              className="border border-greenDark-1000 px-6 py-2"
+              variant="destructive"
               onClick={() => setIsDeleteModalOpen(true)}
             >
               Excluir rota
@@ -142,6 +141,7 @@ const RouteComponent = ({
         />
       </div>
       <ConfirmationModal
+        destructive
         title="Tem certeza que deseja deletar essa rota?"
         description="Essa ação não poderá ser desfeita."
         isOpen={isDeleteModalOpen}

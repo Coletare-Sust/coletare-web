@@ -57,7 +57,8 @@ const ENVIRONMENT_LABELS: Record<IntegrationEnvironment, string> = {
 type AskConfirm = (
   title: string,
   description: string,
-  onConfirm: () => Promise<void>
+  onConfirm: () => Promise<void>,
+  destructive?: boolean
 ) => void;
 
 // ---------- Modal "copie agora, não será exibida novamente" ----------
@@ -103,7 +104,11 @@ const RevealKeyDialog = ({
       </code>
 
       <div className="mt-4 flex gap-3">
-        <Button className="w-fit" onClick={copy}>
+        <Button
+          variant={copied ? "primary" : "outline"}
+          className="w-fit"
+          onClick={copy}
+        >
           {copied ? "Copiada!" : "Copiar chave"}
         </Button>
         <Button className="w-fit" onClick={close}>
@@ -162,7 +167,8 @@ const ClientKeys = ({
         } catch (err: any) {
           errorToast(err?.message || "Não foi possível revogar a chave.");
         }
-      }
+      },
+      true
     );
 
   return (
@@ -205,12 +211,14 @@ const ClientKeys = ({
               {key.status === "ACTIVE" && (
                 <div className="flex gap-2">
                   <Button
+                    variant="outline"
                     className="h-fit w-fit"
                     onClick={() => handleRotate(key.keyId)}
                   >
                     Rotacionar
                   </Button>
                   <Button
+                    variant="destructive"
                     className="h-fit w-fit"
                     onClick={() => handleRevoke(key.keyId)}
                   >
@@ -344,7 +352,12 @@ const NewClientForm = ({ onDone }: { onDone: () => void }) => {
         <Button buttonType="submit" className="w-fit" loading={isLoading}>
           Cadastrar integração
         </Button>
-        <Button buttonType="button" className="w-fit" onClick={onDone}>
+        <Button
+          variant="outline"
+          buttonType="button"
+          className="w-fit"
+          onClick={onDone}
+        >
           Cancelar
         </Button>
       </div>
@@ -367,11 +380,12 @@ const IntegracoesPage = () => {
     title: string;
     description: string;
     onConfirm: () => Promise<void>;
+    destructive?: boolean;
   } | null>(null);
   const [confirming, setConfirming] = useState(false);
 
-  const askConfirm: AskConfirm = (title, description, onConfirm) =>
-    setPending({ title, description, onConfirm });
+  const askConfirm: AskConfirm = (title, description, onConfirm, destructive) =>
+    setPending({ title, description, onConfirm, destructive });
 
   async function runPending() {
     if (!pending) return;
@@ -407,7 +421,8 @@ const IntegracoesPage = () => {
       askConfirm(
         "Suspender integração",
         "Suspender bloqueia todas as chaves deste parceiro.",
-        () => changeStatus(client)
+        () => changeStatus(client),
+        true
       );
     } else {
       changeStatus(client);
@@ -485,6 +500,9 @@ const IntegracoesPage = () => {
                     </p>
                   </div>
                   <Button
+                    variant={
+                      client.status === "ACTIVE" ? "destructive" : "primary"
+                    }
                     className="h-fit w-fit"
                     onClick={() => toggleStatus(client)}
                   >
@@ -523,6 +541,7 @@ const IntegracoesPage = () => {
         confirmIsLoading={confirming}
         title={pending?.title ?? ""}
         description={pending?.description ?? ""}
+        destructive={pending?.destructive}
       />
     </div>
   );
