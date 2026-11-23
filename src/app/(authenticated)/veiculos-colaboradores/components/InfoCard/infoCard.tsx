@@ -46,7 +46,7 @@ const InfoCard = ({ title, values, id, type }: InfoCardProps) => {
       <p className="text-lg font-medium text-greenBlue-1000 lg:mr-10 lg:w-44 lg:text-xl">
         {title}
       </p>
-      <div className="grid grid-cols-2 gap-4 lg:flex lg:w-2/3 lg:gap-10">
+      <div className="grid min-w-0 grid-cols-1 gap-4 min-[420px]:grid-cols-2 lg:flex lg:w-2/3 lg:gap-10">
         {values.map((value, index) => {
           return (
             <div
@@ -54,7 +54,9 @@ const InfoCard = ({ title, values, id, type }: InfoCardProps) => {
               key={index}
             >
               <p className="font-medium text-greenDark-1000">{value.label}</p>
-              <p className="text-sm text-greenDark-1000">{value.content}</p>
+              <p className="min-w-0 text-sm text-greenDark-1000 [overflow-wrap:anywhere]">
+                {value.content}
+              </p>
             </div>
           );
         })}
