@@ -17,6 +17,7 @@ import { canAccessAll } from "@/common/accessControl/permissions";
 import { getRouteAccessRule } from "@/common/accessControl/routes";
 
 import { linksAdmin, linksCity } from "@molecules/MainHeader/constants";
+import { cn } from "@/utils";
 
 const libraries: Libraries = ["places", "geometry", "drawing", "visualization"];
 
@@ -130,7 +131,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </>
           )}
 
-          <div className="relative flex min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
+          <div
+            className={cn(
+              "relative flex min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden transition-[margin] duration-300 ease-in-out",
+              deveMostrarSidebar && (isSidebarOpen ? "lg:ml-72" : "lg:ml-20")
+            )}
+          >
             <MainHeader
               onOpenMenu={
                 deveMostrarSidebar ? () => setIsMobileMenuOpen(true) : undefined

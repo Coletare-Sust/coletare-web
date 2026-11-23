@@ -122,7 +122,12 @@ type SidebarProps = {
   links: NavigationLink[];
 };
 
-/** Sidebar fixa, visível apenas a partir de `lg`. No celular use MobileSidebar. */
+/**
+ * Sidebar fixa na viewport (sempre com a altura da tela, independente do scroll
+ * da página), visível apenas a partir de `lg`. O conteúdo da página precisa de
+ * margem esquerda igual à largura dela (`lg:ml-20` recolhida, `lg:ml-72` aberta).
+ * No celular use MobileSidebar.
+ */
 export default function Sidebar({
   isOpen,
   toggleSidebar,
@@ -131,7 +136,7 @@ export default function Sidebar({
   return (
     <aside
       className={cn(
-        "h-dvh relative z-30 hidden shrink-0 flex-col border-r border-greenBlue-200/60 bg-brand-paper transition-[width] duration-300 ease-in-out lg:flex",
+        "h-dvh fixed inset-y-0 left-0 z-30 hidden flex-col overflow-hidden border-r border-greenBlue-200/60 bg-brand-paper transition-[width] duration-300 ease-in-out lg:flex",
         isOpen ? "w-72 px-6" : "w-20 px-4"
       )}
     >
