@@ -245,7 +245,7 @@ const AddCollectData = ({ collectData, isAdmin }: AddCollectDataProps) => {
             } items-center justify-between`}
           >
             <Button className="w-fit" buttonType="submit" loading={loading}>
-              Editar rota
+              Salvar alterações
             </Button>
           </span>
         </div>
