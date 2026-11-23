@@ -48,7 +48,11 @@ const LocationDetail = ({
           <p className="text-greenDark-800">{address}</p>
         </div>
 
-        {actions && <div className="mt-8 flex gap-4">{actions}</div>}
+        {actions && (
+          <div className="mt-6 flex flex-wrap gap-3 sm:mt-8 sm:gap-4">
+            {actions}
+          </div>
+        )}
       </div>
 
       <div className="h-[240px] w-full overflow-hidden rounded-xl border border-greenBlue-200 shadow-md sm:h-[300px] lg:w-[500px] lg:shrink-0">
