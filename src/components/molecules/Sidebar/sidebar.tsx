@@ -131,7 +131,7 @@ export default function Sidebar({
   return (
     <aside
       className={cn(
-        "relative z-30 hidden h-full shrink-0 flex-col border-r border-greenBlue-200/60 bg-brand-paper transition-[width] duration-300 ease-in-out lg:flex",
+        "h-dvh relative z-30 hidden shrink-0 flex-col border-r border-greenBlue-200/60 bg-brand-paper transition-[width] duration-300 ease-in-out lg:flex",
         isOpen ? "w-72 px-6" : "w-20 px-4"
       )}
     >
@@ -153,11 +153,11 @@ export default function Sidebar({
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-1 pb-4 pt-3">
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-1 pb-4 pt-3">
         <SidebarNav links={links} collapsed={!isOpen} />
       </div>
 
-      <div className="shrink-0 border-t border-greenBlue-200/60 py-3">
+      <div className="mt-auto shrink-0 border-t border-greenBlue-200/60 py-2">
         <SidebarUser collapsed={!isOpen} menuSide="right" />
       </div>
     </aside>
@@ -193,10 +193,10 @@ export function MobileSidebar({
           </SheetDescription>
           <Brand />
         </SheetHeader>
-        <div className="flex-1 overflow-y-auto px-6 pb-6 pt-3">
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6 pt-3">
           <SidebarNav links={links} onNavigate={() => onOpenChange(false)} />
         </div>
-        <div className="shrink-0 border-t border-greenBlue-200/60 px-4 py-3">
+        <div className="mt-auto shrink-0 border-t border-greenBlue-200/60 px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
           <SidebarUser menuSide="top" />
         </div>
       </SheetContent>
