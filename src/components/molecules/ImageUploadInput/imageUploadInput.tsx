@@ -61,7 +61,7 @@ const ImageUploadInput = ({ onImageCropped, defaultImage }: Props) => {
           alt="Profile"
         />
         <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/40 opacity-0 transition-opacity hover:opacity-100">
-          <span className="text-white text-xs font-bold">Alterar Foto</span>
+          <span className="text-xs font-bold text-white-900">Alterar Foto</span>
           <input
             type="file"
             className="hidden"

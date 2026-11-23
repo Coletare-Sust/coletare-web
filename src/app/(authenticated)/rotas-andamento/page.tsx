@@ -625,7 +625,7 @@ const RotasAndamento = () => {
                             <div className="pointer-events-none flex flex-col items-center">
                               <div className="relative rounded-lg bg-greenBlue-1000 px-4 py-3 shadow-xl">
                                 <div className="flex flex-col items-center gap-1">
-                                  <span className="text-white whitespace-nowrap text-xs font-bold">
+                                  <span className="whitespace-nowrap text-xs font-bold text-white-900">
                                     {truck.vehicleName}
                                   </span>
                                   <span className="whitespace-nowrap text-[10px] font-medium text-greenAqua-200">
@@ -676,7 +676,7 @@ const RotasAndamento = () => {
                           onClick={() => focusTruck(truck)}
                           className={`mb-1 flex w-full items-center gap-3 rounded-md px-3 py-3 text-left transition-colors last:mb-0 ${
                             isSelected
-                              ? "text-white bg-greenBlue-1000"
+                              ? "bg-greenBlue-1000 text-white-900"
                               : "text-brand-ink hover:bg-greenBebe-200"
                           }`}
                         >

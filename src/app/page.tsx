@@ -276,7 +276,7 @@ export default function LoginPage() {
                 errorToast("Preencha o campo de e-mail.");
               }
             }}
-            className="hover:text-white -mt-2 self-start rounded text-[15px] text-brand-mint underline underline-offset-4 outline-none focus-visible:ring-4 focus-visible:ring-brand-mint/50"
+            className="-mt-2 self-start rounded text-[15px] text-brand-mint underline underline-offset-4 outline-none hover:text-white-900 focus-visible:ring-4 focus-visible:ring-brand-mint/50"
           >
             Esqueci minha senha
           </button>

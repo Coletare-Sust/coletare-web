@@ -213,7 +213,7 @@ const EcopontosPage = () => {
                       </Button>
                       <Button
                         className="flex items-center gap-2 border border-red-600 bg-red-500 px-6 py-2 hover:bg-red-600"
-                        classNameText="text-white font-semibold"
+                        classNameText="text-white-900 font-semibold"
                         onClick={() => handleDelete(point.id)}
                       >
                         Excluir
