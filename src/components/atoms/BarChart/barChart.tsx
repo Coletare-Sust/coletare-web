@@ -5,6 +5,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import "chart.js/auto";
 import { twMerge } from "tailwind-merge";
 import { monthsArray } from "@/common/constants/chartData";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 import { BarChartProps } from "./types";
 import { generateColorsBarChart } from "./generateColorsBarChart";
@@ -17,6 +18,8 @@ function BarChart({
   barThickness = 50
 }: BarChartProps) {
   const bgColors = generateColorsBarChart(chartData.length);
+  const compact = useMediaQuery("(max-width: 639px)");
+  const tickSize = compact ? 12 : 18;
   return (
     <div className={twMerge("h-full w-full", className)}>
       <Bar
@@ -30,6 +33,9 @@ function BarChart({
                 anchor: "end",
                 clamp: true,
                 align: "top",
+                offset: compact ? 2 : 4,
+                font: { size: compact ? 11 : 13, weight: 600 },
+                color: "#004A55",
                 formatter: (value) => {
                   return parseFloat(value).toFixed(2).replace(".", ",");
                 }
@@ -38,7 +44,7 @@ function BarChart({
               data: chartData,
               backgroundColor: bgColors,
               borderWidth: 1,
-              barThickness // Ajuste aqui a largura das barras conforme necessário
+              barThickness: compact ? 22 : barThickness // Ajuste aqui a largura das barras conforme necessário
             }
           ]
         }}
@@ -57,7 +63,7 @@ function BarChart({
               ticks: {
                 color: "#004A55",
                 font: {
-                  size: 18,
+                  size: tickSize,
                   weight: 500
                 }
               }
@@ -69,9 +75,9 @@ function BarChart({
               },
               ticks: {
                 color: "#004A55",
-                padding: 20,
+                padding: compact ? 10 : 20,
                 font: {
-                  size: 18,
+                  size: tickSize,
                   weight: 500
                 }
               }

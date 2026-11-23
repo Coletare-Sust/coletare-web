@@ -31,9 +31,11 @@ const ChartComponent = ({
         />
       </div>
       <div className="rounded-lg bg-white-800 px-3 py-6 sm:px-6 sm:py-10 lg:py-[52px]">
-        <div className="m-auto h-[300px] w-full max-w-[1377px] sm:h-[320px]">
-          {barChartData && <BarChart {...barChartData} />}
-          {stackedChartData && <StackedChartLabels {...stackedChartData} />}
+        <div className="overflow-x-auto">
+          <div className="m-auto h-[300px] w-full min-w-[620px] max-w-[1377px] sm:h-[320px] sm:min-w-0">
+            {barChartData && <BarChart {...barChartData} />}
+            {stackedChartData && <StackedChartLabels {...stackedChartData} />}
+          </div>
         </div>
       </div>
     </section>
