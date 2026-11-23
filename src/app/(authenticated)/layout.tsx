@@ -135,6 +135,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               onOpenMenu={
                 deveMostrarSidebar ? () => setIsMobileMenuOpen(true) : undefined
               }
+              showAccount={!deveMostrarSidebar}
             />
 
             <main className="flex-1 p-4 sm:p-6 lg:px-8">{renderContent()}</main>

@@ -21,6 +21,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
+import SidebarUser from "@molecules/SidebarUser/sidebarUser";
 import { cn } from "@/utils";
 
 type NavProps = {
@@ -67,7 +68,7 @@ export function SidebarNav({ links, collapsed, onNavigate }: NavProps) {
 
   return (
     <TooltipProvider delayDuration={150}>
-      <nav aria-label="Principal" className="flex flex-col gap-1">
+      <nav aria-label="Principal" className="flex flex-col gap-2">
         {links.map((link) => {
           const active = link.url === activeUrl;
           const iconSrc = link.icon(brandColors.deep);
@@ -78,7 +79,7 @@ export function SidebarNav({ links, collapsed, onNavigate }: NavProps) {
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "min-h-12 relative flex items-center rounded-xl px-3 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-aqua",
+                "min-h-12 relative flex items-center rounded-xl px-3 py-3 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-aqua",
                 collapsed ? "justify-center" : "gap-3",
                 active
                   ? "bg-greenAqua-200 font-semibold text-brand-deep before:absolute before:-left-3 before:top-2.5 before:h-7 before:w-1 before:rounded-full before:bg-brand-aqua"
@@ -88,8 +89,8 @@ export function SidebarNav({ links, collapsed, onNavigate }: NavProps) {
               <span className="relative flex h-6 w-6 shrink-0 items-center justify-center">
                 <Image src={iconSrc} alt="" width={22} height={22} />
                 {link.alertNumber > 0 && (
-                  <span className="text-white absolute -right-2 -top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-error px-1 text-[10px] font-bold">
-                    {link.alertNumber}
+                  <span className="absolute -right-3 -top-3 flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-error px-1.5 text-xs font-bold leading-none text-white-900 ring-2 ring-brand-paper">
+                    {link.alertNumber > 99 ? "99+" : link.alertNumber}
                   </span>
                 )}
               </span>
@@ -136,26 +137,29 @@ export default function Sidebar({
     >
       <div
         className={cn(
-          "flex h-16 shrink-0 items-center",
-          isOpen ? "justify-between" : "justify-center"
+          "flex shrink-0 items-center py-4",
+          isOpen ? "justify-between" : "flex-col gap-3"
         )}
       >
         <Brand collapsed={!isOpen} />
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          aria-label={isOpen ? "Recolher menu" : "Expandir menu"}
+          aria-expanded={isOpen}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-brand-deep outline-none transition-colors hover:bg-greenBebe-200 focus-visible:ring-2 focus-visible:ring-brand-aqua"
+        >
+          {isOpen ? <ChevronsLeft size={20} /> : <ChevronsRight size={20} />}
+        </button>
       </div>
 
-      <div className="mt-4 flex-1 overflow-y-auto overflow-x-hidden pb-4">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-1 pb-4 pt-3">
         <SidebarNav links={links} collapsed={!isOpen} />
       </div>
 
-      <button
-        type="button"
-        onClick={toggleSidebar}
-        aria-label={isOpen ? "Recolher menu" : "Expandir menu"}
-        aria-expanded={isOpen}
-        className="absolute -right-3 top-5 flex h-6 w-6 items-center justify-center rounded-full border border-greenBlue-200 bg-brand-paper text-brand-deep shadow-sm outline-none transition-colors hover:bg-greenAqua-200 focus-visible:ring-2 focus-visible:ring-brand-aqua"
-      >
-        {isOpen ? <ChevronsLeft size={14} /> : <ChevronsRight size={14} />}
-      </button>
+      <div className="shrink-0 border-t border-greenBlue-200/60 py-3">
+        <SidebarUser collapsed={!isOpen} menuSide="right" />
+      </div>
     </aside>
   );
 }
@@ -189,8 +193,11 @@ export function MobileSidebar({
           </SheetDescription>
           <Brand />
         </SheetHeader>
-        <div className="flex-1 overflow-y-auto px-6 pb-6">
+        <div className="flex-1 overflow-y-auto px-6 pb-6 pt-3">
           <SidebarNav links={links} onNavigate={() => onOpenChange(false)} />
+        </div>
+        <div className="shrink-0 border-t border-greenBlue-200/60 px-4 py-3">
+          <SidebarUser menuSide="top" />
         </div>
       </SheetContent>
     </Sheet>
