@@ -140,6 +140,12 @@ export interface UpdateUserInput {
   consume?: number;
   emission?: number;
   fuelType?: string;
+  // Somente cidades (campos omitidos permanecem inalterados no backend)
+  calcData?: { landFillDeliveryCost: number; fuelCost: number };
+  address?: { localityName: string; latitude: number; longitude: number };
+  facilitatorData?: { facilitatorName: string; supportEmail: string };
+  color?: string;
+  status?: boolean;
 }
 
 // normalizeRole usa o mapper centralizado de enums do backend
@@ -562,8 +568,8 @@ export const createUser = async (
 export const createUserDoc = createUser;
 
 /**
- * O backend (UpdateUserInput) só aceita name, email, cityId, cpf, carPlate, consume e emission;
- * outros campos (calcData, cor, endereço, status, imagem, facilitador) são ignorados.
+ * PUT /user/{id}: para cidades o backend também aceita calcData, endereço, facilitador, cor e status
+ * (a imagem ainda não é atualizável). Campos omitidos permanecem inalterados.
  * Lança em erro HTTP para que a mutation caia em onError.
  */
 export const updateUser = async (
@@ -579,6 +585,31 @@ export const updateUser = async (
     emission: data.emission ? parseFloat(data.emission) : undefined,
     fuelType: data.fuelType || undefined
   };
+  const landfill = data.calcData?.landfillDelivery;
+  const fuel = data.calcData?.fuel;
+  if (
+    typeof landfill === "number" &&
+    typeof fuel === "number" &&
+    Number.isFinite(landfill) &&
+    Number.isFinite(fuel)
+  ) {
+    input.calcData = { landFillDeliveryCost: landfill, fuelCost: fuel };
+  }
+  if (data.fullAddress && data.latitude != null && data.longitude != null) {
+    input.address = {
+      localityName: data.fullAddress,
+      latitude: data.latitude,
+      longitude: data.longitude
+    };
+  }
+  if (data.facilitatorName && data.supportEmail) {
+    input.facilitatorData = {
+      facilitatorName: data.facilitatorName,
+      supportEmail: data.supportEmail
+    };
+  }
+  if (data.color) input.color = data.color;
+  if (typeof data.status === "boolean") input.status = data.status;
   await apiFetch(`/user/${id}`, {
     method: "PUT",
     body: JSON.stringify(input)

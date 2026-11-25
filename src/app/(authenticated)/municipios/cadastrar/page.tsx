@@ -131,15 +131,29 @@ const Cadastrar = () => {
     }
   );
 
-  // PUT /user/{id} (UpdateUserInput) só altera nome e e-mail de uma cidade; o backend ainda
-  // não tem endpoint para imagem, cor, endereço, status, facilitador ou dados de cálculo.
+  // PUT /user/{id} atualiza nome, custos (aterro/combustível), endereço, facilitador, cor e status.
+  // A imagem ainda não é atualizável pelo backend.
   const mutationUpdate = useMutation(
     async ({ data }: { data: AddCityForm }) => {
-      await updateUser(toEditCityId as string, { name: data.name });
+      await updateUser(toEditCityId as string, {
+        name: data.name,
+        calcData: {
+          initialDate: null as any,
+          landfillDelivery: parseFloat(data.landfillDelivery),
+          fuel: parseFloat(data.fuel)
+        },
+        fullAddress: fullAddress || null,
+        latitude,
+        longitude,
+        facilitatorName: data.facilitatorName,
+        supportEmail: data.supportEmail,
+        color: color,
+        status: data.status
+      });
     },
     {
       onSuccess: () => {
-        successToast("Nome do município atualizado com sucesso!");
+        successToast("Município atualizado com sucesso!");
         queryClient.invalidateQueries(["cities"]);
         queryClient.invalidateQueries(["city", toEditCityId]);
         router.back();
@@ -324,9 +338,7 @@ const Cadastrar = () => {
             </div>
             {city && (
               <p className="max-w-[724px] text-center text-sm text-greenDark-800">
-                Por enquanto a edição salva apenas o nome do município. Imagem,
-                cor, endereço, status, facilitador e custos ainda não podem ser
-                alterados por aqui.
+                A imagem do município ainda não pode ser alterada por aqui.
               </p>
             )}
             <Button loading={loading}>{city ? "Editar" : "Cadastrar"}</Button>
