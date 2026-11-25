@@ -36,12 +36,12 @@ const VeiculosColaboradoresPage = () => {
 
   return (
     <div style={wrapper} className="py-14">
-      <div className="mb-10 flex items-center justify-between">
+      <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
         <Title>Veículos</Title>
-        <div className="flex flex-row gap-6">
+        <div className="flex flex-wrap gap-3 sm:gap-6">
           <Button
+            variant="outline"
             onClick={() => router.push("/rotas-andamento")}
-            className="border-greenBlue-1000 bg-transparent text-greenBlue-1000"
           >
             Visualizar rotas
           </Button>
@@ -86,7 +86,7 @@ const VeiculosColaboradoresPage = () => {
 
       <div className="my-20 h-[1px] w-full bg-greenBlue-400"></div>
 
-      <div className="mb-10 flex items-center justify-between">
+      <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
         <Title>Colaboradores</Title>
         <Button onClick={() => router.push("/cadastrar-colaborador")}>
           Cadastrar novo

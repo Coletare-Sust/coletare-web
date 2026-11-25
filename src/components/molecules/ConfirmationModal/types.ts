@@ -5,4 +5,5 @@ export interface ConfirmationModalProps {
   title: string;
   description: string;
   confirmIsLoading?: boolean;
+  destructive?: boolean;
 }

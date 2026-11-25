@@ -7,7 +7,11 @@ import { useJsApiLoader, Libraries } from "@react-google-maps/api";
 import BlockInactiveUserWrapper from "@/components/templates/BlockInactiveUser/blockInactiveUser";
 import AuthenticatedOnlyFeatureWrapper from "@/components/templates/Authenticated/authenticated";
 import MainHeader from "@molecules/MainHeader/mainHeader";
-import Sidebar from "@molecules/Sidebar/sidebar";
+import Footer from "@molecules/Footer/footer";
+import Sidebar, {
+  MobileSidebar,
+  SidebarToggle
+} from "@molecules/Sidebar/sidebar";
 import LoadingComponent from "@/components/atoms/Loading/loading";
 
 import useAuth from "@/hooks/useAuth";
@@ -16,13 +20,15 @@ import useWithdrawalRequestCount from "@/hooks/queries/useWithdrawalRequestCount
 import { canAccessAll } from "@/common/accessControl/permissions";
 import { getRouteAccessRule } from "@/common/accessControl/routes";
 
-import { colors, linksAdmin, linksCity } from "@molecules/MainHeader/constants";
+import { linksAdmin, linksCity } from "@molecules/MainHeader/constants";
+import { cn } from "@/utils";
 
 const libraries: Libraries = ["places", "geometry", "drawing", "visualization"];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
@@ -33,7 +39,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { userUid } = useAuth();
   const { data: user } = useProfile(userUid);
 
-  const isCity = user?.role === "admin";
   const baseLinks = [...linksCity, ...linksAdmin];
 
   const { data: openedSolicitationsCount = 0 } = useWithdrawalRequestCount(
@@ -57,14 +62,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       return link;
     });
 
-  const headerColor = isCity
-    ? colors.find((color) => color.name === user?.color)?.hex || "#004A55"
-    : "#004A55";
-
   const rotasComSidebar = [
     "/dashboard",
     "/rotas",
     "/ecopontos",
+    "/destinos",
+    "/integracoes",
     "/solicitacoes-retirada",
     "/veiculos-colaboradores",
     "/avisos",
@@ -92,10 +95,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (user && !canAccessCurrentRoute) {
       return (
         <section className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-center">
-          <h1 className="text-2xl font-semibold text-gray-800">
+          <h1 className="text-2xl font-semibold text-brand-strong">
             Acesso restrito
           </h1>
-          <p className="max-w-md text-sm text-gray-500">
+          <p className="max-w-md text-sm text-brand-ink">
             Seu usuario nao possui permissao para acessar esta tela.
           </p>
         </section>
@@ -116,32 +119,40 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <AuthenticatedOnlyFeatureWrapper>
       <BlockInactiveUserWrapper>
-        <div className="flex h-screen overflow-hidden bg-gray-50">
+        <div className="h-dvh flex overflow-hidden bg-white-800">
           {deveMostrarSidebar && (
-            <aside className="sticky top-0 z-50 h-screen">
-              <Sidebar
+            <>
+              <Sidebar isOpen={isSidebarOpen} links={linksComNotificacao} />
+              <SidebarToggle
                 isOpen={isSidebarOpen}
-                toggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
-                links={linksComNotificacao}
-                headerColor={headerColor}
+                onToggle={() => setIsSidebarOpen((prev) => !prev)}
               />
-            </aside>
+              <MobileSidebar
+                open={isMobileMenuOpen}
+                onOpenChange={setIsMobileMenuOpen}
+                links={linksComNotificacao}
+              />
+            </>
           )}
 
-          <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden transition-all duration-300">
+          <div
+            className={cn(
+              "relative flex min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white-800 transition-[margin] duration-300 ease-in-out",
+              deveMostrarSidebar && (isSidebarOpen ? "lg:ml-72" : "lg:ml-20")
+            )}
+          >
             <MainHeader
-              isOpen={deveMostrarSidebar ? isSidebarOpen : false}
-              hideSidebar={!deveMostrarSidebar}
+              onOpenMenu={
+                deveMostrarSidebar ? () => setIsMobileMenuOpen(true) : undefined
+              }
+              showAccount={!deveMostrarSidebar}
             />
 
-            <main
-              className={`
-              flex-1 p-6 transition-all duration-300
-              ${!deveMostrarSidebar ? "w-full" : ""}
-            `}
-            >
+            <main className="flex-1 bg-white-800 p-4 sm:p-6 lg:px-8">
               {renderContent()}
             </main>
+
+            <Footer />
           </div>
         </div>
       </BlockInactiveUserWrapper>

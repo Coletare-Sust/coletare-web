@@ -141,7 +141,7 @@ const ChartsSection = () => {
 
   return (
     <section style={wrapper} className="py-[88px]">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <Title>Visão Geral {cityName}</Title>
         <MoreDropdown
           options={[

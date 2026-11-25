@@ -117,10 +117,10 @@ export default function ListaDeAvisosPag() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start">
+    <div className="flex min-h-[calc(100dvh-8rem)] flex-col items-center justify-start">
       <Title className="mt-12">Lista de Avisos</Title>
-      <div className="mb-8 mt-4 flex w-full max-w-[1377px] flex-1 flex-col items-center justify-start gap-8 rounded-xl bg-slate-100 p-8 pt-0">
-        <div className="border-white mt-8 flex w-full flex-row justify-start gap-4 border-b pb-4">
+      <div className="mb-8 mt-4 flex w-full max-w-[1377px] flex-1 flex-col items-center justify-start gap-8 rounded-xl bg-slate-100 p-4 pt-0 sm:p-8 sm:pt-0">
+        <div className="border-white mt-8 flex w-full flex-col items-stretch gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-start">
           <Button onClick={() => router.push("/avisos/cadastrar")}>
             Criar novo aviso
           </Button>
@@ -133,7 +133,7 @@ export default function ListaDeAvisosPag() {
             label="Periodo"
           />
           <input
-            className="min-w-[280px] rounded-lg border border-greenBlue-400 bg-white-1000 px-4 py-3 outline-none focus:border-greenBlue-1000"
+            className="min-w-0 rounded-lg border border-greenBlue-400 bg-white-1000 px-4 py-3 outline-none focus:border-greenBlue-1000 sm:min-w-[280px]"
             placeholder="Buscar aviso"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -151,7 +151,7 @@ export default function ListaDeAvisosPag() {
               .map((e) => {
                 return (
                   <div
-                    className="flex h-[480px] w-full flex-col justify-between rounded-xl bg-white-900 p-6 shadow-md transition-shadow hover:shadow-lg"
+                    className="flex min-h-[420px] w-full flex-col justify-between rounded-xl bg-white-900 p-6 shadow-md transition-shadow hover:shadow-lg sm:h-[480px]"
                     key={e.id}
                   >
                     {e.image && (
@@ -171,9 +171,14 @@ export default function ListaDeAvisosPag() {
                         {new Date(e.createdAt).toLocaleDateString("pt-BR")}
                       </p>
 
-                      <Button onClick={() => handleEdit(e.id)}>Editar</Button>
                       <Button
-                        className="bg-red-500"
+                        variant="outline"
+                        onClick={() => handleEdit(e.id)}
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        variant="destructive"
                         onClick={() => {
                           setOpenDeleteModal(true);
                           setClickedWarning(e);
@@ -202,6 +207,7 @@ export default function ListaDeAvisosPag() {
       </div>
 
       <ConfirmationModal
+        destructive
         title="Excluir aviso"
         description="Tem certeza de que deseja excluir este aviso? A imagem associada também será removida e a ação não poderá ser desfeita."
         isOpen={openDeleteModal}

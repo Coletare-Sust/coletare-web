@@ -20,6 +20,7 @@ import useCreateEcoponto from "@/hooks/queries/ecoponto/useCreateEcoponto";
 import useUpdateEcoponto from "@/hooks/queries/ecoponto/useUpdateEcoponto";
 import useGetEcopontoById from "@/hooks/queries/ecoponto/useGetEcopontoById";
 import EcopontoAddressInput from "@/components/atoms/EcopontoAddressInput/EcopontoAddressInput";
+import MapPanel from "@/components/molecules/MapPanel/mapPanel";
 import {
   RESIDUE_TYPE_LABELS,
   getResidueTypeLabel
@@ -140,7 +141,8 @@ const CriarEcopontoPage = () => {
       isNaN(lngNum) ||
       residueType.length === 0
     ) {
-      const msg = "Preencha todos os campos obrigatórios.";
+      const msg =
+        "Preencha o nome e escolha o local no mapa ou pela busca de endereço.";
       errorToast(msg);
       return setError(msg);
     }
@@ -191,7 +193,7 @@ const CriarEcopontoPage = () => {
   };
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
+    <div className="relative -m-4 h-[calc(100dvh-4rem)] overflow-hidden sm:-m-6">
       <>
         <div className="absolute inset-0 h-full w-full">
           <GoogleMap
@@ -209,11 +211,14 @@ const CriarEcopontoPage = () => {
           </GoogleMap>
         </div>
 
-        <div className="absolute left-8 top-8 z-10 h-[calc(100vh-64px)] w-full max-w-[520px]">
+        <MapPanel
+          label="formulário"
+          className="lg:left-8 lg:top-8 lg:h-[calc(100dvh-8rem)] lg:max-w-[520px]"
+        >
           <div
             className={twMerge(
-              "h-full w-full overflow-y-auto rounded-xl",
-              "bg-white-1000 p-8 font-medium shadow-2xl"
+              "max-h-[50dvh] w-full overflow-y-auto p-5 font-medium",
+              "lg:h-full lg:max-h-none lg:rounded-xl lg:bg-white-1000 lg:p-8 lg:shadow-2xl"
             )}
           >
             <Title className="mb-8 flex items-center gap-2 text-2xl">
@@ -239,8 +244,8 @@ const CriarEcopontoPage = () => {
                 }}
               >
                 <p className="text-sm text-gray-500">
-                  Clique no mapa para definir a localização ou preencha
-                  manualmente.
+                  Clique no mapa para definir a localização ou busque o
+                  endereço.
                 </p>
 
                 <InputField
@@ -259,42 +264,13 @@ const CriarEcopontoPage = () => {
                   onLocationSelect={handleAddressSelect}
                 />
 
-                <div className="flex flex-col gap-4">
-                  <InputField
-                    label="Latitude"
-                    placeholder="-8.2826"
-                    name="lat"
-                    value={lat}
-                    onChange={(e) => {
-                      setLat(e.target.value);
-                      const l = parseFloat(e.target.value);
-                      const g = parseFloat(lng);
-                      if (!isNaN(l) && !isNaN(g))
-                        setMarkerPosition({ lat: l, lng: g });
-                    }}
-                  />
-                  <InputField
-                    label="Longitude"
-                    placeholder="-35.9753"
-                    name="lng"
-                    value={lng}
-                    onChange={(e) => {
-                      setLng(e.target.value);
-                      const l = parseFloat(lat);
-                      const g = parseFloat(e.target.value);
-                      if (!isNaN(l) && !isNaN(g))
-                        setMarkerPosition({ lat: l, lng: g });
-                    }}
-                  />
-                </div>
-
                 <div className="flex flex-col gap-2">
                   <label className="font-medium text-greenDark-800">
                     Tipo de Resíduo
                   </label>
                   <Dropdown
                     options={dropdownOptions}
-                    className="w-full border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
+                    className="w-full sm:w-full"
                     value={
                       getResidueTypeLabel(residueType[0]) || residueType[0]
                     }
@@ -314,7 +290,7 @@ const CriarEcopontoPage = () => {
               </form>
             )}
           </div>
-        </div>
+        </MapPanel>
       </>
     </div>
   );

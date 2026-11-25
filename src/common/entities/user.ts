@@ -15,6 +15,7 @@ export interface UserEntity {
   cpf: string | null;
   consume: string | null;
   emission: string | null;
+  fuelType?: string | null;
   fullAddress: string | null;
   latitude: number | null;
   longitude: number | null;

@@ -1,3 +1,10 @@
+export type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "destructive"
+  | "ghost";
+
 export interface ButtonProps {
   onClick?: () => void;
   children: React.ReactNode;
@@ -7,4 +14,5 @@ export interface ButtonProps {
   classNameText?: string;
   alertNumber?: number;
   buttonType?: "button" | "submit" | "reset";
+  variant?: ButtonVariant;
 }

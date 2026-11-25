@@ -32,22 +32,29 @@ export function AccordionChildren({
         >
           <AccordionTrigger
             className={twMerge(
-              "my-0 flex items-center justify-between rounded-[8px] bg-greenAqua-200 p-4 text-greenDark-1000 data-[state=open]:rounded-b-none",
+              "relative my-0 flex flex-col items-stretch gap-3 rounded-[8px] bg-greenAqua-200 p-4 pr-12 text-left text-greenDark-1000 data-[state=open]:rounded-b-none lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:pr-4 [&>svg]:absolute [&>svg]:right-3 [&>svg]:top-4 [&>svg]:h-6 [&>svg]:w-6 lg:[&>svg]:static lg:[&>svg]:h-8 lg:[&>svg]:w-8",
               triggerClassName,
               item.triggerClassName
             )}
           >
             <h2
               className={`${
-                isRoute ? "w-[90%]" : "w-[300px]"
-              } text-left text-[24px] font-bold`}
+                isRoute ? "lg:w-[90%]" : "lg:w-[300px]"
+              } w-full break-words text-left text-lg font-bold sm:text-xl lg:text-[24px]`}
             >
               {item.title}
             </h2>
             {item.properties.map((property, key) => (
-              <span className="flex items-center gap-4 tracking-wide" key={key}>
-                <span className="font-semibold">{property.prop}</span>
-                <span className="text-[14px]">{property.answer}</span>
+              <span
+                className="flex flex-col items-start gap-0.5 tracking-wide lg:flex-row lg:items-center lg:gap-4"
+                key={key}
+              >
+                <span className="text-sm font-semibold lg:text-base">
+                  {property.prop}
+                </span>
+                <span className="break-words text-[14px]">
+                  {property.answer}
+                </span>
               </span>
             ))}
           </AccordionTrigger>

@@ -2,6 +2,7 @@ import { Bar } from "react-chartjs-2";
 import { twMerge } from "tailwind-merge";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { monthsArray } from "@/common/constants/chartData";
+import useMediaQuery from "@/hooks/useMediaQuery";
 import { StackedChartProps } from "./types";
 
 const StackedChart = ({
@@ -10,6 +11,8 @@ const StackedChart = ({
   labelsX = monthsArray,
   barThickness = 50
 }: StackedChartProps) => {
+  const compact = useMediaQuery("(max-width: 639px)");
+  const tickSize = compact ? 12 : 18;
   return (
     <div className={twMerge("h-full w-full", className)}>
       <Bar
@@ -30,12 +33,15 @@ const StackedChart = ({
               display: index === 1,
               anchor: "end",
               clamp: true,
-              align: "top"
+              align: "top",
+              offset: compact ? 2 : 4,
+              font: { size: compact ? 11 : 13, weight: 600 },
+              color: "#004A55"
             },
             label: item.label,
             data: item.data,
             backgroundColor: item.color,
-            barThickness,
+            barThickness: compact ? 22 : barThickness,
             stack: "1" // esse valor é somente pra determinar que todos os datasets passados estarão em uma só barra
           }))
         }}
@@ -57,7 +63,7 @@ const StackedChart = ({
               ticks: {
                 color: "#004A55",
                 font: {
-                  size: 18,
+                  size: tickSize,
                   weight: 500
                 }
               }
@@ -69,10 +75,10 @@ const StackedChart = ({
               },
               ticks: {
                 color: "#004A55",
-                padding: 20,
-                stepSize: 5,
+                padding: compact ? 10 : 20,
+                stepSize: compact ? undefined : 5,
                 font: {
-                  size: 18,
+                  size: tickSize,
                   weight: 500
                 }
               }

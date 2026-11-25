@@ -407,7 +407,7 @@ const CreateRoute = ({
         </div>
         <Dropdown
           options={dropdownOptions}
-          className="w-fit border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
+          className="w-fit"
           value={getResidueTypeLabel(residueType)}
         />
         {!isEdit && !isSpecial && (
@@ -484,7 +484,7 @@ const CreateRoute = ({
                 </div>
                 <Dropdown
                   options={dropdownOptionsSecondary}
-                  className="w-fit border border-greenBlue-800 bg-greenBebe-200 px-2 py-2 text-greenBlue-1000"
+                  className="w-fit"
                   value={getResidueTypeLabel(residueTypeSecondary)}
                 />
               </div>
@@ -535,6 +535,7 @@ const CreateRoute = ({
           <FormErrorLabel className="mt-2">{routeError}</FormErrorLabel>
           <FormErrorLabel className="mt-2">{polylineError}</FormErrorLabel>
           <Button
+            variant="secondary"
             className="mt-4 w-full"
             buttonType="button"
             loading={isCalculatingPolyline}

@@ -1,9 +1,9 @@
 "use client";
 
+import Select from "@atoms/Select/select";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown } from "lucide-react";
 import { successToast, errorToast } from "@/hooks/useAppToast";
 
 import Button from "@atoms/Button/button";
@@ -22,7 +22,7 @@ import useAuth from "@/hooks/useAuth";
 import useProfile from "@/hooks/queries/useProfile";
 import LoadingComponent from "@atoms/Loading/loading";
 import Input from "@atoms/Input/input";
-import EcopontoDetail from "@/components/molecules/EcopontoDetail/EcopontoDetail";
+import LocationDetail from "@/components/molecules/LocationDetail/LocationDetail";
 import PaginationControls from "@/components/molecules/PaginationControls/paginationControls";
 
 const PAGE_SIZE = 10;
@@ -44,7 +44,6 @@ const EcopontosPage = () => {
   const [nameFilter, setNameFilter] = useState("");
   const [page, setPage] = useState(0);
   const [openItem, setOpenItem] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const selectedResidueType =
     filter === "Todos"
@@ -87,7 +86,7 @@ const EcopontosPage = () => {
 
   return (
     <div style={wrapper} className="py-14">
-      <div className="mb-14 flex items-center justify-between">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 sm:mb-14">
         <Title>Ecopontos</Title>
 
         <Button
@@ -115,58 +114,22 @@ const EcopontosPage = () => {
             onChange={(event) => setNameFilter(event.target.value)}
             placeholder="Buscar por nome"
             name="nameFilter"
-            className="w-72"
+            className="w-full sm:w-72"
           />
 
-          <div className="relative">
-            <button
-              onClick={() => setIsDropdownOpen((prev) => !prev)}
-              className="flex h-11 w-64 items-center justify-between rounded-lg border border-greenBlue-800 bg-greenBebe-200 px-4 py-2 text-greenBlue-1000"
-            >
-              {filter === "Todos" ? "Todos os tipos" : filter}
-              <ChevronDown
-                size={18}
-                className={`transition-transform ${
-                  isDropdownOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {isDropdownOpen && (
-              <div className="absolute z-10 mt-2 w-64 rounded-lg border border-greenBlue-800 bg-white-1000 shadow-md">
-                <p
-                  className={`cursor-pointer px-4 py-2 hover:bg-greenBebe-200 ${
-                    filter === "Todos"
-                      ? "font-semibold text-greenBlue-1000"
-                      : "text-greenDark-800"
-                  }`}
-                  onClick={() => {
-                    setFilter("Todos");
-                    setIsDropdownOpen(false);
-                  }}
-                >
-                  Todos
-                </p>
-
-                {residuesTypesOptions.map((item) => (
-                  <p
-                    key={item.value}
-                    onClick={() => {
-                      setFilter(item.label);
-                      setIsDropdownOpen(false);
-                    }}
-                    className={`cursor-pointer px-4 py-2 hover:bg-greenBebe-200 ${
-                      filter === item.label
-                        ? "font-semibold text-greenBlue-1000"
-                        : "text-greenDark-800"
-                    }`}
-                  >
-                    {item.label}
-                  </p>
-                ))}
-              </div>
-            )}
-          </div>
+          <Select
+            aria-label="Filtrar por tipo de resíduo"
+            className="sm:w-64"
+            value={filter === "Todos" ? "" : filter}
+            onChange={(value) => setFilter(value === "" ? "Todos" : value)}
+            options={[
+              { value: "", label: "Todos os tipos" },
+              ...residuesTypesOptions.map((item) => ({
+                value: item.label,
+                label: item.label
+              }))
+            ]}
+          />
         </div>
       </div>
 
@@ -194,7 +157,35 @@ const EcopontosPage = () => {
                 }
               ],
               children: (
-                <EcopontoDetail ecoponto={point} onDelete={handleDelete} />
+                <LocationDetail
+                  lat={point.lat}
+                  lng={point.lng}
+                  address={point.description}
+                  actions={
+                    <>
+                      <Button
+                        variant="outline"
+                        className="flex items-center gap-2 px-6 py-2"
+                        classNameText="font-semibold"
+                        onClick={() =>
+                          router.push(
+                            `/ecopontos/criar-ecoponto?isEdit=true&ecopontoId=${point.id}`
+                          )
+                        }
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="flex items-center gap-2 px-6 py-2"
+                        classNameText="font-semibold"
+                        onClick={() => handleDelete(point.id)}
+                      >
+                        Excluir
+                      </Button>
+                    </>
+                  }
+                />
               )
             }))}
             itemClassName="mb-4"

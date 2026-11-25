@@ -16,7 +16,11 @@ interface UserResponseDTO {
   color?: string | null;
   // Vehicle fields
   carPlate?: string | null;
-  efficiency?: { consume: number; emission: number } | null;
+  efficiency?: {
+    consume: number;
+    emission: number;
+    fuelType?: string | null;
+  } | null;
   // Employee / Citizen fields
   cpf?: string | null;
   // City / general fields
@@ -42,6 +46,7 @@ interface UserResponseDTO {
 interface VehicleEfficiencyDTO {
   consume: number;
   emission: number;
+  fuelType?: string | null;
 }
 
 interface VehicleOutputDTO {
@@ -121,6 +126,7 @@ export interface CreateVehicleInput {
   carPlate: string;
   consume: string;
   emission: string;
+  fuelType?: string;
   cityId: string;
   email?: string;
   password?: string;
@@ -133,6 +139,13 @@ export interface UpdateUserInput {
   carPlate?: string;
   consume?: number;
   emission?: number;
+  fuelType?: string;
+  // Somente cidades (campos omitidos permanecem inalterados no backend)
+  calcData?: { landFillDeliveryCost: number; fuelCost: number };
+  address?: { localityName: string; latitude: number; longitude: number };
+  facilitatorData?: { facilitatorName: string; supportEmail: string };
+  color?: string;
+  status?: boolean;
 }
 
 // normalizeRole usa o mapper centralizado de enums do backend
@@ -167,6 +180,7 @@ function mapUserResponseToEntity(dto: UserResponseDTO): UserEntity {
     cpf: dto.cpf ?? null,
     consume: dto.efficiency?.consume?.toString() ?? null,
     emission: dto.efficiency?.emission?.toString() ?? null,
+    fuelType: dto.efficiency?.fuelType ?? null,
     fullAddress: dto.address?.fullAddress ?? null,
     latitude: dto.address?.location?.latitude ?? null,
     longitude: dto.address?.location?.longitude ?? null,
@@ -204,6 +218,7 @@ function mapVehicleOutputToEntity(dto: VehicleOutputDTO): UserEntity {
     cpf: null,
     consume: dto.efficiency?.consume?.toString() ?? null,
     emission: dto.efficiency?.emission?.toString() ?? null,
+    fuelType: dto.efficiency?.fuelType ?? null,
     fullAddress: null,
     latitude: null,
     longitude: null,
@@ -553,8 +568,8 @@ export const createUser = async (
 export const createUserDoc = createUser;
 
 /**
- * O backend (UpdateUserInput) só aceita name, email, cityId, cpf, carPlate, consume e emission;
- * outros campos (calcData, cor, endereço, status, imagem, facilitador) são ignorados.
+ * PUT /user/{id}: para cidades o backend também aceita calcData, endereço, facilitador, cor e status
+ * (a imagem ainda não é atualizável). Campos omitidos permanecem inalterados.
  * Lança em erro HTTP para que a mutation caia em onError.
  */
 export const updateUser = async (
@@ -567,8 +582,34 @@ export const updateUser = async (
     cpf: data.cpf ?? undefined,
     carPlate: data.carPlate ?? undefined,
     consume: data.consume ? parseFloat(data.consume) : undefined,
-    emission: data.emission ? parseFloat(data.emission) : undefined
+    emission: data.emission ? parseFloat(data.emission) : undefined,
+    fuelType: data.fuelType || undefined
   };
+  const landfill = data.calcData?.landfillDelivery;
+  const fuel = data.calcData?.fuel;
+  if (
+    typeof landfill === "number" &&
+    typeof fuel === "number" &&
+    Number.isFinite(landfill) &&
+    Number.isFinite(fuel)
+  ) {
+    input.calcData = { landFillDeliveryCost: landfill, fuelCost: fuel };
+  }
+  if (data.fullAddress && data.latitude != null && data.longitude != null) {
+    input.address = {
+      localityName: data.fullAddress,
+      latitude: data.latitude,
+      longitude: data.longitude
+    };
+  }
+  if (data.facilitatorName && data.supportEmail) {
+    input.facilitatorData = {
+      facilitatorName: data.facilitatorName,
+      supportEmail: data.supportEmail
+    };
+  }
+  if (data.color) input.color = data.color;
+  if (typeof data.status === "boolean") input.status = data.status;
   await apiFetch(`/user/${id}`, {
     method: "PUT",
     body: JSON.stringify(input)

@@ -73,7 +73,7 @@ const Municipios = () => {
 
   return (
     <section style={wrapper} className="space-y-[64px] pb-16">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <Title>Municípios</Title>
         {canCreateCity && (
           <Button onClick={() => router.push("/municipios/cadastrar")}>
@@ -103,25 +103,25 @@ const Municipios = () => {
       ) : (
         cities.map((city) => (
           <div
-            className="flex items-center justify-between rounded-[8px] border border-greenBlue-600 px-4 py-6"
+            className="flex flex-col gap-6 rounded-[8px] border border-greenBlue-600 px-4 py-6 lg:flex-row lg:items-center lg:justify-between"
             key={city.id}
           >
-            <div className="flex items-center gap-16">
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-6 lg:gap-16">
               <Image
                 src={city.image ?? "/random-img.png"}
                 width={300}
                 height={90}
                 alt="Imagem do município"
-                className="h-[90px] w-[300px] object-contain"
+                className="h-[70px] w-[200px] object-contain object-left sm:h-[90px] sm:w-[300px]"
                 unoptimized
               />
               <p className="text-[20px] font-medium text-greenBlue-1000">
                 {city.name}
               </p>
             </div>
-            <div className="flex items-center">
-              <div className="grid w-[700px] grid-cols-3">
-                <div className="flex flex-col gap-6 overflow-hidden">
+            <div className="flex items-start justify-between gap-3 lg:items-center">
+              <div className="grid min-w-0 flex-1 grid-cols-1 gap-4 sm:grid-cols-3 lg:w-[700px] lg:flex-none lg:gap-0">
+                <div className="flex flex-col gap-1 overflow-hidden lg:gap-6">
                   <span className="font-medium">Login</span>
                   <span className="text-[14px]">
                     {" "}
@@ -129,7 +129,7 @@ const Municipios = () => {
                     {city.email && city.email.length > 18 && "..."}
                   </span>
                 </div>
-                <div className="flex flex-col gap-6 overflow-hidden">
+                <div className="flex flex-col gap-1 overflow-hidden lg:gap-6">
                   <span className="font-medium">Facilitador</span>
                   <span className="text-[14px]">
                     {" "}
@@ -139,7 +139,7 @@ const Municipios = () => {
                       "..."}
                   </span>
                 </div>
-                <div className="flex flex-col gap-6 overflow-hidden">
+                <div className="flex flex-col gap-1 overflow-hidden lg:gap-6">
                   <span className="font-medium">Email de contato</span>
                   <span className="text-[14px]">
                     {city.supportEmail?.slice(0, 18)}
@@ -194,6 +194,7 @@ const Municipios = () => {
         onPageChange={setPage}
       />
       <ConfirmationModal
+        destructive
         title="Excluir município"
         description="Tem certeza de deseja excluir esse município? Todos os dados relativos a ele serão excluídos e não poderão ser recuperados."
         isOpen={openDeleteModal}

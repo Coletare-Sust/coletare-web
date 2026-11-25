@@ -1,60 +1,39 @@
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import React from "react";
-import { ChevronDown } from "lucide-react";
-import { twMerge } from "tailwind-merge";
+"use client";
+
+import Select from "@atoms/Select/select";
+import { cn } from "@/utils";
 
 import { DropdownProps } from "./types";
 
+/**
+ * Lista de opções com ação por item. Usa o mesmo visual do Select padrão;
+ * `value` é o texto exibido no botão.
+ */
 const Dropdown = ({
   value,
   className,
   options,
   disabled = false
 }: DropdownProps) => {
+  const isDisabled = options === undefined || options.length === 0 || disabled;
+  const selectedIndex = options?.findIndex((item) => item.label === value);
+
   return (
-    <DropdownMenu modal={false}>
-      <DropdownMenuTrigger
-        className={twMerge(
-          `cursor-pointer rounded-[8px] bg-greenBlue-1000 py-[10px] pl-[16px] pr-[10px] tracking-wide text-white-1000 ${
-            (options === undefined || options.length === 0 || disabled) &&
-            "cursor-not-allowed opacity-60"
-          }`,
-          className
-        )}
-        asChild
-      >
-        <span className="flex items-center gap-2">
-          {value}
-          <ChevronDown />
-        </span>
-      </DropdownMenuTrigger>
-      {options && !disabled && (
-        <DropdownMenuContent>
-          {options?.map((item, key) =>
-            options.indexOf(item) === options.length - 1 ? (
-              <div key={key} onClick={() => item.onClick()}>
-                <DropdownMenuItem className="cursor-pointer">
-                  {item.label}
-                </DropdownMenuItem>
-              </div>
-            ) : (
-              <div key={key} onClick={() => item.onClick()}>
-                <DropdownMenuItem className="cursor-pointer">
-                  {item.label}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-              </div>
-            )
-          )}
-        </DropdownMenuContent>
-      )}
-    </DropdownMenu>
+    <Select
+      value={
+        selectedIndex !== undefined && selectedIndex >= 0
+          ? String(selectedIndex)
+          : ""
+      }
+      onChange={(index) => options?.[Number(index)]?.onClick()}
+      options={(options ?? []).map((item, index) => ({
+        value: String(index),
+        label: item.label
+      }))}
+      placeholder={value}
+      disabled={isDisabled}
+      className={cn("w-full sm:w-auto sm:min-w-[11rem]", className)}
+    />
   );
 };
 
