@@ -46,7 +46,7 @@ const CalcData = ({ cityId }: CalcDataProps) => {
 
   return (
     <form className="space-y-12 rounded-lg bg-white-800 p-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-12">
           <Subtitle className="text-[28px]">Dados para cálculo</Subtitle>
           <DatePicker
@@ -69,7 +69,7 @@ const CalcData = ({ cityId }: CalcDataProps) => {
             </>
           }
           placeholder="Digite um valor"
-          className="w-[150px] text-center"
+          className="w-full text-center sm:w-[150px]"
           formErrorLabelClassName="self-end"
           name="landfillDelivery"
           formRegister={register}
@@ -83,7 +83,7 @@ const CalcData = ({ cityId }: CalcDataProps) => {
             </>
           }
           placeholder="Digite um valor"
-          className="w-[150px] text-center"
+          className="w-full text-center sm:w-[150px]"
           formErrorLabelClassName="self-end"
           name="fuel"
           formRegister={register}

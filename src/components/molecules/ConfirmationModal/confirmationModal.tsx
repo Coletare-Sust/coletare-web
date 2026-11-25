@@ -9,7 +9,8 @@ const ConfirmationModal = ({
   onConfirm,
   onOpenChange,
   title,
-  confirmIsLoading = false
+  confirmIsLoading = false,
+  destructive = false
 }: ConfirmationModalProps) => {
   return (
     <TransitionModal isOpen={isOpen} setIsOpen={onOpenChange}>
@@ -21,13 +22,17 @@ const ConfirmationModal = ({
         <div className="mt-4 flex justify-end">
           <div className="flex items-center gap-2">
             <Button
+              variant="outline"
               buttonType="button"
-              className="border border-greenDark-1000 bg-transparent text-greenDark-1000"
               onClick={() => onOpenChange(false)}
             >
               Cancelar
             </Button>
-            <Button onClick={onConfirm} loading={confirmIsLoading}>
+            <Button
+              variant={destructive ? "destructive" : "primary"}
+              onClick={onConfirm}
+              loading={confirmIsLoading}
+            >
               Confirmar
             </Button>
           </div>

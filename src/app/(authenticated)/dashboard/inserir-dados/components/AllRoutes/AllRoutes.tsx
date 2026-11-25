@@ -1,3 +1,4 @@
+import Select from "@atoms/Select/select";
 import { useSearchParams } from "next/navigation";
 import React from "react";
 import Title from "@atoms/Title/title";
@@ -23,25 +24,24 @@ const AllRoutes = ({ isAdmin }: AllRoutesProps) => {
     );
 
   return (
-    <section className="space-y-8 px-36">
+    <section className="space-y-8 px-0 lg:px-12 xl:px-36">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         {isAdmin && <Title>Todas as rotas </Title>}
         <div className="flex w-full max-w-[360px] flex-col gap-2">
           <label className="text-sm font-medium text-greenBlue-1000">
             Filtrar coletas por tipo de residuo
           </label>
-          <select
-            className="rounded-lg border border-greenBlue-400 bg-white-1000 px-4 py-3 outline-none focus:border-greenBlue-1000"
+          <Select
             value={residueType}
-            onChange={(event) => setResidueType(event.target.value)}
-          >
-            <option value="">Todos os tipos</option>
-            {Object.entries(RESIDUE_TYPE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+            onChange={setResidueType}
+            options={[
+              { value: "", label: "Todos os tipos" },
+              ...Object.entries(RESIDUE_TYPE_LABELS).map(([value, label]) => ({
+                value,
+                label
+              }))
+            ]}
+          />
         </div>
       </div>
       {filteredRoutes?.map((route, key) => (

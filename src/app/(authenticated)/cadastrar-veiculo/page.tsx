@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import Select from "@atoms/Select/select";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import RegisterVehicleFormSchema from "@/validations/registerVehicle";
@@ -17,6 +18,7 @@ import { successToast, errorToast } from "@/hooks/useAppToast";
 import { updateUserDoc } from "@/store/services/user";
 import { registerVehicle } from "@/store/services/auth";
 import EditVehicleFormSchema from "@/validations/editVehicle";
+import { FUEL_TYPE_LABELS } from "@/common/mappers/backendEnums";
 
 type RegisterVehicleForm = z.infer<typeof RegisterVehicleFormSchema>;
 type EditVehicleForm = z.infer<typeof EditVehicleFormSchema>;
@@ -33,6 +35,8 @@ const CadastrarVeiculoPage = () => {
     handleSubmit,
     register,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting }
   } = useForm<RegisterVehicleForm>({
     mode: "all",
@@ -43,6 +47,8 @@ const CadastrarVeiculoPage = () => {
   const {
     handleSubmit: handleSubmitEdit,
     register: registerEdit,
+    setValue: setValueEdit,
+    watch: watchEdit,
     formState: { errors: errorsEdit, isSubmitting: isSubmittingEdit }
   } = useForm<EditVehicleForm>({
     mode: "all",
@@ -53,13 +59,15 @@ const CadastrarVeiculoPage = () => {
           name: data?.name || "",
           carPlate: data?.carPlate || "",
           emission: data?.emission || "",
-          consume: data?.consume || ""
+          consume: data?.consume || "",
+          fuelType: data?.fuelType || ""
         }
       : {
           name: "",
           carPlate: "",
           emission: "",
-          consume: ""
+          consume: "",
+          fuelType: ""
         }
   });
 
@@ -78,7 +86,8 @@ const CadastrarVeiculoPage = () => {
         cityId: user?.id as string,
         carPlate: formData.carPlate,
         consume: parseFloat(formData.consume),
-        emission: parseFloat(formData.emission)
+        emission: parseFloat(formData.emission),
+        fuelType: formData.fuelType || undefined
       };
       return await registerVehicle(payload);
     },
@@ -162,6 +171,30 @@ const CadastrarVeiculoPage = () => {
             formRegister={formRegister}
             formErrors={formErrors}
           />
+          <div className="flex flex-col gap-1">
+            <label
+              htmlFor="fuelType"
+              className="font-medium text-greenDark-800"
+            >
+              Combustível
+            </label>
+            <Select
+              id="fuelType"
+              value={(isEdit ? watchEdit("fuelType") : watch("fuelType")) ?? ""}
+              onChange={(value) =>
+                isEdit
+                  ? setValueEdit("fuelType", value, { shouldDirty: true })
+                  : setValue("fuelType", value, { shouldDirty: true })
+              }
+              options={[
+                { value: "", label: "Não informado" },
+                ...Object.entries(FUEL_TYPE_LABELS).map(([value, label]) => ({
+                  value,
+                  label
+                }))
+              ]}
+            />
+          </div>
           {!isEdit && (
             <>
               <InputField

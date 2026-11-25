@@ -7,6 +7,7 @@ export default z.object({
     .min(4, "Deve ter no mínimo 4 caracteres"),
   emission: number,
   consume: number,
+  fuelType: z.string().optional(),
   carPlate: z
     .string()
     .min(7, { message: "A placa deve ter no mínimo 7 caracteres" })

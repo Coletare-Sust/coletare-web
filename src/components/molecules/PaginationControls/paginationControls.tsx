@@ -22,27 +22,29 @@ export default function PaginationControls({
   return (
     <div className="flex items-center justify-center gap-4">
       <Button
+        variant="outline"
         buttonType="button"
         disabled={page === 0 || isLoading}
         onClick={() => onPageChange(Math.max(page - 1, 0))}
         className="px-3"
       >
-        <span className="flex items-center gap-2">
+        <span className="flex items-center gap-2" aria-label="Página anterior">
           <ChevronLeft size={18} />
-          Anterior
+          <span className="hidden sm:inline">Anterior</span>
         </span>
       </Button>
       <span className="text-sm font-medium text-greenBlue-1000">
         {page + 1} de {totalPages}
       </span>
       <Button
+        variant="outline"
         buttonType="button"
         disabled={page >= totalPages - 1 || isLoading}
         onClick={() => onPageChange(Math.min(page + 1, totalPages - 1))}
         className="px-3"
       >
-        <span className="flex items-center gap-2">
-          Proxima
+        <span className="flex items-center gap-2" aria-label="Próxima página">
+          <span className="hidden sm:inline">Próxima</span>
           <ChevronRight size={18} />
         </span>
       </Button>

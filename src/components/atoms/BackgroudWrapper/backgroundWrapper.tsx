@@ -5,7 +5,7 @@ const BackgroundWrapper = ({ children, className }: BackgroundWrapperProps) => {
   return (
     <div
       className={twMerge(
-        "w-full rounded-lg bg-white-800 px-24 py-9 shadow-sm",
+        "w-full rounded-lg bg-white-800 px-4 py-6 shadow-sm sm:px-8 sm:py-9 lg:px-24",
         className
       )}
     >

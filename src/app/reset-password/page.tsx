@@ -50,7 +50,7 @@ function ResetPasswordContent() {
   if (!token) {
     content = (
       <>
-        <p className="w-[300px] text-center text-sm text-greenDark-800">
+        <p className="w-full max-w-[300px] text-center text-sm text-greenDark-800">
           Link inválido. Use o link enviado por e-mail ou solicite uma nova
           redefinição de senha na tela de login.
         </p>
@@ -62,7 +62,7 @@ function ResetPasswordContent() {
   } else if (done) {
     content = (
       <>
-        <p className="w-[300px] text-center text-sm text-greenDark-800">
+        <p className="w-full max-w-[300px] text-center text-sm text-greenDark-800">
           Senha definida com sucesso. Agora você já pode entrar com a nova
           senha.
         </p>
@@ -74,7 +74,7 @@ function ResetPasswordContent() {
   } else {
     content = (
       <>
-        <div className="flex w-[300px] flex-col items-center gap-4">
+        <div className="flex w-full max-w-[300px] flex-col items-center gap-4 [&>div]:w-full">
           <InputField
             label="Nova senha"
             placeholder="Mínimo de 8 caracteres"
@@ -82,7 +82,7 @@ function ResetPasswordContent() {
             type="password"
             formErrors={errors}
             formRegister={register}
-            className="w-[300px]"
+            className="w-full"
           />
           <InputField
             label="Confirmar senha"
@@ -91,7 +91,7 @@ function ResetPasswordContent() {
             type="password"
             formErrors={errors}
             formRegister={register}
-            className="w-[300px]"
+            className="w-full"
           />
         </div>
         <Button loading={isSubmitting}>Salvar senha</Button>
@@ -104,7 +104,7 @@ function ResetPasswordContent() {
 
   return (
     <form
-      className="flex w-[400px] flex-col items-center gap-10 rounded-lg bg-white-800 py-10"
+      className="flex w-full max-w-[400px] flex-col items-center gap-8 rounded-lg bg-white-800 px-6 py-10"
       onSubmit={handleSubmit(handleSubmitForm)}
     >
       <Image
@@ -121,7 +121,7 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <main className="flex h-screen w-full items-center justify-center">
+    <main className="flex min-h-[100dvh] w-full items-center justify-center p-4">
       <Suspense fallback={null}>
         <ResetPasswordContent />
       </Suspense>

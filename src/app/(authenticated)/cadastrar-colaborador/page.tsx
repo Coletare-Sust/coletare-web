@@ -123,7 +123,7 @@ const CadastrarVeiculoPage = () => {
           className="flex flex-col justify-center gap-4"
           onSubmit={handleSubmit(handleSubmitForm)}
         >
-          <div className="flex w-full flex-row items-start justify-between gap-24">
+          <div className="flex w-full flex-col items-center gap-8 md:flex-row md:items-start md:justify-between lg:gap-24">
             <div className="flex shrink-0 flex-col items-center">
               <ImageUploadInput
                 defaultImage={collaboratorData?.image}
@@ -140,8 +140,8 @@ const CadastrarVeiculoPage = () => {
               </p>
             </div>
 
-            <div className="flex flex-1 flex-col gap-4">
-              <div className="w-3/5">
+            <div className="flex w-full flex-1 flex-col gap-4">
+              <div className="w-full lg:w-3/5">
                 <InputField
                   label="Nome do colaborador"
                   placeholder="Digite o nome do colaborador"
@@ -151,7 +151,7 @@ const CadastrarVeiculoPage = () => {
                 />
               </div>
 
-              <div className="w-3/5">
+              <div className="w-full lg:w-3/5">
                 <InputField
                   label="Documento de identificação"
                   name="cpf"

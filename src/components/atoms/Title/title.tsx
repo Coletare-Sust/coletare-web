@@ -5,7 +5,7 @@ const Title = ({ children, className, onClick }: TitleProps) => {
   return (
     <h1
       className={twMerge(
-        "text-[30px] font-bold text-greenBlue-1000",
+        "break-words font-display text-2xl font-bold leading-tight text-greenBlue-1000 sm:text-[30px]",
         className
       )}
       onClick={onClick}
